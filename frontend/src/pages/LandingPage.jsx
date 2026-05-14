@@ -33,7 +33,7 @@ export default function LandingPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <img src={KIP_LOGO} alt="KIP" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }} className="animate-logo-glow" />
               <div>
-                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, letterSpacing: '0.12em', color: '#fff', lineHeight: 1 }}>KIP</div>
+                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, letterSpacing: '0.12em', color: '#fff', lineHeight: 1 }}> </div>
                 <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '0.04em', display: 'none' }} className="sm:block">Kwacha Intelligence Platform</div>
               </div>
             </div>
