@@ -69,8 +69,8 @@ export default function GeneralSurveyPage() {
     missing_services: '', oversaturated_sectors: '',
     power_reliability: '', internet_access: '', road_quality: '',
     dominant_income_level: '', primary_employment: '', market_days: '',
-    avg_tomato_price_per_kg: '', avg_bread_price: '',
-    avg_phone_data_1gb: '', avg_shop_rent_pm: '', avg_labor_wage_pm: '',
+    avg_mealie_meal_price: '', avg_bread_price: '',
+    avg_cooking_oil_2_5: '', avg_shop_rent_pm: '', avg_labor_wage_pm: '',
     seasonal_notes: '', other_observations: '',
   })
 
@@ -237,9 +237,9 @@ export default function GeneralSurveyPage() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {[
-              { k: 'avg_tomato_price_per_kg', l: 'Tomatoes (per kg)', p: '25' },
+              { k: 'avg_mealie_meal_price', l: 'Break Fast meali meal (25kg)', p: '300' },
               { k: 'avg_bread_price',         l: 'Bread loaf (large)', p: '35' },
-              { k: 'avg_phone_data_1gb',      l: 'Mobile data (1GB)', p: '20' },
+              { k: 'avg_cooking_oil_2_5',      l: 'Cooking Oil (2.5L)', p: '200' },
               { k: 'avg_shop_rent_pm',        l: 'Shop/stall rent (per month)', p: '2000' },
               { k: 'avg_labor_wage_pm',       l: 'Unskilled worker wage (per month)', p: '2500' },
             ].map(({ k, l, p }) => (
