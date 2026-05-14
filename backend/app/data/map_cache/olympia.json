@@ -1,0 +1,61 @@
+{
+  "location_key": "olympia",
+  "coordinates": {
+    "lat": -15.425,
+    "lon": 28.315
+  },
+  "radius_m": 800,
+  "province": "Lusaka",
+  "total_businesses_found": 18,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 4,
+  "business_counts": {
+    "Food & Drink Businesses": 6,
+    "Retail Shops": 1,
+    "Personal Services": 1,
+    "Financial Services": 0,
+    "Health Services": 4,
+    "Educational Institutions": 2,
+    "Transport & Fuel": 4,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "very_low",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Retail Shops",
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Dong Fang",
+      "Marlin Restaurant",
+      "Tuyo Latin Restaurant",
+      "Nadia's Express 24",
+      "Musubi Japanese Restaurant",
+      "Casa Portico"
+    ],
+    "Retail Shops": [
+      "The Bridal Hub"
+    ],
+    "Personal Services": [
+      "Avocado"
+    ],
+    "Health Services": [
+      "UTH COVID Test Centre",
+      "OMS Renal Care Centre",
+      "Zambian - Italian Orthopaedic Hospital",
+      "Lusaka Trust Hospital"
+    ],
+    "Educational Institutions": [
+      "UNZA Ridgeway Campus"
+    ],
+    "Transport & Fuel": [
+      "Staff car park"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

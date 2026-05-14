@@ -1,0 +1,71 @@
+{
+  "location_key": "kitwe cbd",
+  "coordinates": {
+    "lat": -12.8166,
+    "lon": 28.21
+  },
+  "radius_m": 800,
+  "province": "Copperbelt",
+  "total_businesses_found": 45,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 1,
+  "business_counts": {
+    "Food & Drink Businesses": 9,
+    "Retail Shops": 5,
+    "Personal Services": 0,
+    "Financial Services": 3,
+    "Health Services": 4,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 20,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "low",
+    "Personal Services": "none",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Kitwe Fried Chicken",
+      "Barcelo's Flame Grilled Chicken",
+      "The Hut",
+      "Mukwa Lodge",
+      "After Ten",
+      "Cosy Jo's Pub"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Airtel",
+      "Mama Africa",
+      "Mama Africa",
+      "Pick n Pay"
+    ],
+    "Financial Services": [
+      "Absa Bank",
+      "Standard Chartered"
+    ],
+    "Health Services": [
+      "Planned Parenthood Health Centre",
+      "Beatrice Memorial Medical Centre",
+      "Kitwe District Police Health Centre",
+      "Kitwe Eye Hospital"
+    ],
+    "Educational Institutions": [
+      "ZIPSIB College"
+    ],
+    "Transport & Fuel": [
+      "Power Tools Bus",
+      "TotalEnergies",
+      "Euro Bus Service Station",
+      "Power tools"
+    ],
+    "Markets & Trading Areas": [
+      "Chisokone Market"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

@@ -1,0 +1,77 @@
+{
+  "location_key": "ndola",
+  "coordinates": {
+    "lat": -12.9587,
+    "lon": 28.6366
+  },
+  "radius_m": 3000,
+  "province": "Copperbelt",
+  "total_businesses_found": 59,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 3,
+  "business_counts": {
+    "Food & Drink Businesses": 15,
+    "Retail Shops": 6,
+    "Personal Services": 0,
+    "Financial Services": 3,
+    "Health Services": 6,
+    "Educational Institutions": 16,
+    "Transport & Fuel": 12,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "medium",
+    "Personal Services": "none",
+    "Health Services": "medium"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Fiesta",
+      "Hungry Lion",
+      "KTs",
+      "Food truck",
+      "Curious",
+      "E10 Night Club"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Choppies",
+      "Pick n Pay",
+      "Shoprite",
+      "MTN Service Centre",
+      "Pick n Pay"
+    ],
+    "Financial Services": [
+      "Stannic Bank",
+      "Absa Bank",
+      "Stanbic Bank"
+    ],
+    "Health Services": [
+      "Link Pharmacy",
+      "Copperbelt Provinicial Health Office",
+      "Health View Medical Centre",
+      "Ndola Central Hospital",
+      "Arthur Davidson Hospital",
+      "Hilltop"
+    ],
+    "Educational Institutions": [
+      "Kansenshi Secondary School",
+      "Evangelical University",
+      "Angelus Nursery and Primary School",
+      "Copperbelt University school of Madicine (Michael Chilufya Sata school of Madicine)",
+      "Zambia University College Of Technology",
+      "Ndola Primary School"
+    ],
+    "Transport & Fuel": [
+      "Petroda",
+      "Lake Petroleum",
+      "Puma",
+      "SGC"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

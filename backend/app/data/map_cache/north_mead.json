@@ -1,0 +1,74 @@
+{
+  "location_key": "north mead",
+  "coordinates": {
+    "lat": -15.39,
+    "lon": 28.32
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 84,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 7,
+  "business_counts": {
+    "Food & Drink Businesses": 29,
+    "Retail Shops": 11,
+    "Personal Services": 0,
+    "Financial Services": 11,
+    "Health Services": 4,
+    "Educational Institutions": 2,
+    "Transport & Fuel": 25,
+    "Markets & Trading Areas": 2
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_high",
+    "Retail Shops": "high",
+    "Personal Services": "none",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "John Dory's",
+      "Mint",
+      "Chang Thai",
+      "The Deli",
+      "Shokanyama",
+      "Mezza Hookah Lounge"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "MTN",
+      "Airtel Center",
+      "Samsung",
+      "PEP",
+      "Jet"
+    ],
+    "Financial Services": [
+      "Ecobank"
+    ],
+    "Health Services": [
+      "Bliss Pharmacy Ltd",
+      "UNZA Health Clinic",
+      "Victoria Hospital"
+    ],
+    "Educational Institutions": [
+      "Confucius Institute",
+      "Delta College Limited"
+    ],
+    "Transport & Fuel": [
+      "Levy Car Park",
+      "Arcades Shopping Mall",
+      "East Park Mall",
+      "Ruins Car Park",
+      "School of Education Car Park",
+      "Puma Arcades"
+    ],
+    "Markets & Trading Areas": [
+      "Kalundu Market",
+      "Sunday Crafts Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

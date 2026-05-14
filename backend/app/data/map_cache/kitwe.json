@@ -1,0 +1,88 @@
+{
+  "location_key": "kitwe",
+  "coordinates": {
+    "lat": -12.8167,
+    "lon": 28.2167
+  },
+  "radius_m": 3000,
+  "province": "Copperbelt",
+  "total_businesses_found": 128,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 3,
+  "business_counts": {
+    "Food & Drink Businesses": 30,
+    "Retail Shops": 13,
+    "Personal Services": 2,
+    "Financial Services": 6,
+    "Health Services": 22,
+    "Educational Institutions": 14,
+    "Transport & Fuel": 40,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_high",
+    "Retail Shops": "high",
+    "Personal Services": "very_low",
+    "Health Services": "very_high"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "King Pie 2Go",
+      "Copper Eagle Spur",
+      "Hungry Lion",
+      "Kitwe Fried Chicken",
+      "Monalisa Pizza",
+      "Wimpy"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Supersave",
+      "Engen One Stop",
+      "Truworths",
+      "Markham",
+      "Foschini"
+    ],
+    "Personal Services": [
+      "Punto Seven",
+      "Barber"
+    ],
+    "Financial Services": [
+      "Absa Bank",
+      "FNB",
+      "FNB",
+      "Absa Bank",
+      "Standard Chartered"
+    ],
+    "Health Services": [
+      "Buchi Main Urban Health Centre",
+      "Tinna Medical Centre",
+      "Bauleni Health Centre",
+      "Hillbengrace Medical Centre",
+      "Lubambe Medical and Wellness Services",
+      "Planned Parenthood Health Centre"
+    ],
+    "Educational Institutions": [
+      "Muntam Academy",
+      "Cindi Primary",
+      "ZIPSIB College",
+      "Silver Oark School",
+      "Mukuba Secondary School",
+      "Copperbelt University"
+    ],
+    "Transport & Fuel": [
+      "TotalEnergies",
+      "Engen",
+      "Power Tools Bus",
+      "TotalEnergies",
+      "KMB Bus Station",
+      "Puma Filling Station"
+    ],
+    "Markets & Trading Areas": [
+      "Chisokone Market"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

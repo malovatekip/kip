@@ -1,0 +1,66 @@
+{
+  "location_key": "victoria falls area",
+  "coordinates": {
+    "lat": -17.9243,
+    "lon": 25.8572
+  },
+  "radius_m": 2000,
+  "province": "Southern",
+  "total_businesses_found": 46,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 3,
+  "business_counts": {
+    "Food & Drink Businesses": 19,
+    "Retail Shops": 3,
+    "Personal Services": 1,
+    "Financial Services": 6,
+    "Health Services": 0,
+    "Educational Institutions": 1,
+    "Transport & Fuel": 16,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "low",
+    "Personal Services": "very_low",
+    "Health Services": "none"
+  },
+  "identified_gaps": [
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Mama Africa",
+      "In Da Belly",
+      "The Rainforest Cafe",
+      "Lola's Tapas and Carnivore Restaurant",
+      "Bungee Restaurant",
+      "Coffee & Refreshment Centre"
+    ],
+    "Retail Shops": [
+      "Rainbow Zebra",
+      "Raincoat Hire",
+      "Tile and Carpet"
+    ],
+    "Personal Services": [
+      "The Haven Relaxation & Beauty Spa"
+    ],
+    "Financial Services": [
+      "Standard National Bank",
+      "Barclays",
+      "Absa Bank",
+      "POSB",
+      "Banc ABC"
+    ],
+    "Educational Institutions": [
+      "Palm Grove"
+    ],
+    "Transport & Fuel": [
+      "Total",
+      "Taxi to Livingstone",
+      "Parking Lot for Victora Falls Park"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

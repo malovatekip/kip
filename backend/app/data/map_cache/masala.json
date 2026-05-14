@@ -1,0 +1,62 @@
+{
+  "location_key": "masala",
+  "coordinates": {
+    "lat": -12.97,
+    "lon": 28.65
+  },
+  "radius_m": 1200,
+  "province": "Copperbelt",
+  "total_businesses_found": 18,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 2,
+  "business_counts": {
+    "Food & Drink Businesses": 8,
+    "Retail Shops": 2,
+    "Personal Services": 0,
+    "Financial Services": 2,
+    "Health Services": 1,
+    "Educational Institutions": 2,
+    "Transport & Fuel": 3,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "very_low",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Hungry Lion",
+      "KTs",
+      "Food truck",
+      "Curious",
+      "E10 Night Club",
+      "Clove Cafe Restaurant and Bar"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Pick n Pay"
+    ],
+    "Financial Services": [
+      "Stannic Bank",
+      "Absa Bank"
+    ],
+    "Health Services": [
+      "Health View Medical Centre"
+    ],
+    "Educational Institutions": [
+      "Ndola Primary School",
+      "Dominican Convent School"
+    ],
+    "Transport & Fuel": [
+      "SGC"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

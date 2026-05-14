@@ -1,0 +1,90 @@
+{
+  "location_key": "chipata",
+  "coordinates": {
+    "lat": -13.65,
+    "lon": 32.65
+  },
+  "radius_m": 2000,
+  "province": "Eastern",
+  "total_businesses_found": 64,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 43,
+  "business_counts": {
+    "Food & Drink Businesses": 5,
+    "Retail Shops": 11,
+    "Personal Services": 1,
+    "Financial Services": 13,
+    "Health Services": 6,
+    "Educational Institutions": 13,
+    "Transport & Fuel": 9,
+    "Markets & Trading Areas": 6
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "low",
+    "Retail Shops": "high",
+    "Personal Services": "very_low",
+    "Health Services": "medium"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Casa Restaurant",
+      "Panarotis Pizza",
+      "Steers",
+      "Aunt Mercy's",
+      "Debonairs Pizza"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Spar",
+      "Ken booth/we offer sim cutting,phone accessries and many more",
+      "PEP",
+      "Choppies",
+      "Bata"
+    ],
+    "Personal Services": [
+      "Yellow shop umodzi"
+    ],
+    "Financial Services": [
+      "Indo Zambia Bank",
+      "Access Bank",
+      "UBA",
+      "Natsave",
+      "ZICB",
+      "FNB"
+    ],
+    "Health Services": [
+      "Chipata One Stop Centre",
+      "ALTAF Memorial Hospital",
+      "Chipata Health Centre",
+      "Ft Jamieson",
+      "Chipata Central Hospital"
+    ],
+    "Educational Institutions": [
+      "Syambizya School",
+      "Hillside Primary School",
+      "Hillside Girls Secondary School",
+      "Mpezeni Park School",
+      "Lunkhwakwa Primary School",
+      "St Anne's Primary School"
+    ],
+    "Transport & Fuel": [
+      "Meru",
+      "Mbanyane Bus Station",
+      "Lunkhwakwa Bus Station",
+      "Comesa Bus Station",
+      "Border Taxi",
+      "Hillside Taxi Rank"
+    ],
+    "Markets & Trading Areas": [
+      "Central Market",
+      "Kapata Market",
+      "Saturday Market (is actually every day)",
+      "Kaumbwe Market",
+      "Magazine Market"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

@@ -1,0 +1,96 @@
+{
+  "location_key": "lusaka",
+  "coordinates": {
+    "lat": -15.4167,
+    "lon": 28.2833
+  },
+  "radius_m": 3000,
+  "province": "Lusaka",
+  "total_businesses_found": 361,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 47,
+  "business_counts": {
+    "Food & Drink Businesses": 70,
+    "Retail Shops": 69,
+    "Personal Services": 12,
+    "Financial Services": 30,
+    "Health Services": 26,
+    "Educational Institutions": 38,
+    "Transport & Fuel": 98,
+    "Markets & Trading Areas": 18
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_high",
+    "Retail Shops": "very_high",
+    "Personal Services": "high",
+    "Health Services": "very_high"
+  },
+  "identified_gaps": [],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Santorini",
+      "ChitChat",
+      "KFC",
+      "Meraki",
+      "Ababa House",
+      "Debonnairs"
+    ],
+    "Retail Shops": [
+      "Northmead",
+      "Choppies Superstore",
+      "bk hundt",
+      "Bata",
+      "Masben Tailors and General Dealers",
+      "Fine Transactions Multi Service"
+    ],
+    "Personal Services": [
+      "Cutz/Brands",
+      "Sakina Wigs and Cosmetics",
+      "Muntu Eka Car Wash",
+      "Esther's Salon",
+      "American Baber Shop",
+      "De-Lu-Sther Salon"
+    ],
+    "Financial Services": [
+      "Absa Bank",
+      "UBA",
+      "First Capital Bank Zambia Limited",
+      "ZANACO",
+      "Standard Chartered",
+      "ZANACO Premium House"
+    ],
+    "Health Services": [
+      "Just Glow Enterprises LTD",
+      "Advanced Diagnostic Centre",
+      "Link Pharmacy",
+      "Dr Agarwal's Eye Hospital",
+      "Yashfin Chemist",
+      "Clinic For Natural Medicine"
+    ],
+    "Educational Institutions": [
+      "King's Highway SDA School",
+      "Monique Pre And Primary School",
+      "National Institute of Public Administration",
+      "Chinese International School",
+      "Springfields Primary School",
+      "Monique Primary School"
+    ],
+    "Transport & Fuel": [
+      "Puma",
+      "Ravasia",
+      "Puma",
+      "TotalEnergies Great North Road B",
+      "TotalEnergies",
+      "Impala Service Station"
+    ],
+    "Markets & Trading Areas": [
+      "Lumumba road side market",
+      "City Market",
+      "Kabwata Site and Service Market",
+      "Chachacha Market",
+      "Northmead Market",
+      "New Soweto Market"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

@@ -1,0 +1,52 @@
+{
+  "location_key": "emmasdale",
+  "coordinates": {
+    "lat": -15.42,
+    "lon": 28.27
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 14,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 4,
+  "business_counts": {
+    "Food & Drink Businesses": 1,
+    "Retail Shops": 2,
+    "Personal Services": 0,
+    "Financial Services": 2,
+    "Health Services": 0,
+    "Educational Institutions": 0,
+    "Transport & Fuel": 4,
+    "Markets & Trading Areas": 5
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_low",
+    "Retail Shops": "very_low",
+    "Personal Services": "none",
+    "Health Services": "none"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Ponchick"
+    ],
+    "Retail Shops": [
+      "Jack & Jill",
+      "Choppies"
+    ],
+    "Financial Services": [
+      "Absa Bank"
+    ],
+    "Markets & Trading Areas": [
+      "Lumumba road side market",
+      "City Market",
+      "New Soweto Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

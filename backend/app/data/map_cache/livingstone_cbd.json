@@ -1,0 +1,88 @@
+{
+  "location_key": "livingstone cbd",
+  "coordinates": {
+    "lat": -17.85,
+    "lon": 25.86
+  },
+  "radius_m": 800,
+  "province": "Southern",
+  "total_businesses_found": 81,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 1,
+  "business_counts": {
+    "Food & Drink Businesses": 20,
+    "Retail Shops": 21,
+    "Personal Services": 9,
+    "Financial Services": 9,
+    "Health Services": 6,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 10,
+    "Markets & Trading Areas": 3
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "very_high",
+    "Personal Services": "medium",
+    "Health Services": "medium"
+  },
+  "identified_gaps": [],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Hungry Lion",
+      "Hungry Lion",
+      "Ann's Steak House",
+      "Café Zambezi",
+      "Da Fusion",
+      "Da Canton"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Just Fab",
+      "PEP",
+      "PEP",
+      "LG",
+      "Airtel"
+    ],
+    "Personal Services": [
+      "Chrisrab Boutique",
+      "Barbershop",
+      "Limpos Barber Shop",
+      "Sam The Barber",
+      "Aunty B Beauty Saloon",
+      "Vastrina Stylist & Barbershop"
+    ],
+    "Financial Services": [
+      "FNB",
+      "Absa Bank",
+      "Zanaco",
+      "Finance Bank Zambia",
+      "Investrust"
+    ],
+    "Health Services": [
+      "Livingstone Pharmacy",
+      "Health & Glow",
+      "Link Pharmacy",
+      "Fallstown Pharmacy",
+      "Police Clinic",
+      "Southern Medical Centre"
+    ],
+    "Educational Institutions": [
+      "Holy Cross Convent Junior School",
+      "Zambezei School",
+      "David Livingstone Secondary School"
+    ],
+    "Transport & Fuel": [
+      "TotalEnergies",
+      "Puma",
+      "Rubis",
+      "Victoria Falls Taxi Rank",
+      "Engen",
+      "Bit Taxi"
+    ],
+    "Markets & Trading Areas": [
+      "Mukuni Curio Market",
+      "City Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

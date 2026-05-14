@@ -1,0 +1,75 @@
+{
+  "location_key": "kalingalinga",
+  "coordinates": {
+    "lat": -15.4,
+    "lon": 28.3
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 58,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 5,
+  "business_counts": {
+    "Food & Drink Businesses": 25,
+    "Retail Shops": 5,
+    "Personal Services": 1,
+    "Financial Services": 4,
+    "Health Services": 5,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 11,
+    "Markets & Trading Areas": 3
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_high",
+    "Retail Shops": "low",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Nando's",
+      "Steers",
+      "Debonairs Pizza",
+      "Dairy Lane",
+      "Copper Creek Spur",
+      "Barcelo's"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Northmead",
+      "Game",
+      "Leen",
+      "Melisa Supermarket"
+    ],
+    "Personal Services": [
+      "Feven Cut N Style"
+    ],
+    "Financial Services": [
+      "Stanbic Bank"
+    ],
+    "Health Services": [
+      "L.J Eye Clinic",
+      "Mars Clinic",
+      "Coptic Hospital",
+      "Lusaka Chiropractic & Wellness"
+    ],
+    "Educational Institutions": [
+      "Chinese International School",
+      "Northmead Primary School",
+      "Rhodes Park School",
+      "Berea Theological University"
+    ],
+    "Transport & Fuel": [
+      "Manda Hill",
+      "Puma",
+      "St Columbas"
+    ],
+    "Markets & Trading Areas": [
+      "Northmead Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

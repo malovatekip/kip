@@ -1,0 +1,47 @@
+{
+  "location_key": "kansenshi",
+  "coordinates": {
+    "lat": -12.945,
+    "lon": 28.625
+  },
+  "radius_m": 1000,
+  "province": "Copperbelt",
+  "total_businesses_found": 6,
+  "transport_accessibility": "limited_public_transport",
+  "bus_stops_found": 0,
+  "business_counts": {
+    "Food & Drink Businesses": 1,
+    "Retail Shops": 0,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 0,
+    "Educational Institutions": 5,
+    "Transport & Fuel": 0,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_low",
+    "Retail Shops": "none",
+    "Personal Services": "none",
+    "Health Services": "none"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Fiesta"
+    ],
+    "Educational Institutions": [
+      "Angelus Nursery and Primary School",
+      "Kasenshi High School",
+      "Chifubu Secondary School",
+      "Mawilo Primary School",
+      "Twikatane Ndola Vocational Training Centre"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

@@ -1,0 +1,71 @@
+{
+  "location_key": "avondale",
+  "coordinates": {
+    "lat": -15.395,
+    "lon": 28.305
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 49,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 2,
+  "business_counts": {
+    "Food & Drink Businesses": 19,
+    "Retail Shops": 2,
+    "Personal Services": 1,
+    "Financial Services": 6,
+    "Health Services": 1,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 14,
+    "Markets & Trading Areas": 2
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "very_low",
+    "Personal Services": "very_low",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Nando's",
+      "Steers",
+      "Debonairs Pizza",
+      "Dairy Lane",
+      "Copper Creek Spur",
+      "Barcelo's"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Game"
+    ],
+    "Personal Services": [
+      "Feven Cut N Style"
+    ],
+    "Financial Services": [
+      "Stanbic Bank",
+      "Stanbic Bank"
+    ],
+    "Health Services": [
+      "Coptic Hospital"
+    ],
+    "Educational Institutions": [
+      "Northmead Primary School",
+      "Rhodes Park School",
+      "Berea Theological University",
+      "Temwani School"
+    ],
+    "Transport & Fuel": [
+      "Manda Hill",
+      "Puma"
+    ],
+    "Markets & Trading Areas": [
+      "Olympia Park Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

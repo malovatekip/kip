@@ -1,0 +1,52 @@
+{
+  "location_key": "mass media",
+  "coordinates": {
+    "lat": -15.375,
+    "lon": 28.29
+  },
+  "radius_m": 800,
+  "province": "Lusaka",
+  "total_businesses_found": 15,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 7,
+  "business_counts": {
+    "Food & Drink Businesses": 7,
+    "Retail Shops": 0,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 2,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 2,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "none",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Chama's bar",
+      "Gift bottle",
+      "Paka chulu bar",
+      "Pintus bar",
+      "Sempele bar",
+      "Plundence bwalya"
+    ],
+    "Health Services": [
+      "Kumera Pharmacy",
+      "Chipata Level One"
+    ],
+    "Educational Institutions": [
+      "Simon Mwansa Kapwepwe Primary School",
+      "Flying Bird Academy"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

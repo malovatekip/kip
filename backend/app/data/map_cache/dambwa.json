@@ -1,0 +1,36 @@
+{
+  "location_key": "dambwa",
+  "coordinates": {
+    "lat": -17.83,
+    "lon": 25.84
+  },
+  "radius_m": 1000,
+  "province": "Southern",
+  "total_businesses_found": 0,
+  "transport_accessibility": "limited_public_transport",
+  "bus_stops_found": 0,
+  "business_counts": {
+    "Food & Drink Businesses": 0,
+    "Retail Shops": 0,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 0,
+    "Educational Institutions": 0,
+    "Transport & Fuel": 0,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "none",
+    "Retail Shops": "none",
+    "Personal Services": "none",
+    "Health Services": "none"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {},
+  "fetched_at": "2026-04-10"
+}

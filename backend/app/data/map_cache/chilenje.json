@@ -1,0 +1,70 @@
+{
+  "location_key": "chilenje",
+  "coordinates": {
+    "lat": -15.43,
+    "lon": 28.27
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 34,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 1,
+  "business_counts": {
+    "Food & Drink Businesses": 4,
+    "Retail Shops": 13,
+    "Personal Services": 4,
+    "Financial Services": 0,
+    "Health Services": 3,
+    "Educational Institutions": 2,
+    "Transport & Fuel": 4,
+    "Markets & Trading Areas": 4
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "low",
+    "Retail Shops": "high",
+    "Personal Services": "low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Cox5 Pub",
+      "Cox5 Pub",
+      "Fresh Point Pub & Grill Titanic",
+      "Fresh Point Pub & Grill Titanic"
+    ],
+    "Retail Shops": [
+      "Masben Tailors and General Dealers",
+      "Fine Transactions Multi Service",
+      "STV Investments",
+      "Nadine",
+      "Bukere Grocery",
+      "Best price shop"
+    ],
+    "Personal Services": [
+      "Sakina Wigs and Cosmetics",
+      "Muntu Eka Car Wash",
+      "PD barbershop",
+      "PD barbershop"
+    ],
+    "Health Services": [
+      "Clinic For Natural Medicine",
+      "Clinic For Natural Medicine",
+      "Kanyama Clinic"
+    ],
+    "Educational Institutions": [
+      "Chibolya Primary School"
+    ],
+    "Transport & Fuel": [
+      "Puma Filling Station",
+      "TotalEnergies",
+      "Generals Car Park"
+    ],
+    "Markets & Trading Areas": [
+      "New Soweto Market",
+      "Chibolya Market",
+      "Bwafwano Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

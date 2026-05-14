@@ -1,0 +1,76 @@
+{
+  "location_key": "mkushi",
+  "coordinates": {
+    "lat": -13.6167,
+    "lon": 29.4
+  },
+  "radius_m": 1200,
+  "province": "Central",
+  "total_businesses_found": 30,
+  "transport_accessibility": "limited_public_transport",
+  "bus_stops_found": 0,
+  "business_counts": {
+    "Food & Drink Businesses": 7,
+    "Retail Shops": 8,
+    "Personal Services": 1,
+    "Financial Services": 4,
+    "Health Services": 4,
+    "Educational Institutions": 1,
+    "Transport & Fuel": 2,
+    "Markets & Trading Areas": 3
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "medium",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Swallows",
+      "ATB",
+      "Latitude 30",
+      "Choice Nisa Take Away",
+      "Nes Cafe",
+      "Katota Restaurant"
+    ],
+    "Retail Shops": [
+      "Pep",
+      "Sunshine",
+      "Dormita",
+      "Airtel",
+      "DAPP",
+      "The Greener Store"
+    ],
+    "Personal Services": [
+      "Jackie's beauty shop"
+    ],
+    "Financial Services": [
+      "Stanbic Bank",
+      "FNB",
+      "ZANACO"
+    ],
+    "Health Services": [
+      "Five Star Pharmacy",
+      "Chibefwe Clinic",
+      "Chibefwe Clinic",
+      "Mkushi District Hospital"
+    ],
+    "Educational Institutions": [
+      "Mulundu Primary School"
+    ],
+    "Transport & Fuel": [
+      "Minibus Station",
+      "TotalEnergies"
+    ],
+    "Markets & Trading Areas": [
+      "New Market",
+      "Vegetable Sellers",
+      "New Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

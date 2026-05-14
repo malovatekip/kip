@@ -1,0 +1,51 @@
+{
+  "location_key": "ibex hill",
+  "coordinates": {
+    "lat": -15.46,
+    "lon": 28.34
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 11,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 3,
+  "business_counts": {
+    "Food & Drink Businesses": 0,
+    "Retail Shops": 4,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 0,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 3,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "none",
+    "Retail Shops": "low",
+    "Personal Services": "none",
+    "Health Services": "none"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Retail Shops": [
+      "Shoprite",
+      "Goodies Nest"
+    ],
+    "Educational Institutions": [
+      "Glory Academy Primary School",
+      "Muyooma Primary School",
+      "Tum Secondary School"
+    ],
+    "Transport & Fuel": [
+      "UCZ School & Car Park"
+    ],
+    "Markets & Trading Areas": [
+      "Munyaule market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

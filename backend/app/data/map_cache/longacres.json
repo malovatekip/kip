@@ -1,0 +1,63 @@
+{
+  "location_key": "longacres",
+  "coordinates": {
+    "lat": -15.405,
+    "lon": 28.295
+  },
+  "radius_m": 800,
+  "province": "Lusaka",
+  "total_businesses_found": 29,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 4,
+  "business_counts": {
+    "Food & Drink Businesses": 11,
+    "Retail Shops": 3,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 5,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 4,
+    "Markets & Trading Areas": 2
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "low",
+    "Personal Services": "none",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "ChitChat",
+      "Pizza Inn",
+      "Galito's",
+      "Sushi Mai",
+      "Konka",
+      "P&B"
+    ],
+    "Retail Shops": [
+      "Northmead",
+      "Leen",
+      "Melisa Supermarket"
+    ],
+    "Health Services": [
+      "Advanced Diagnostic Centre",
+      "Pearl of Health",
+      "HealthCure Pharmacy",
+      "L.J Eye Clinic",
+      "Mars Clinic"
+    ],
+    "Educational Institutions": [
+      "Chinese International School",
+      "Northmead Primary School",
+      "Rhodes Park School",
+      "Berea Theological University"
+    ],
+    "Markets & Trading Areas": [
+      "Northmead Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

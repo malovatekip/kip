@@ -1,0 +1,50 @@
+# ── Node / Frontend ──────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# ── Python / Backend ─────────────────────────────────────
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Database ──────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Environment & Secrets ─────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── KIP Knowledge Base (large, rebuilt on setup) ─────────
+#kip_knowledge_db/
+app/data/map_cache/
+
+# ── IDE & OS ──────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Coverage & Testing ────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/

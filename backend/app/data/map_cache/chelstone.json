@@ -1,0 +1,63 @@
+{
+  "location_key": "chelstone",
+  "coordinates": {
+    "lat": -15.435,
+    "lon": 28.34
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 35,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 5,
+  "business_counts": {
+    "Food & Drink Businesses": 7,
+    "Retail Shops": 4,
+    "Personal Services": 0,
+    "Financial Services": 3,
+    "Health Services": 1,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 14,
+    "Markets & Trading Areas": 3
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "low",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Muskaan",
+      "Blue Moon Cafe",
+      "O'Hagans",
+      "GBFC (Green Buffaloes FC) Pub & Grill",
+      "Galito's",
+      "Debonairs Pizza"
+    ],
+    "Retail Shops": [
+      "Pick n Pay",
+      "Victory Park Chen's Mall",
+      "Shoprite"
+    ],
+    "Health Services": [
+      "Link"
+    ],
+    "Educational Institutions": [
+      "Woodlands Baptist Church",
+      "Woodland Primary School",
+      "Chilenge Primary School"
+    ],
+    "Transport & Fuel": [
+      "Puma Mosi O Tunya",
+      "Woodlands Mall"
+    ],
+    "Markets & Trading Areas": [
+      "Woodlands Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

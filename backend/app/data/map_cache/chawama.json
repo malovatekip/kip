@@ -1,0 +1,71 @@
+{
+  "location_key": "chawama",
+  "coordinates": {
+    "lat": -15.46,
+    "lon": 28.27
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 38,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 4,
+  "business_counts": {
+    "Food & Drink Businesses": 14,
+    "Retail Shops": 8,
+    "Personal Services": 1,
+    "Financial Services": 3,
+    "Health Services": 3,
+    "Educational Institutions": 2,
+    "Transport & Fuel": 6,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "medium",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "King Pie",
+      "Hungry Lion",
+      "Social @ Makeni",
+      "Nando's",
+      "La Vida Cafe",
+      "Safe Takeaway"
+    ],
+    "Retail Shops": [
+      "Pick n Pay",
+      "Shoprite",
+      "Game Store",
+      "Mobile City",
+      "Home World",
+      "Airtel"
+    ],
+    "Personal Services": [
+      "NC Hair Studio"
+    ],
+    "Financial Services": [
+      "Zanaco"
+    ],
+    "Health Services": [
+      "Abo Abbas Pharmacy",
+      "Kumera Pharmacy",
+      "Lusaka Eye Hospital"
+    ],
+    "Educational Institutions": [
+      "Twatasha Primary School",
+      "Gemstone Wonderland"
+    ],
+    "Transport & Fuel": [
+      "Engen Filling Station",
+      "Petroda Chawama",
+      "Engen Filling Station",
+      "Meru Filling Station"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

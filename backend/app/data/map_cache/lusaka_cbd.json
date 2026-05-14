@@ -1,0 +1,88 @@
+{
+  "location_key": "lusaka cbd",
+  "coordinates": {
+    "lat": -15.4166,
+    "lon": 28.2833
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 131,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 5,
+  "business_counts": {
+    "Food & Drink Businesses": 24,
+    "Retail Shops": 27,
+    "Personal Services": 1,
+    "Financial Services": 19,
+    "Health Services": 7,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 43,
+    "Markets & Trading Areas": 6
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_high",
+    "Retail Shops": "very_high",
+    "Personal Services": "very_low",
+    "Health Services": "medium"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "KFC",
+      "Debonnairs",
+      "Steers",
+      "Mugg & Bean",
+      "Gallito's",
+      "Creamy Inn"
+    ],
+    "Retail Shops": [
+      "Bata",
+      "Radian Stores",
+      "Homer Enterprises",
+      "Mobile City",
+      "AA Electronics",
+      "Sony"
+    ],
+    "Personal Services": [
+      "Cutz/Brands"
+    ],
+    "Financial Services": [
+      "Absa Bank",
+      "UBA",
+      "ZANACO",
+      "Standard Chartered",
+      "ZANACO Premium House",
+      "Stanbic"
+    ],
+    "Health Services": [
+      "Link Pharmacy",
+      "Yashfin Chemist",
+      "Corp Med Clinic",
+      "Lusaka Chemist",
+      "Temwai pharmacy",
+      "Southgate Pharmacy"
+    ],
+    "Educational Institutions": [
+      "National Institute of Public Administration",
+      "The ZCAS University",
+      "Evelyn Hone College",
+      "Zambia Centre for Accountancy Studies"
+    ],
+    "Transport & Fuel": [
+      "Puma",
+      "Ravasia",
+      "Puma",
+      "TotalEnergies",
+      "Puma Energy Intercity",
+      "Millennium Bus Station"
+    ],
+    "Markets & Trading Areas": [
+      "Lumumba road side market",
+      "City Market",
+      "Chachacha Market"
+    ]
+  },
+  "fetched_at": "2026-03-30"
+}

@@ -1,0 +1,76 @@
+{
+  "location_key": "solwezi",
+  "coordinates": {
+    "lat": -12.1744,
+    "lon": 26.3912
+  },
+  "radius_m": 2000,
+  "province": "North-Western",
+  "total_businesses_found": 71,
+  "transport_accessibility": "limited_public_transport",
+  "bus_stops_found": 0,
+  "business_counts": {
+    "Food & Drink Businesses": 7,
+    "Retail Shops": 12,
+    "Personal Services": 1,
+    "Financial Services": 9,
+    "Health Services": 1,
+    "Educational Institutions": 7,
+    "Transport & Fuel": 29,
+    "Markets & Trading Areas": 5
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "high",
+    "Personal Services": "very_low",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Yummylicious",
+      "Expresso Chicken",
+      "Hungry Lion",
+      "Mahak's",
+      "Kwesu"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Pick n Pay",
+      "MTN",
+      "Fashion World",
+      "PEP",
+      "Mud"
+    ],
+    "Financial Services": [
+      "Atlasmara Banc",
+      "Zanaco Bank",
+      "Absa Bank",
+      "Access",
+      "Inestrust",
+      "FNB"
+    ],
+    "Educational Institutions": [
+      "Nursery School",
+      "Solwezi Urban Secondary School",
+      "Tumvananai Secondary School",
+      "Kyawama Secondary School",
+      "Solwezi Trades Technical Secondary School",
+      "Solwezi Trades Technical Institute"
+    ],
+    "Transport & Fuel": [
+      "Meru",
+      "Solwezi Bus Station",
+      "TotalEnergies"
+    ],
+    "Markets & Trading Areas": [
+      "City Mall",
+      "Kyawama Market",
+      "Solwezi City Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

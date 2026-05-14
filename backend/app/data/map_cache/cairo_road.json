@@ -1,0 +1,82 @@
+{
+  "location_key": "cairo road",
+  "coordinates": {
+    "lat": -15.4166,
+    "lon": 28.2833
+  },
+  "radius_m": 800,
+  "province": "Lusaka",
+  "total_businesses_found": 90,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 4,
+  "business_counts": {
+    "Food & Drink Businesses": 19,
+    "Retail Shops": 20,
+    "Personal Services": 1,
+    "Financial Services": 13,
+    "Health Services": 5,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 25,
+    "Markets & Trading Areas": 4
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "high",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "KFC",
+      "Debonnairs",
+      "Steers",
+      "Mugg & Bean",
+      "Gallito's",
+      "Creamy Inn"
+    ],
+    "Retail Shops": [
+      "Bata",
+      "Radian Stores",
+      "Homer Enterprises",
+      "Mobile City",
+      "Sony",
+      "Food Lover's Market"
+    ],
+    "Personal Services": [
+      "Cutz/Brands"
+    ],
+    "Financial Services": [
+      "UBA",
+      "Standard Chartered",
+      "Stanbic"
+    ],
+    "Health Services": [
+      "Link Pharmacy",
+      "Yashfin Chemist",
+      "Corp Med Clinic",
+      "Lusaka Chemist",
+      "Temwai pharmacy"
+    ],
+    "Educational Institutions": [
+      "The ZCAS University",
+      "Evelyn Hone College",
+      "Zambia Centre for Accountancy Studies"
+    ],
+    "Transport & Fuel": [
+      "Puma",
+      "Ravasia",
+      "Puma",
+      "TotalEnergies",
+      "Puma Energy Intercity",
+      "Millennium Bus Station"
+    ],
+    "Markets & Trading Areas": [
+      "City Market",
+      "Chachacha Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

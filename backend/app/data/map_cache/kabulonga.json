@@ -1,0 +1,50 @@
+{
+  "location_key": "kabulonga",
+  "coordinates": {
+    "lat": -15.45,
+    "lon": 28.32
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 11,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 1,
+  "business_counts": {
+    "Food & Drink Businesses": 0,
+    "Retail Shops": 1,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 1,
+    "Educational Institutions": 4,
+    "Transport & Fuel": 3,
+    "Markets & Trading Areas": 2
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "none",
+    "Retail Shops": "very_low",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Retail Shops": [
+      "Cheers Libala"
+    ],
+    "Health Services": [
+      "Sino-Zambia Friendship Hospital"
+    ],
+    "Educational Institutions": [
+      "Rock of Ages Primary School",
+      "Libala High School"
+    ],
+    "Markets & Trading Areas": [
+      "Libala Stage 4A Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

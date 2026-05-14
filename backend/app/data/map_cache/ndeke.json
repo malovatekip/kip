@@ -1,0 +1,76 @@
+{
+  "location_key": "ndeke",
+  "coordinates": {
+    "lat": -12.8,
+    "lon": 28.215
+  },
+  "radius_m": 1000,
+  "province": "Copperbelt",
+  "total_businesses_found": 40,
+  "transport_accessibility": "some_public_transport",
+  "bus_stops_found": 1,
+  "business_counts": {
+    "Food & Drink Businesses": 13,
+    "Retail Shops": 6,
+    "Personal Services": 0,
+    "Financial Services": 1,
+    "Health Services": 6,
+    "Educational Institutions": 6,
+    "Transport & Fuel": 8,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "high",
+    "Retail Shops": "medium",
+    "Personal Services": "none",
+    "Health Services": "medium"
+  },
+  "identified_gaps": [
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Copper Eagle Spur",
+      "Hungry Lion",
+      "Monalisa Pizza",
+      "Pizza Hut",
+      "Nando's",
+      "Xiangyun Restaurant"
+    ],
+    "Retail Shops": [
+      "Supersave",
+      "Truworths",
+      "Markham",
+      "Foschini",
+      "Shoprite",
+      "Pick n Pay"
+    ],
+    "Financial Services": [
+      "FNB"
+    ],
+    "Health Services": [
+      "Buchi Main Urban Health Centre",
+      "Tinna Medical Centre",
+      "Royal Medical Center",
+      "Speciality Emergency Services (Kitwe)",
+      "Kitwe Teaching Hospital",
+      "Tina Medical Centre"
+    ],
+    "Educational Institutions": [
+      "Muntam Academy",
+      "Cindi Primary",
+      "Mukuba Secondary School",
+      "Lechwe School",
+      "Kitwe Boys Primary School",
+      "Hellen Kaunda Girls Secondary School"
+    ],
+    "Transport & Fuel": [
+      "TotalEnergies",
+      "Puma Filling Station",
+      "Parklands Parking",
+      "Mukuba Mall Taxis",
+      "Mukuba Mall Parking"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

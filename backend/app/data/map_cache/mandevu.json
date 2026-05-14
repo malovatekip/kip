@@ -1,0 +1,72 @@
+{
+  "location_key": "mandevu",
+  "coordinates": {
+    "lat": -15.38,
+    "lon": 28.26
+  },
+  "radius_m": 1200,
+  "province": "Lusaka",
+  "total_businesses_found": 29,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 13,
+  "business_counts": {
+    "Food & Drink Businesses": 1,
+    "Retail Shops": 4,
+    "Personal Services": 1,
+    "Financial Services": 1,
+    "Health Services": 3,
+    "Educational Institutions": 12,
+    "Transport & Fuel": 3,
+    "Markets & Trading Areas": 4
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_low",
+    "Retail Shops": "low",
+    "Personal Services": "very_low",
+    "Health Services": "low"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Personal Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Hungry Lion"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Choppies",
+      "Melisa",
+      "Kachinka"
+    ],
+    "Personal Services": [
+      "Shalawambe Enterprises"
+    ],
+    "Financial Services": [
+      "Stanbic Bank"
+    ],
+    "Health Services": [
+      "matero clinic",
+      "Matero Level 1 Hospital",
+      "Chingwele Clinic"
+    ],
+    "Educational Institutions": [
+      "Mambilima Primary School",
+      "Chingwele Primary School",
+      "Nyenyenzi Secondary School",
+      "Matero Boys Secondary School",
+      "Chitanda Basic School",
+      "St. Monica Secondary School"
+    ],
+    "Transport & Fuel": [
+      "TotalEnergies"
+    ],
+    "Markets & Trading Areas": [
+      "Matero Market",
+      "Matero East Market",
+      "Buseko Market",
+      "Madras/Chingwere Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

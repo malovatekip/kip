@@ -1,0 +1,76 @@
+{
+  "location_key": "mazabuka",
+  "coordinates": {
+    "lat": -15.8581,
+    "lon": 27.7641
+  },
+  "radius_m": 1500,
+  "province": "Southern",
+  "total_businesses_found": 29,
+  "transport_accessibility": "limited_public_transport",
+  "bus_stops_found": 0,
+  "business_counts": {
+    "Food & Drink Businesses": 5,
+    "Retail Shops": 6,
+    "Personal Services": 0,
+    "Financial Services": 4,
+    "Health Services": 1,
+    "Educational Institutions": 7,
+    "Transport & Fuel": 5,
+    "Markets & Trading Areas": 1
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "low",
+    "Retail Shops": "medium",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Panarotis Pizza",
+      "Hungry Lion",
+      "Natasha pub",
+      "Lukanga Bar"
+    ],
+    "Retail Shops": [
+      "BGC",
+      "Pep",
+      "Spar",
+      "Bhagoos",
+      "Shoprite",
+      "Choppies"
+    ],
+    "Financial Services": [
+      "ZANACO",
+      "Stanbic",
+      "Absa Bank",
+      "First National Bank (FNB)"
+    ],
+    "Health Services": [
+      "District Health Office of Mazabuka"
+    ],
+    "Educational Institutions": [
+      "St. Edmonds",
+      "Mazabuka Girls",
+      "Namulonga",
+      "Kaonga",
+      "Nakambala Private School",
+      "Nakambala Reformatory School"
+    ],
+    "Transport & Fuel": [
+      "SGC",
+      "Engen",
+      "Mazabuka main bus station",
+      "Oryx Mazabuka",
+      "TotalEnergies Mazabuka"
+    ],
+    "Markets & Trading Areas": [
+      "Town Centre market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

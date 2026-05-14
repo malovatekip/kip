@@ -1,0 +1,58 @@
+{
+  "location_key": "east park",
+  "coordinates": {
+    "lat": -15.41,
+    "lon": 28.34
+  },
+  "radius_m": 800,
+  "province": "Lusaka",
+  "total_businesses_found": 13,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 7,
+  "business_counts": {
+    "Food & Drink Businesses": 1,
+    "Retail Shops": 3,
+    "Personal Services": 0,
+    "Financial Services": 2,
+    "Health Services": 2,
+    "Educational Institutions": 1,
+    "Transport & Fuel": 2,
+    "Markets & Trading Areas": 2
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "very_low",
+    "Retail Shops": "low",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Food & Drink Businesses",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Debonairs Pizza"
+    ],
+    "Retail Shops": [
+      "Shoprite",
+      "Falcon Industries",
+      "Love of Home"
+    ],
+    "Financial Services": [
+      "AB Bank"
+    ],
+    "Health Services": [
+      "Harvest health medical center",
+      "Neclife Pharmacy"
+    ],
+    "Educational Institutions": [
+      "Destiny School"
+    ],
+    "Markets & Trading Areas": [
+      "Chipalamba Market",
+      "Kalingalinga Market"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}

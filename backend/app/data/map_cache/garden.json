@@ -1,0 +1,55 @@
+{
+  "location_key": "garden",
+  "coordinates": {
+    "lat": -15.38,
+    "lon": 28.31
+  },
+  "radius_m": 1000,
+  "province": "Lusaka",
+  "total_businesses_found": 18,
+  "transport_accessibility": "well_connected",
+  "bus_stops_found": 8,
+  "business_counts": {
+    "Food & Drink Businesses": 8,
+    "Retail Shops": 1,
+    "Personal Services": 0,
+    "Financial Services": 0,
+    "Health Services": 1,
+    "Educational Institutions": 3,
+    "Transport & Fuel": 5,
+    "Markets & Trading Areas": 0
+  },
+  "saturation_levels": {
+    "Food & Drink Businesses": "medium",
+    "Retail Shops": "very_low",
+    "Personal Services": "none",
+    "Health Services": "very_low"
+  },
+  "identified_gaps": [
+    "Retail Shops",
+    "Personal Services",
+    "Health Services"
+  ],
+  "named_examples": {
+    "Food & Drink Businesses": [
+      "Athens Sports Cafe and Grill",
+      "Shaka‘s Grill",
+      "Pacino’s",
+      "Shaka’s Grill",
+      "MADGEAR Pub & Grill",
+      "Rootz"
+    ],
+    "Health Services": [
+      "Optimal Clinic"
+    ],
+    "Educational Institutions": [
+      "Lusaka Apex Medical University - Mutandwa Campus",
+      "Chalom Montessori Primary School",
+      "Dream Montessori Kindergarten"
+    ],
+    "Transport & Fuel": [
+      "Sino Petroleum"
+    ]
+  },
+  "fetched_at": "2026-04-10"
+}
