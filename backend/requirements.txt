@@ -39,6 +39,7 @@ python-dotenv>=1.0.0
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
 email-validator>=2.0.0
+reportlab>=4.0.0
 
 # Utilities
 python-multipart>=0.0.9
