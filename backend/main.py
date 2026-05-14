@@ -41,6 +41,7 @@ app = FastAPI(
 FRONTEND_URLS = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "zealous-trust-production-32af.up.railway.app",
     os.getenv("FRONTEND_URL", ""),          # set in Railway variables
 ]
 
