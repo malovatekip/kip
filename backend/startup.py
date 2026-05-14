@@ -109,8 +109,11 @@ def migrate_database(volume_ok: bool):
         log(f"✓ Moved kip.db to volume and symlinked.")
     else:
         # Fresh deploy — DB will be created at volume path on first run
+        if os.path.exists(LOCAL_DB_PATH) or os.path.islink(LOCAL_DB_PATH):
+            os.remove(LOCAL_DB_PATH)
         os.symlink(DB_VOLUME_PATH, LOCAL_DB_PATH)
         log(f"✓ Symlinked kip.db → {DB_VOLUME_PATH} (will be created on first run).")
+
 
 
 def migrate_surveys(volume_ok: bool):
