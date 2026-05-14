@@ -29,7 +29,7 @@ build/
 !.env.example
 
 # ── KIP Knowledge Base (large, rebuilt on setup) ─────────
-#kip_knowledge_db/
+
 app/data/map_cache/
 
 # ── IDE & OS ──────────────────────────────────────────────

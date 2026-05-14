@@ -1,328 +1,374 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Send, TrendingUp, Plus, MessageSquare, Square, Sparkles } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { Send, Plus, MessageSquare, Trash2, ChevronLeft, Zap } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
-import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
+import toast from 'react-hot-toast'
 
-const CHIPS = [
-  "I have K3,000. What business can I start in Riverside, Kitwe?",
-  "What business suits K10,000 in Lusaka?",
-  "I have K500 and live near Chipata",
-  "I'm a teacher with K8,000 — what business fits me?",
-]
-
-/* ── Message ─────────────────────────────────────────── */
-function Message({ msg, userInitial }) {
-  const isUser = msg.role === 'user'
-  const time   = msg.created_at
-    ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : ''
-
-  if (isUser) return (
-    <div className="flex justify-end items-end gap-2.5 animate-slide-up">
-      <div style={{ maxWidth: '74%' }}>
-        <div className="bubble-user">
-          <p style={{ fontSize: 14, lineHeight: 1.6, color: '#fff', margin: 0 }}>{msg.content}</p>
-        </div>
-        {time && <div style={{ textAlign: 'right', fontSize: 10, color: 'var(--faint)', marginTop: 4, paddingRight: 4 }}>{time}</div>}
-      </div>
-      <div style={{
-        width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-        background: 'linear-gradient(135deg, var(--blue), var(--mid))',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 12, fontWeight: 700, fontFamily: 'Syne', color: '#fff',
-        boxShadow: '0 2px 8px rgba(27,110,243,0.3)',
-      }}>
-        {userInitial}
-      </div>
-    </div>
-  )
-
-  return (
-    <div className="flex justify-start items-end gap-2.5 animate-slide-up">
-      <div style={{
-        width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-        background: 'linear-gradient(135deg, #1B6EF3, #00D4B1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }} className="animate-logo-glow">
-        <TrendingUp size={14} color="#fff" />
-      </div>
-      <div style={{ maxWidth: '80%' }}>
-        <div className="bubble-kip">
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10,
-            paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            <Sparkles size={11} style={{ color: 'var(--blue-bright)' }} />
-            <span style={{ fontFamily: 'Syne', fontSize: 10, fontWeight: 700, color: 'var(--blue-bright)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              KIP
-            </span>
-          </div>
-          <KipMarkdown content={msg.content} />
-        </div>
-        {time && <div style={{ fontSize: 10, color: 'var(--faint)', marginTop: 4, paddingLeft: 4 }}>{time}</div>}
-      </div>
-    </div>
-  )
-}
-
-/* ── Typing indicator ────────────────────────────────── */
-function TypingBubble({ onStop }) {
-  return (
-    <div className="flex justify-start items-end gap-2.5 animate-fade-in">
-      <div style={{
-        width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-        background: 'linear-gradient(135deg, #1B6EF3, #00D4B1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }} className="animate-logo-glow">
-        <TrendingUp size={14} color="#fff" />
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div className="bubble-kip" style={{ padding: '14px 18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            {[0,1,2].map(i => (
-              <div key={i} style={{
-                width: 7, height: 7, borderRadius: '50%',
-                background: 'var(--blue-bright)',
-                opacity: 0.7,
-                animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
-              }} />
-            ))}
-            <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>
-              KIP is thinking…
-            </span>
-          </div>
-        </div>
-        <button
-          onClick={onStop}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            fontSize: 12, fontWeight: 600, fontFamily: 'Syne',
-            color: 'var(--red)', padding: '8px 12px', borderRadius: 9,
-            background: 'rgba(255,83,112,0.1)', border: '1px solid rgba(255,83,112,0.25)',
-            cursor: 'pointer', transition: 'all 0.2s ease', flexShrink: 0,
-          }}
-          className="animate-scale-in"
-        >
-          <Square size={11} fill="currentColor" /> Stop
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ── Main ────────────────────────────────────────────── */
 export default function ChatPage() {
-  const { id }    = useParams()
-  const { user }  = useAuth()
-  const navigate  = useNavigate()
-  const [messages,  setMessages]  = useState([])
-  const [convId,    setConvId]    = useState(id ? parseInt(id) : null)
-  const [convList,  setConvList]  = useState([])
-  const [input,     setInput]     = useState('')
-  const [loading,   setLoading]   = useState(false)
-  const [typing,    setTyping]    = useState(false)
-  const abortRef  = useRef(null)
+  const { id }   = useParams()
+  const navigate = useNavigate()
+
+  const [conversations, setConversations] = useState([])
+  const [activeConv,    setActiveConv]    = useState(null)
+  const [messages,      setMessages]      = useState([])
+  const [input,         setInput]         = useState('')
+  const [sending,       setSending]       = useState(false)
+  const [loadingConvs,  setLoadingConvs]  = useState(true)
+  const [loadingMsgs,   setLoadingMsgs]   = useState(false)
+  const [showConvList,  setShowConvList]  = useState(false) // mobile toggle
   const bottomRef = useRef(null)
   const inputRef  = useRef(null)
-  const userInitial = user?.full_name?.[0]?.toUpperCase() || 'U'
 
-  const loadConvList = useCallback(() => {
+  // Load conversations
+  useEffect(() => {
     api.get('/chat/conversations')
-      .then(r => setConvList(
-        (r.data || []).sort((a,b) => new Date(b.updated_at||b.created_at) - new Date(a.updated_at||a.created_at))
-      )).catch(() => {})
+      .then(r => setConversations(r.data || []))
+      .catch(() => toast.error('Could not load conversations.'))
+      .finally(() => setLoadingConvs(false))
   }, [])
 
-  useEffect(() => { loadConvList() }, [loadConvList])
+  // Load messages when conversation changes
   useEffect(() => {
-    if (convId) api.get(`/chat/conversations/${convId}`).then(r => setMessages(r.data.messages || [])).catch(() => {})
-  }, [convId])
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, typing])
+    if (id) {
+      const conv = conversations.find(c => c.id === parseInt(id))
+      if (conv) {
+        setActiveConv(conv)
+      }
+      setLoadingMsgs(true)
+      api.get(`/chat/conversations/${id}`)
+        .then(r => {
+          setActiveConv(r.data)
+          setMessages(r.data.messages || [])
+        })
+        .catch(() => toast.error('Could not load conversation.'))
+        .finally(() => setLoadingMsgs(false))
+    } else {
+      setActiveConv(null)
+      setMessages([])
+    }
+  }, [id])
 
-  const stopResponse = () => {
-    if (abortRef.current) { abortRef.current.abort(); abortRef.current = null }
-    setLoading(false); setTyping(false)
-    setMessages(prev => {
-      const last = prev[prev.length - 1]
-      if (last?.role === 'user' && last?._pending) return prev.slice(0, -1)
-      return prev
-    })
-    toast('Response stopped.', { icon: '⏹' })
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, sending])
+
+  const startNew = () => {
+    navigate('/chat')
+    setActiveConv(null)
+    setMessages([])
+    setShowConvList(false)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
+  const openConv = (conv) => {
+    navigate(`/chat/${conv.id}`)
+    setShowConvList(false)
+  }
+
+  const deleteConv = async (e, convId) => {
+    e.stopPropagation()
+    if (!confirm('Delete this conversation?')) return
+    try {
+      await api.delete(`/chat/conversations/${convId}`)
+      setConversations(prev => prev.filter(c => c.id !== convId))
+      if (parseInt(id) === convId) { navigate('/chat'); setMessages([]) }
+      toast.success('Deleted.')
+    } catch {
+      toast.error('Could not delete.')
+    }
   }
 
   const send = async () => {
-    if (!input.trim() || loading) return
-    const text = input.trim(); setInput(''); setLoading(true); setTyping(true)
-    setMessages(prev => [...prev, {
-      role: 'user', content: text, _pending: true,
-      _initial: userInitial, created_at: new Date().toISOString()
-    }])
-    const ctrl = new AbortController(); abortRef.current = ctrl
+    if (!input.trim() || sending) return
+    const text = input.trim()
+    setInput('')
+    setSending(true)
+
+    const optimistic = { id: Date.now(), role: 'user', content: text, _temp: true }
+    setMessages(prev => [...prev, optimistic])
+
     try {
-      const { data } = await api.post('/chat/send', { message: text, conversation_id: convId }, { signal: ctrl.signal })
-      if (!convId) { setConvId(data.conversation_id); navigate(`/chat/${data.conversation_id}`, { replace: true }); loadConvList() }
+      const { data } = await api.post('/chat/send', {
+        message:         text,
+        conversation_id: activeConv?.id || null,
+      })
+      if (!activeConv) {
+        navigate(`/chat/${data.conversation_id}`)
+        const convs = await api.get('/chat/conversations')
+        setConversations(convs.data || [])
+      } else {
+        setConversations(prev =>
+          prev.map(c => c.id === activeConv.id ? { ...c, updated_at: new Date().toISOString() } : c)
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+        )
+      }
       setMessages(prev => [
-        ...prev.slice(0, -1),
-        { ...prev[prev.length-1], _pending: false },
-        { role: 'assistant', content: data.reply, created_at: new Date().toISOString() }
+        ...prev.filter(m => !m._temp),
+        { id: Date.now() + 1, role: 'assistant', content: data.reply },
       ])
-      loadConvList()
-    } catch (err) {
-      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return
-      toast.error('Message failed. Try again.')
-      setMessages(prev => prev.filter(m => !m._pending))
-    } finally { setLoading(false); setTyping(false); abortRef.current = null; inputRef.current?.focus() }
+      if (data.idea_saved) {
+        toast.success('Business idea saved to My Ideas!', { icon: '💡', duration: 4000 })
+      }
+    } catch {
+      setMessages(prev => prev.filter(m => !m._temp))
+      toast.error('Send failed. Try again.')
+    } finally {
+      setSending(false)
+      inputRef.current?.focus()
+    }
   }
 
-  const newChat = () => { setConvId(null); setMessages([]); navigate('/chat') }
+  const SUGGESTIONS = [
+    "I have K5,000. What business can I start in Lusaka?",
+    "I have K20,000 and I'm in Kitwe Riverside. Any ideas?",
+    "What business suits a teacher with K10,000 in Chipata?",
+    "Best business for K50,000 with no skills in Ndola?",
+  ]
+
+  /* ── Conversation list ─────────────────────────────── */
+  const ConvList = ({ mobile = false }) => (
+    <div style={{
+      width: mobile ? '100%' : 260,
+      flexShrink: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      borderRight: mobile ? 'none' : '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(255,255,255,0.015)',
+      height: mobile ? 'auto' : '100%',
+      maxHeight: mobile ? '70vh' : 'none',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: '#fff' }}>Conversations</span>
+        <button onClick={startNew} style={{
+          display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
+          borderRadius: 8, background: 'rgba(43,127,255,0.15)',
+          border: '1px solid rgba(43,127,255,0.3)', color: 'var(--blue-bright)',
+          cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
+        }}>
+          <Plus size={13} /> New
+        </button>
+      </div>
+
+      {/* List */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px' }}>
+        {loadingConvs ? (
+          <div style={{ padding: 20, textAlign: 'center' }}>
+            <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(43,127,255,0.3)', borderTopColor: 'var(--blue)', animation: 'spinSlow 0.8s linear infinite', margin: '0 auto' }} />
+          </div>
+        ) : conversations.length === 0 ? (
+          <div style={{ padding: '20px 12px', textAlign: 'center' }}>
+            <MessageSquare size={28} style={{ color: 'var(--faint)', margin: '0 auto 8px', display: 'block' }} />
+            <p style={{ fontSize: 12, color: 'var(--faint)' }}>No conversations yet</p>
+          </div>
+        ) : (
+          conversations.map(conv => {
+            const active = conv.id === parseInt(id)
+            return (
+              <div key={conv.id}
+                onClick={() => openConv(conv)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 10px', borderRadius: 10, marginBottom: 3,
+                  cursor: 'pointer', position: 'relative',
+                  background: active ? 'rgba(43,127,255,0.15)' : 'transparent',
+                  border: `1px solid ${active ? 'rgba(43,127,255,0.3)' : 'transparent'}`,
+                  transition: 'all 0.15s ease',
+                }}>
+                <MessageSquare size={14} style={{ color: active ? 'var(--blue-bright)' : 'var(--faint)', flexShrink: 0 }} />
+                <span style={{
+                  flex: 1, fontSize: 12.5, color: active ? '#fff' : 'var(--muted)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  fontWeight: active ? 600 : 400,
+                }}>
+                  {conv.title || 'New conversation'}
+                </span>
+                <button
+                  onClick={(e) => deleteConv(e, conv.id)}
+                  style={{ background: 'none', border: 'none', color: 'var(--faint)', cursor: 'pointer', padding: 2, flexShrink: 0, opacity: 0, transition: 'opacity 0.15s' }}
+                  className="conv-delete-btn"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            )
+          })
+        )}
+      </div>
+      <style>{`.conv-delete-btn { opacity: 0 !important; } div:hover .conv-delete-btn { opacity: 1 !important; }`}</style>
+    </div>
+  )
 
   return (
     <Layout>
-      <div className="flex" style={{ height: 'calc(100vh - 56px)', position: 'relative', zIndex: 1 }}>
+      <div style={{ display: 'flex', height: '100%', overflow: 'hidden', position: 'relative' }}>
 
-        {/* ── Conv list ── */}
-        <div className="hidden md:flex flex-col flex-shrink-0" style={{
-          width: 200, borderRight: '1px solid rgba(255,255,255,0.06)',
-          background: 'rgba(8,15,30,0.6)', backdropFilter: 'blur(20px)',
-        }}>
-          <div style={{ padding: '12px 10px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={newChat} style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              fontSize: 12, fontWeight: 600, fontFamily: 'Syne',
-              color: 'var(--blue-bright)', padding: '9px 0',
-              background: 'rgba(27,110,243,0.08)', border: '1px solid rgba(27,110,243,0.25)',
-              borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s ease',
-            }}>
-              <Plus size={13} /> New Chat
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto" style={{ padding: '8px' }}>
-            {convList.length === 0 && (
-              <p style={{ fontSize: 11, color: 'var(--faint)', textAlign: 'center', padding: '16px 8px' }}>No conversations yet</p>
-            )}
-            {convList.map(c => (
-              <button key={c.id}
-                onClick={() => { setConvId(c.id); navigate(`/chat/${c.id}`) }}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 7,
-                  padding: '9px 10px', borderRadius: 9, textAlign: 'left', cursor: 'pointer',
-                  background: c.id === convId ? 'rgba(27,110,243,0.15)' : 'transparent',
-                  border: `1px solid ${c.id === convId ? 'rgba(27,110,243,0.3)' : 'transparent'}`,
-                  color: c.id === convId ? 'var(--text)' : 'var(--muted)',
-                  fontSize: 12, transition: 'all 0.2s ease', marginBottom: 2,
-                }}>
-                <MessageSquare size={12} style={{ flexShrink: 0, opacity: 0.6 }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</span>
-              </button>
-            ))}
-          </div>
+        {/* Desktop sidebar */}
+        <div className="kip-conv-sidebar" style={{ display: 'none' }}>
+          <ConvList />
         </div>
 
-        {/* ── Chat area ── */}
-        <div className="flex-1 flex flex-col min-w-0">
-
-          {/* Header */}
+        {/* Mobile conversation sheet */}
+        {showConvList && (
           <div style={{
-            padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)',
-            background: 'rgba(8,15,30,0.7)', backdropFilter: 'blur(20px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexShrink: 0,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 11,
-                background: 'linear-gradient(135deg, #1B6EF3, #00D4B1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 16px rgba(27,110,243,0.4)',
-              }}>
-                <TrendingUp size={16} color="#fff" />
-              </div>
-              <div>
-                <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: '#fff' }}>KIP — Business Advisor</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--teal)' }}>
-                  <span className="live-dot" style={{ width: 6, height: 6 }} />
-                  Online · AI-powered
-                </div>
+            position: 'fixed', inset: 0, zIndex: 80,
+            background: 'rgba(4,12,24,0.85)', backdropFilter: 'blur(8px)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+          }} onClick={() => setShowConvList(false)}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+              <ConvList mobile />
+              <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <button onClick={() => setShowConvList(false)} style={{
+                  width: '100%', padding: '12px 0', borderRadius: 12,
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'var(--muted)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 600, fontSize: 14,
+                }}>Close</button>
               </div>
             </div>
-            <button onClick={newChat} className="md:hidden" style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
-              <Plus size={20} />
+          </div>
+        )}
+
+        {/* Chat area */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+
+          {/* Chat header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(255,255,255,0.02)', flexShrink: 0,
+          }}>
+            {/* Mobile: show conversations button */}
+            <button onClick={() => setShowConvList(true)}
+              className="kip-mobile-only"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 10px', borderRadius: 8,
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--muted)', cursor: 'pointer', fontSize: 12, fontFamily: 'Syne', fontWeight: 600,
+              }}>
+              <MessageSquare size={14} />
+              {conversations.length > 0 ? `${conversations.length}` : 'History'}
+            </button>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h1 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
+                {activeConv?.title || 'New Conversation'}
+              </h1>
+            </div>
+
+            <button onClick={startNew} style={{
+              display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
+              borderRadius: 8, background: 'rgba(43,127,255,0.12)',
+              border: '1px solid rgba(43,127,255,0.25)', color: 'var(--blue-bright)',
+              cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 12, flexShrink: 0,
+            }}>
+              <Plus size={13} /> New
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto" style={{ padding: '20px 20px' }}>
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-                <div style={{
-                  width: 72, height: 72, borderRadius: 22,
-                  background: 'linear-gradient(135deg, rgba(27,110,243,0.2), rgba(0,212,177,0.15))',
-                  border: '1px solid rgba(27,110,243,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: 20,
-                }} className="animate-float">
-                  <TrendingUp size={32} style={{ color: 'var(--blue-bright)' }} />
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
+            {loadingMsgs ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid rgba(43,127,255,0.2)', borderTopColor: 'var(--blue)', animation: 'spinSlow 0.8s linear infinite' }} />
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="animate-fade-in" style={{ maxWidth: 520, margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: 'var(--glow-blue)' }}>
+                    <Zap size={24} color="#fff" />
+                  </div>
+                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Ask KIP anything</h2>
+                  <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>Tell me your capital, location, and skills — I'll find the right business for you.</p>
                 </div>
-                <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 8 }}>
-                  Hello, {user?.full_name?.split(' ')[0]}!
-                </h2>
-                <p style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 280, lineHeight: 1.7, marginBottom: 28 }}>
-                  Tell me your capital, location, and any skills — I'll find the right business for you.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9, width: '100%', maxWidth: 440 }}>
-                  {CHIPS.map(chip => (
-                    <button key={chip} onClick={() => setInput(chip)} className="chip">{chip}</button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {SUGGESTIONS.map((s, i) => (
+                    <button key={i} onClick={() => { setInput(s); setTimeout(() => inputRef.current?.focus(), 50) }}
+                      className="chip animate-slide-up"
+                      style={{ animationDelay: `${i * 60}ms`, textAlign: 'left', fontSize: 12 }}>
+                      {s}
+                    </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div style={{ maxWidth: 760, margin: '0 auto' }} className="space-y-5">
-                {messages.map((msg, i) => (
-                  <Message key={i} msg={msg} userInitial={userInitial} />
+              <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {messages.map((msg) => (
+                  <div key={msg.id || Math.random()}
+                    style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
+                    {msg.role === 'assistant' && (
+                      <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Zap size={14} color="#fff" />
+                      </div>
+                    )}
+                    <div style={{ maxWidth: '85%' }}>
+                      {msg.role === 'user' ? (
+                        <div className="bubble-user">
+                          <p style={{ fontSize: 14, color: '#fff', margin: 0, lineHeight: 1.6 }}>{msg.content}</p>
+                        </div>
+                      ) : (
+                        <div className="bubble-kip">
+                          <KipMarkdown content={msg.content} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
-                {typing && <TypingBubble onStop={stopResponse} />}
-                <div ref={bottomRef} />
+                {sending && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Zap size={14} color="#fff" />
+                    </div>
+                    <div className="bubble-kip" style={{ padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', gap: 5 }}>
+                        {[0,1,2].map(i => (
+                          <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ${i*0.2}s ease-in-out infinite` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+            <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
+          {/* Input bar */}
           <div style={{
-            padding: '12px 20px 16px', flexShrink: 0,
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            background: 'rgba(8,15,30,0.8)', backdropFilter: 'blur(20px)',
+            padding: '10px 12px',
+            borderTop: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(8,11,16,0.9)', flexShrink: 0,
           }}>
-            <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <textarea
-                  ref={inputRef}
-                  rows={1}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                  placeholder="Tell KIP your capital, location, and skills…"
-                  className="kip-input"
-                  style={{ resize: 'none', minHeight: 48, maxHeight: 130 }}
-                />
-              </div>
-              <button
-                onClick={send}
-                disabled={!input.trim() || loading}
+            <div style={{ display: 'flex', gap: 8, maxWidth: 720, margin: '0 auto' }}>
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) { e.preventDefault(); send() } }}
+                placeholder="Ask KIP for a business idea…"
+                rows={1}
+                className="kip-input"
+                style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}
+                disabled={sending}
+              />
+              <button onClick={send} disabled={!input.trim() || sending}
                 className="kip-btn kip-btn-primary"
-                style={{ padding: '0 18px', flexShrink: 0, borderRadius: 12, minHeight: 48 }}
-              >
+                style={{ padding: '0 16px', borderRadius: 12, minWidth: 48, minHeight: 48, flexShrink: 0 }}>
                 <Send size={17} />
               </button>
             </div>
-            <p style={{ textAlign: 'center', fontSize: 10, color: 'var(--faint)', marginTop: 8 }}>
-              Enter to send · Shift+Enter for new line
-            </p>
           </div>
         </div>
+
+        <style>{`
+          @media (min-width: 768px) {
+            .kip-conv-sidebar { display: flex !important; }
+            .kip-mobile-only  { display: none !important; }
+          }
+        `}</style>
       </div>
     </Layout>
   )
