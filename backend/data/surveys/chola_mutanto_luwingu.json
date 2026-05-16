@@ -1,0 +1,42 @@
+{
+  "town": "Chola mutanto, luwingu",
+  "slug": "chola_mutanto_luwingu",
+  "created_at": "2026-05-16T08:15:59.854090",
+  "last_updated": "2026-05-16T08:15:59.855490",
+  "submissions": [
+    {
+      "type": "general_survey",
+      "submitted_at": "2026-05-16T08:15:59.854295",
+      "data": {
+        "location": "Chola mutanto, luwingu",
+        "food_businesses_count": 10,
+        "retail_count": 24,
+        "services_count": 13,
+        "manufacturing_count": -3,
+        "oversaturated_sectors": "Gricey shops",
+        "power_reliability": "reliable",
+        "internet_access": "fair",
+        "road_quality": "tarmac",
+        "dominant_income_level": "lower_mid",
+        "primary_employment": "Farming, government employment, piecework",
+        "market_days": "everyday",
+        "avg_bread_price": 32.0,
+        "submitted_at": "2026-05-16T08:15:59.722839"
+      }
+    }
+  ],
+  "aggregated": {
+    "total_submissions": 1,
+    "avg_avg_bread_price": 32.0,
+    "samples_avg_bread_price": 1,
+    "avg_food_businesses_count": 10.0,
+    "samples_food_businesses_count": 1,
+    "avg_retail_count": 24.0,
+    "samples_retail_count": 1,
+    "avg_services_count": 13.0,
+    "samples_services_count": 1,
+    "most_common_dominant_income_level": "lower_mid",
+    "most_common_power_reliability": "reliable",
+    "most_common_internet_access": "fair"
+  }
+}

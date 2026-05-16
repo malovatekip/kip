@@ -1,20 +1,17 @@
 """
-KIP Templates & Survey Routes — Sprint 8
-Survey data is now saved to:
-  1. SQLite database (for fast querying)
-  2. /backend/data/surveys/{town_slug}.json (for manual access & reuse)
-
-Each town JSON file aggregates ALL submissions for that town over time,
-with timestamps so you can track how data changes.
+KIP Templates Routes — Hotfix 7
+Fixed: GeneralSurveyRequest uses validator to coerce string→numeric.
+Input type="number" in browsers sends strings; Pydantic v2 rejects them
+without explicit coercion.
 """
 import json
 import os
 import re
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, field_validator, model_validator
+from typing import Optional
 from datetime import datetime
 
 from app.database import get_db
@@ -26,124 +23,112 @@ from app.services.business_plan_generator import generate_business_plan_pdf
 
 router = APIRouter()
 
-# ── Survey data directory ─────────────────────────────────────────────────────
-SURVEY_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'surveys')
+SURVEY_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    'data', 'surveys'
+)
 os.makedirs(SURVEY_DIR, exist_ok=True)
 
 
-def _town_slug(location: str) -> str:
-    """Convert location string to a safe filename slug."""
-    slug = location.lower().strip()
-    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
-    slug = re.sub(r'\s+', '_', slug)
-    slug = re.sub(r'-+', '_', slug)
-    return slug[:60] or 'unknown'
+def _slug(location: str) -> str:
+    s = location.lower().strip()
+    s = re.sub(r'[^a-z0-9\s]', '', s)
+    s = re.sub(r'\s+', '_', s.strip())
+    return s[:60] or 'unknown'
 
 
-def _save_to_json(location: str, data: dict, submission_type: str):
-    """
-    Save survey data to a per-town JSON file.
-    Structure:
-    {
-      "town": "Riverside, Kitwe",
-      "slug": "riverside_kitwe",
-      "submissions": [
-        {
-          "type": "market_survey" | "general_survey",
-          "submitted_at": "...",
-          "data": {...}
-        }
-      ],
-      "aggregated": {
-        "total_submissions": N,
-        "last_updated": "...",
-        "avg_tomato_price": ...,
-        "business_count_food": ...,
-        ...
-      }
-    }
-    """
-    slug = _town_slug(location)
+def _to_int(v):
+    if v is None or v == '':
+        return None
+    try:
+        return int(float(str(v)))
+    except (TypeError, ValueError):
+        return None
+
+
+def _to_float(v):
+    if v is None or v == '':
+        return None
+    try:
+        return float(str(v))
+    except (TypeError, ValueError):
+        return None
+
+
+def _save_to_json(location: str, data: dict, survey_type: str):
+    slug     = _slug(location)
     filepath = os.path.join(SURVEY_DIR, f"{slug}.json")
 
-    # Load existing file or create new
     if os.path.exists(filepath):
-        with open(filepath, 'r', encoding='utf-8') as f:
-            town_data = json.load(f)
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                town = json.load(f)
+        except Exception:
+            town = _new_town(location, slug)
     else:
-        town_data = {
-            "town": location,
-            "slug": slug,
-            "created_at": datetime.utcnow().isoformat(),
-            "submissions": [],
-            "aggregated": {}
-        }
+        town = _new_town(location, slug)
 
-    # Add this submission
-    town_data["submissions"].append({
-        "type": submission_type,
-        "submitted_at": datetime.utcnow().isoformat(),
-        "user_hash": str(hash(data.get('user_id', 0)))[:8],  # anonymised
-        "data": {k: v for k, v in data.items() if k not in ('user_id',)}
+    clean = {k: v for k, v in data.items()
+             if k not in ('user_id',) and v is not None and v != ''}
+
+    town['submissions'].append({
+        'type':         survey_type,
+        'submitted_at': datetime.utcnow().isoformat(),
+        'data':         clean,
     })
+    town['aggregated']  = _aggregate(town['submissions'])
+    town['last_updated']= datetime.utcnow().isoformat()
 
-    # Update aggregates
-    town_data["aggregated"] = _compute_aggregates(town_data["submissions"])
-    town_data["last_updated"] = datetime.utcnow().isoformat()
-
-    # Write back
     with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(town_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(town, f, indent=2, ensure_ascii=False, default=str)
 
-    print(f"[Survey] Saved to {filepath}")
     return filepath
 
 
-def _compute_aggregates(submissions: list) -> dict:
-    """Compute running aggregates from all submissions for a town."""
-    agg = {
-        "total_submissions": len(submissions),
-        "market_surveys":    sum(1 for s in submissions if s.get("type") == "market_survey"),
-        "general_surveys":   sum(1 for s in submissions if s.get("type") == "general_survey"),
+def _new_town(location, slug):
+    return {
+        'town': location, 'slug': slug,
+        'created_at':   datetime.utcnow().isoformat(),
+        'last_updated': datetime.utcnow().isoformat(),
+        'submissions':  [], 'aggregated': {},
     }
 
-    # Numeric fields to average
-    numeric_fields = [
-        "avg_tomato_price_per_kg", "avg_bread_price", "avg_phone_data_1gb",
-        "avg_shop_rent_pm", "avg_labor_wage_pm",
-        "food_businesses_count", "retail_count", "services_count",
-        "direct_competitors_count", "avg_spend_per_visit",
-    ]
 
-    for field in numeric_fields:
-        values = [
-            float(s["data"][field])
+def _aggregate(submissions):
+    agg = {'total_submissions': len(submissions)}
+    num_fields = [
+        'avg_spend_per_visit', 'direct_competitors_count', 'nearest_wholesale_km',
+        'market_distance_km', 'avg_tomato_price_per_kg', 'avg_bread_price',
+        'avg_phone_data_1gb', 'avg_shop_rent_pm', 'avg_labor_wage_pm',
+        'food_businesses_count', 'retail_count', 'services_count',
+    ]
+    for field in num_fields:
+        vals = []
+        for s in submissions:
+            v = s.get('data', {}).get(field)
+            try:
+                if v not in (None, '', 0):
+                    vals.append(float(v))
+            except (TypeError, ValueError):
+                pass
+        if vals:
+            agg[f'avg_{field}']     = round(sum(vals) / len(vals), 2)
+            agg[f'samples_{field}'] = len(vals)
+
+    cat_fields = [
+        'area_type', 'foot_traffic', 'dominant_income_level', 'competition_quality',
+        'power_reliability', 'payment_preference', 'internet_access', 'security_level',
+    ]
+    for field in cat_fields:
+        vals = [s['data'][field] for s in submissions if s.get('data', {}).get(field)]
+        if vals:
+            agg[f'most_common_{field}'] = max(set(vals), key=vals.count)
+
+    gaps = [s['data'].get('market_gaps_noted') or s['data'].get('missing_services')
             for s in submissions
-            if s.get("data", {}).get(field) not in (None, "", 0)
-        ]
-        if values:
-            agg[f"avg_{field}"] = round(sum(values) / len(values), 2)
-            agg[f"responses_{field}"] = len(values)
-
-    # Mode fields (most common answer)
-    mode_fields = [
-        "area_type", "foot_traffic", "dominant_income_level",
-        "competition_quality", "power_reliability", "payment_preference",
-        "primary_employment", "internet_access", "security_level",
-    ]
-    for field in mode_fields:
-        values = [s["data"][field] for s in submissions if s.get("data", {}).get(field)]
-        if values:
-            agg[f"most_common_{field}"] = max(set(values), key=values.count)
-
-    # Collect all market gaps mentioned
-    gaps = []
-    for s in submissions:
-        gap = s.get("data", {}).get("market_gaps_noted") or s.get("data", {}).get("missing_services")
-        if gap:
-            gaps.append(gap)
+            if s.get('data', {}).get('market_gaps_noted') or s.get('data', {}).get('missing_services')]
     if gaps:
-        agg["market_gaps_mentioned"] = gaps
+        agg['market_gaps_mentioned'] = gaps
 
     return agg
 
@@ -151,89 +136,17 @@ def _compute_aggregates(submissions: list) -> dict:
 # ── Template library ──────────────────────────────────────────────────────────
 
 TEMPLATES = [
-    {
-        "id": "pacra-form1", "category": "forms", "tab": "Forms",
-        "title": "PACRA Form 1 — Name Clearance",
-        "description": "Application to clear and reserve your company name before registration.",
-        "institution": "PACRA", "type": "link",
-        "url": "https://www.pacra.org.zm/forms",
-        "tags": ["company", "registration", "name"], "color": "#1B6EF3",
-    },
-    {
-        "id": "pacra-form3", "category": "forms", "tab": "Forms",
-        "title": "PACRA Form 3 — Company Registration",
-        "description": "Articles and Memorandum of Association for a private limited company.",
-        "institution": "PACRA", "type": "link",
-        "url": "https://www.pacra.org.zm/forms",
-        "tags": ["company", "registration"], "color": "#1B6EF3",
-    },
-    {
-        "id": "zra-tpn", "category": "forms", "tab": "Forms",
-        "title": "ZRA — Taxpayer Registration (TPIN)",
-        "description": "Register for a TPIN with Zambia Revenue Authority. Required for all businesses.",
-        "institution": "ZRA", "type": "link",
-        "url": "https://www.zra.org.zm",
-        "tags": ["tax", "tpin", "zra"], "color": "#00D4B1",
-    },
-    {
-        "id": "ceec-application", "category": "forms", "tab": "Forms",
-        "title": "CEEC — SME Funding Application",
-        "description": "Apply for citizen economic empowerment funding (K5,000–K500,000).",
-        "institution": "CEEC", "type": "link",
-        "url": "https://www.ceec.org.zm",
-        "tags": ["funding", "loan", "ceec"], "color": "#F5A623",
-    },
-    {
-        "id": "cdf-application", "category": "forms", "tab": "Forms",
-        "title": "CDF — Kitwe Council",
-        "description": "Apply for Constituency Development Fund support through your local MP's office.",
-        "institution": "CDF", "type": "link",
-        "url": "https://www.kitwecouncil.gov.zm/?page_id=1759",
-        "tags": ["funding", "cdf", "grant"], "color": "#00E676",
-    },
-    {
-        "id": "dbz-sme", "category": "forms", "tab": "Forms",
-        "title": "DBZ — SME Loan Application",
-        "description": "Development Bank of Zambia SME lending at concessional rates from K20,000.",
-        "institution": "DBZ", "type": "link",
-        "url": "https://www.dbz.co.zm",
-        "tags": ["loan", "bank", "dbz"], "color": "#F5A623",
-    },
-    {
-        "id": "letter-intro", "category": "letters", "tab": "Letters",
-        "title": "Business Introduction Letter",
-        "description": "Professional letter introducing your business to potential clients or partners.",
-        "type": "generate", "tags": ["letter", "introduction"],
-        "color": "#4B9EFF", "prompt_type": "introduction_letter",
-    },
-    {
-        "id": "letter-loan", "category": "letters", "tab": "Letters",
-        "title": "Loan / Funding Request Letter",
-        "description": "Formal letter requesting funding from a bank, CDF, or CEEC.",
-        "type": "generate", "tags": ["loan", "funding", "letter"],
-        "color": "#F5A623", "prompt_type": "loan_request_letter",
-    },
-    {
-        "id": "letter-supplier", "category": "letters", "tab": "Letters",
-        "title": "Supplier Credit Request Letter",
-        "description": "Request credit terms or introduce your business to a supplier.",
-        "type": "generate", "tags": ["supplier", "credit"],
-        "color": "#00D4B1", "prompt_type": "supplier_letter",
-    },
-    {
-        "id": "letter-council", "category": "letters", "tab": "Letters",
-        "title": "Local Authority / Council Letter",
-        "description": "Letter to city council or local authority for business permits.",
-        "type": "generate", "tags": ["council", "permit"],
-        "color": "#00E676", "prompt_type": "council_letter",
-    },
-    {
-        "id": "bizplan-full", "category": "business_plans", "tab": "Business Plans",
-        "title": "Full Business Plan (Bank/CDF Ready)",
-        "description": "8-section professional business plan with financial projections. Suitable for bank loans, CDF, CEEC, and DBZ applications.",
-        "type": "generate_plan", "tags": ["business plan", "bank", "cdf"],
-        "color": "#F5A623",
-    },
+    {"id":"pacra-form1","category":"forms","tab":"Forms","title":"PACRA Form 1 — Name Clearance","description":"Application to clear and reserve your company name before registration.","institution":"PACRA","type":"link","url":"https://www.pacra.org.zm/forms","tags":["company","registration","name"],"color":"#1B6EF3"},
+    {"id":"pacra-form3","category":"forms","tab":"Forms","title":"PACRA Form 3 — Company Registration","description":"Articles and Memorandum of Association for a private limited company.","institution":"PACRA","type":"link","url":"https://www.pacra.org.zm/forms","tags":["company","registration"],"color":"#1B6EF3"},
+    {"id":"zra-tpn","category":"forms","tab":"Forms","title":"ZRA — Taxpayer Registration (TPIN)","description":"Register for a TPIN with Zambia Revenue Authority. Required for all businesses.","institution":"ZRA","type":"link","url":"https://www.zra.org.zm","tags":["tax","tpin","zra"],"color":"#00D4B1"},
+    {"id":"ceec-application","category":"forms","tab":"Forms","title":"CEEC — SME Funding Application","description":"Apply for citizen economic empowerment funding (K5,000–K500,000).","institution":"CEEC","type":"link","url":"https://www.ceec.org.zm","tags":["funding","loan","ceec"],"color":"#F5A623"},
+    {"id":"cdf-application","category":"forms","tab":"Forms","title":"CDF — Business Grant Application","description":"Apply for Constituency Development Fund support through your local MP's office.","institution":"CDF","type":"link","url":"https://cdf.gov.zm","tags":["funding","cdf","grant"],"color":"#00E676"},
+    {"id":"dbz-sme","category":"forms","tab":"Forms","title":"DBZ — SME Loan Application","description":"Development Bank of Zambia SME lending at concessional rates from K20,000.","institution":"DBZ","type":"link","url":"https://www.dbz.co.zm","tags":["loan","bank","dbz"],"color":"#F5A623"},
+    {"id":"letter-intro","category":"letters","tab":"Letters","title":"Business Introduction Letter","description":"Professional letter introducing your business to potential clients or partners.","type":"generate","tags":["letter","introduction"],"color":"#4B9EFF","prompt_type":"introduction_letter"},
+    {"id":"letter-loan","category":"letters","tab":"Letters","title":"Loan / Funding Request Letter","description":"Formal letter requesting funding from a bank, CDF, or CEEC.","type":"generate","tags":["loan","funding","letter"],"color":"#F5A623","prompt_type":"loan_request_letter"},
+    {"id":"letter-supplier","category":"letters","tab":"Letters","title":"Supplier Credit Request Letter","description":"Request credit terms or introduce your business to a supplier.","type":"generate","tags":["supplier","credit"],"color":"#00D4B1","prompt_type":"supplier_letter"},
+    {"id":"letter-council","category":"letters","tab":"Letters","title":"Local Authority / Council Letter","description":"Letter to city council or local authority for business permits.","type":"generate","tags":["council","permit"],"color":"#00E676","prompt_type":"council_letter"},
+    {"id":"bizplan-full","category":"business_plans","tab":"Business Plans","title":"Full Business Plan (Bank/CDF Ready)","description":"8-section professional business plan with financial projections. Suitable for bank loans, CDF, CEEC, and DBZ applications.","type":"generate_plan","tags":["business plan","bank","cdf"],"color":"#F5A623"},
 ]
 
 
@@ -246,7 +159,7 @@ def get_templates(
         BusinessLaunchPlan.user_id == current_user.id
     ).order_by(BusinessLaunchPlan.created_at.desc()).all()
     return {
-        "templates": TEMPLATES,
+        "templates":  TEMPLATES,
         "user_plans": [{"id": p.id, "name": p.business_name, "status": p.status} for p in plans],
     }
 
@@ -278,12 +191,12 @@ async def generate_plan_pdf(
     survey_data = None
     try:
         from app.models.enhanced_logs import MarketSurvey
-        survey = db.query(MarketSurvey).filter(
+        s = db.query(MarketSurvey).filter(
             MarketSurvey.user_id == current_user.id,
             MarketSurvey.plan_id == plan_id
         ).first()
-        if survey:
-            survey_data = {c.name: getattr(survey, c.name) for c in survey.__table__.columns if getattr(survey, c.name) is not None}
+        if s:
+            survey_data = {c.name: getattr(s, c.name) for c in s.__table__.columns if getattr(s, c.name) is not None}
     except Exception:
         pass
 
@@ -292,7 +205,7 @@ async def generate_plan_pdf(
         from app.models.business_dashboard import DailyBusinessLog
         logs = db.query(DailyBusinessLog).filter(DailyBusinessLog.plan_id == plan_id).all()
         if logs:
-            total_rev  = sum(getattr(l, 'revenue_today', 0) or 0 for l in logs)
+            total_rev  = sum(getattr(l, 'revenue_today',  0) or 0 for l in logs)
             total_exp  = sum(getattr(l, 'expenses_today', 0) or 0 for l in logs)
             total_cust = sum(getattr(l, 'customer_count', 0) or 0 for l in logs)
             log_summary = {
@@ -304,7 +217,7 @@ async def generate_plan_pdf(
     except Exception:
         pass
 
-    capital = (idea.capital_amount if idea else None) or getattr(plan, 'capital_amount', None)
+    capital      = (idea.capital_amount if idea else None) or getattr(plan, 'capital_amount', None)
     idea_summary = ""
     if idea:
         idea_summary = idea.idea_summary or idea.full_response or ""
@@ -330,14 +243,14 @@ async def generate_plan_pdf(
                     headers={"Content-Disposition": f'attachment; filename="{filename}"'})
 
 
-# ── Letter Generation ─────────────────────────────────────────────────────────
+# ── Letter generation ─────────────────────────────────────────────────────────
 
 class LetterRequest(BaseModel):
     prompt_type: str
-    plan_id:     Optional[int] = None
-    recipient:   Optional[str] = None
-    amount:      Optional[str] = None
-    notes:       Optional[str] = None
+    plan_id:     Optional[int]   = None
+    recipient:   Optional[str]   = None
+    amount:      Optional[str]   = None
+    notes:       Optional[str]   = None
 
 
 @router.post("/generate-letter")
@@ -346,8 +259,8 @@ async def generate_letter(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    import os as _os, anthropic
-    api_key = _os.getenv("ANTHROPIC_API_KEY", "")
+    import anthropic as _anthropic
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise HTTPException(status_code=503, detail="API key not configured.")
 
@@ -362,28 +275,13 @@ async def generate_letter(
             location = getattr(plan, 'location', 'Zambia') or 'Zambia'
 
     prompts = {
-        "introduction_letter":
-            f"Write a professional business introduction letter for {business_name}, "
-            f"owned by {current_user.full_name}, based in {location}, Zambia. "
-            f"Addressed to {req.recipient or 'potential clients/partners'}. "
-            f"Context: {req.notes or 'None'}. Format as a proper business letter.",
-        "loan_request_letter":
-            f"Write a formal loan/funding request letter for {business_name}, "
-            f"owned by {current_user.full_name}, based in {location}, Zambia. "
-            f"Addressed to {req.recipient or 'The Loans Officer'}. "
-            f"Amount: {req.amount or 'to be confirmed'}. Context: {req.notes or 'None'}. "
-            f"Include purpose, repayment plan, and viability statement.",
-        "supplier_letter":
-            f"Write a supplier credit terms request for {business_name}, "
-            f"owned by {current_user.full_name}, {location}, Zambia. "
-            f"Addressed to {req.recipient or 'The Sales Manager'}. Context: {req.notes or 'None'}.",
-        "council_letter":
-            f"Write a formal letter to the local authority from {business_name}, "
-            f"owned by {current_user.full_name}, {location}, Zambia. "
-            f"Purpose: {req.notes or 'application for business operating permit'}.",
+        "introduction_letter": f"Write a professional business introduction letter for {business_name}, owned by {current_user.full_name}, based in {location}, Zambia. Addressed to {req.recipient or 'potential clients/partners'}. Context: {req.notes or 'None'}. Format as a proper business letter.",
+        "loan_request_letter": f"Write a formal loan/funding request letter for {business_name}, owned by {current_user.full_name}, based in {location}, Zambia. Addressed to {req.recipient or 'The Loans Officer'}. Amount: {req.amount or 'to be confirmed'}. Context: {req.notes or 'None'}. Include purpose, repayment plan, and viability statement.",
+        "supplier_letter":     f"Write a supplier credit terms request for {business_name}, owned by {current_user.full_name}, {location}, Zambia. Addressed to {req.recipient or 'The Sales Manager'}. Context: {req.notes or 'None'}.",
+        "council_letter":      f"Write a formal letter to the local authority from {business_name}, owned by {current_user.full_name}, {location}, Zambia. Purpose: {req.notes or 'application for business operating permit'}.",
     }
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = _anthropic.Anthropic(api_key=api_key)
     try:
         r = client.messages.create(model="claude-sonnet-4-6", max_tokens=800,
             messages=[{"role": "user", "content": prompts.get(req.prompt_type, prompts["introduction_letter"])}])
@@ -393,10 +291,15 @@ async def generate_letter(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── General Survey (Community Intelligence) ───────────────────────────────────
+# ── General Survey ────────────────────────────────────────────────────────────
 
 class GeneralSurveyRequest(BaseModel):
+    """
+    All numeric fields accept both int/float AND strings (from HTML inputs).
+    field_validator coerces everything to the right type before validation.
+    """
     location:                str
+
     area_type:               Optional[str]   = None
     food_businesses_count:   Optional[int]   = None
     retail_count:            Optional[int]   = None
@@ -418,6 +321,20 @@ class GeneralSurveyRequest(BaseModel):
     seasonal_notes:          Optional[str]   = None
     other_observations:      Optional[str]   = None
 
+    # Coerce int fields — HTML sends strings
+    @field_validator('food_businesses_count','retail_count','services_count',
+                     'manufacturing_count', mode='before')
+    @classmethod
+    def coerce_int(cls, v):
+        return _to_int(v)
+
+    # Coerce float fields — HTML sends strings
+    @field_validator('avg_tomato_price_per_kg','avg_bread_price','avg_phone_data_1gb',
+                     'avg_shop_rent_pm','avg_labor_wage_pm', mode='before')
+    @classmethod
+    def coerce_float(cls, v):
+        return _to_float(v)
+
 
 @router.post("/general-survey")
 async def submit_general_survey(
@@ -425,21 +342,15 @@ async def submit_general_survey(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Submit community market intelligence.
-    Saved to:
-      1. SQLite general_surveys table
-      2. backend/data/surveys/{town}.json
-    """
-    from sqlalchemy import text
+    from sqlalchemy import text as sqlt
 
-    data = req.dict()
-    data['user_id'] = current_user.id
+    data               = req.dict()
+    data['user_id']    = current_user.id
     data['submitted_at'] = datetime.utcnow().isoformat()
 
-    # ── Save to database ──
+    # Save to SQLite
     try:
-        db.execute(text("""
+        db.execute(sqlt("""
             CREATE TABLE IF NOT EXISTS general_surveys (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER, location TEXT,
@@ -447,31 +358,31 @@ async def submit_general_survey(
                 UNIQUE(user_id, location)
             )
         """))
-        db.execute(text("""
+        db.execute(sqlt("""
             INSERT INTO general_surveys (user_id, location, data_json, submitted_at)
             VALUES (:uid, :loc, :dj, :sa)
             ON CONFLICT(user_id, location) DO UPDATE SET
                 data_json=excluded.data_json, submitted_at=excluded.submitted_at
         """), {"uid": current_user.id, "loc": req.location,
-               "dj": json.dumps(data), "sa": data['submitted_at']})
+               "dj": json.dumps(data, default=str), "sa": data['submitted_at']})
         db.commit()
     except Exception as e:
         db.rollback()
         print(f"[Survey] DB error: {e}")
 
-    # ── Save to JSON file ──
+    # Save to JSON file
+    json_file = None
     try:
-        filepath = _save_to_json(req.location, data, "general_survey")
-        json_saved = True
+        fp = _save_to_json(req.location, data, "general_survey")
+        json_file = f"data/surveys/{_slug(req.location)}.json"
     except Exception as e:
         print(f"[Survey] JSON save error: {e}")
-        json_saved = False
 
     return {
-        "status": "saved",
-        "location": req.location,
-        "json_file": f"data/surveys/{_town_slug(req.location)}.json" if json_saved else None,
-        "message": "Thank you! This improves KIP's recommendations for all entrepreneurs in your area.",
+        "status":    "saved",
+        "location":  req.location,
+        "json_file": json_file,
+        "message":   "Thank you! This improves KIP's recommendations in your area.",
     }
 
 
@@ -480,9 +391,9 @@ def get_my_general_surveys(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    from sqlalchemy import text
+    from sqlalchemy import text as sqlt
     try:
-        rows = db.execute(text(
+        rows = db.execute(sqlt(
             "SELECT location, data_json, submitted_at FROM general_surveys "
             "WHERE user_id=:uid ORDER BY submitted_at DESC"
         ), {"uid": current_user.id}).fetchall()
@@ -491,42 +402,34 @@ def get_my_general_surveys(
         return []
 
 
-# ── Admin: list all town survey files ────────────────────────────────────────
-
 @router.get("/admin/towns")
-def list_town_surveys(
-    current_user: User = Depends(get_current_user),
-):
-    """List all town JSON survey files available."""
+def list_town_surveys(current_user: User = Depends(get_current_user)):
     if not os.path.exists(SURVEY_DIR):
         return []
-    files = []
+    towns = []
     for f in sorted(os.listdir(SURVEY_DIR)):
-        if f.endswith('.json'):
-            fp = os.path.join(SURVEY_DIR, f)
-            try:
-                with open(fp) as fh:
-                    d = json.load(fh)
-                files.append({
-                    "filename": f,
-                    "town": d.get("town", f),
-                    "total_submissions": d.get("aggregated", {}).get("total_submissions", 0),
-                    "last_updated": d.get("last_updated"),
-                    "size_kb": round(os.path.getsize(fp) / 1024, 1),
-                })
-            except Exception:
-                pass
-    return files
+        if not f.endswith('.json'):
+            continue
+        fp = os.path.join(SURVEY_DIR, f)
+        try:
+            with open(fp) as fh:
+                d = json.load(fh)
+            towns.append({
+                "filename":    f,
+                "town":        d.get("town", f),
+                "submissions": d.get("aggregated", {}).get("total_submissions", 0),
+                "last_updated":d.get("last_updated"),
+                "size_kb":     round(os.path.getsize(fp) / 1024, 1),
+            })
+        except Exception:
+            pass
+    return towns
 
 
 @router.get("/admin/towns/{slug}")
-def get_town_survey(
-    slug: str,
-    current_user: User = Depends(get_current_user),
-):
-    """Return the full JSON data for a specific town."""
-    filepath = os.path.join(SURVEY_DIR, f"{slug}.json")
-    if not os.path.exists(filepath):
-        raise HTTPException(status_code=404, detail="Town survey not found.")
-    with open(filepath) as f:
+def get_town_survey(slug: str, current_user: User = Depends(get_current_user)):
+    fp = os.path.join(SURVEY_DIR, f"{slug}.json")
+    if not os.path.exists(fp):
+        raise HTTPException(status_code=404, detail="Town not found.")
+    with open(fp) as f:
         return json.load(f)
