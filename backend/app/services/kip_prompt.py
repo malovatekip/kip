@@ -50,7 +50,7 @@ ECONOMIC CONTEXT:
 """
 
 KIP_BPRA_PROCESS = """
-BUSINESS PROMPT-RESPONSE ARCHITECTURE (BPRA):
+BASIC PROMPT-RESPONSE ARCHITECTURE (BPRA):
 
 When a user requests a business idea, follow this EXACT process:
 
