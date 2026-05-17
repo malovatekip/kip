@@ -2,7 +2,6 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
-import { ThemeProvider } from './hooks/useTheme'
 
 import LandingPage           from './pages/LandingPage'
 import LoginPage             from './pages/LoginPage'
@@ -32,16 +31,16 @@ function AppRoutes() {
         position="top-right"
         toastOptions={{
           style: {
-            background: 'var(--surface)',
-            color: 'var(--text)',
-            border: '1px solid var(--border)',
+            background: '#0B1628',
+            color: '#E4EEFF',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '12px',
             fontSize: '13px',
             fontFamily: 'Plus Jakarta Sans, sans-serif',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           },
-          success: { iconTheme: { primary: '#0DAD55', secondary: '#fff' } },
-          error:   { iconTheme: { primary: '#E0263E', secondary: '#fff' } },
+          success: { iconTheme: { primary: '#00E676', secondary: '#040C18' } },
+          error:   { iconTheme: { primary: '#FF5370', secondary: '#040C18' } },
         }}
       />
       <Routes>
@@ -64,6 +63,7 @@ function AppRoutes() {
         <Route path="/business/:planId/log"    element={<Protected><EnhancedLogPage /></Protected>} />
         <Route path="/business/:planId/survey" element={<Protected><SurveyPage /></Protected>} />
 
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
@@ -72,10 +72,8 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   )
 }
