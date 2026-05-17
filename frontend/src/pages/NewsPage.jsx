@@ -206,8 +206,8 @@ export default function NewsPage() {
         ) : articles.length === 0 ? (
           <div className="kip-card text-center py-14 border-dashed border-kip-blue/20">
             <p className="text-white font-semibold mb-1">No articles yet</p>
-            <p className="text-gray-500 text-sm mb-4">Run the news fetch to populate the feed</p>
-            <code className="text-xs text-kip-light bg-kip-navy/60 px-3 py-1.5 rounded">python fetch_news.py</code>
+            <p className="text-gray-500 text-sm mb-4">Reflesh to populate the feed</p>
+            <code className="text-xs text-kip-light bg-kip-navy/60 px-3 py-1.5 rounded">Stay Updated...</code>
           </div>
         ) : (
           <>
