@@ -72,7 +72,7 @@ export default function ChatPage() {
       toast.success('Deleted.')
     } catch { toast.error('Could not delete.') }
   }
-
+// ask
   const send = async () => {
     if (!input.trim() || sending) return
     const text = input.trim()
@@ -226,7 +226,7 @@ export default function ChatPage() {
                   <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: 'var(--glow-blue)' }}>
                     <Zap size={24} color="#fff" />
                   </div>
-                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Ask KIP anything</h2>
+                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Sorry, KIP is currently offline</h2>
                   <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>Tell me your capital, location, and skills — I'll find the right business for you.</p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
