@@ -296,7 +296,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                placeholder="Ask KIP for a business idea…"
+                placeholder="KIP is currently offline"
                 rows={1}
                 className="kip-input"
                 style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}
