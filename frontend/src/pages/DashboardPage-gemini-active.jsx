@@ -126,7 +126,7 @@ function StatCard({ icon: Icon, label, value, color, glow, delay = 0 }) {
     </div>
   )
 }
-active
+
 /* ── Main ────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -137,9 +137,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      api.get('/dashboard/stats').catch(() => ({ data: null })),
-      api.get('/dashboard/recent-ideas').catch(() => ({ data: [] })),
-      api.get('/dashboard/score').catch(() => ({ data: null })),
+      api.get('/dashboard/stats'),
+      api.get('/dashboard/recent-ideas'),
+      api.get('/dashboard/score'),
     ]).then(([s, id, sc]) => {
       setStats(s.data); setIdeas(id.data); setScore(sc.data)
     }).finally(() => setLoading(false))
@@ -160,18 +160,10 @@ export default function DashboardPage() {
 
               {/* Left: greeting */}
               <div style={{ flex: 1, minWidth: 240 }}>
-                {/* CHANGED: Swapped .live-dot for direct red properties and customized text label */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: 'var(--red, #FF3B30)',
-                    boxShadow: '0 0 8px var(--red, #FF3B30)'
-                  }} />
+                  <span className="live-dot" />
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'Syne' }}>
-                    KIP Intelligence is currently under maintenance
+                    KIP Intelligence Active
                   </span>
                 </div>
                 <h1 style={{
