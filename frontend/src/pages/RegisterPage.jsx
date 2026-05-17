@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 Full name
               </label>
               <input
-                type="text" required placeholder="e.g. Natasha Maloba"
+                type="text" required placeholder=""
                 className="kip-input" value={form.full_name}
                 onChange={e => setForm({ ...form, full_name: e.target.value })}
               />
