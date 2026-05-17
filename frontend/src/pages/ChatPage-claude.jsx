@@ -41,14 +41,6 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, sending])
 
-  // Watch input changes to dynamically adjust textarea height safely (Fixes Suggestion click bug)
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto'
-      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
-    }
-  }, [input])
-
   const startNew = () => {
     navigate('/chat')
     setActiveConv(null)
@@ -105,7 +97,7 @@ export default function ChatPage() {
       toast.error('Send failed.')
     } finally {
       setSending(false)
-      setTimeout(() => inputRef.current?.focus(), 50)
+      inputRef.current?.focus()
     }
   }
 
@@ -214,7 +206,7 @@ export default function ChatPage() {
             </button>
           </div>
 
-          {/* Messages */}
+          {/* Messages — FULL WIDTH, no maxWidth constraint */}
           <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
             {loadingMsgs ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
@@ -231,7 +223,7 @@ export default function ChatPage() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {SUGGESTIONS.map((s, i) => (
-                    <button key={i} onClick={() => setInput(s)}
+                    <button key={i} onClick={() => { setInput(s); setTimeout(() => inputRef.current?.focus(), 50) }}
                       className="chip animate-slide-up" style={{ animationDelay: `${i*60}ms`, textAlign: 'left', fontSize: 12 }}>
                       {s}
                     </button>
@@ -239,16 +231,19 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
+              /* ── Message thread — full width ── */
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {messages.map((msg) => (
                   <div key={msg.id || Math.random()}>
                     {msg.role === 'user' ? (
+                      /* User bubble — right aligned, max 80% width */
                       <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 14px' }}>
                         <div className="bubble-user" style={{ maxWidth: 'min(80%, 520px)', wordBreak: 'break-word' }}>
                           <p style={{ fontSize: 14, color: '#fff', margin: 0, lineHeight: 1.6 }}>{msg.content}</p>
                         </div>
                       </div>
                     ) : (
+                      /* KIP response — FULL WIDTH with left accent */
                       <div style={{
                         width: '100%',
                         borderBottom: '1px solid rgba(255,255,255,0.04)',
@@ -258,6 +253,7 @@ export default function ChatPage() {
                           <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                             <Zap size={14} color="#fff" />
                           </div>
+                          {/* Content fills all remaining width */}
                           <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                             <KipMarkdown content={msg.content} />
                           </div>
@@ -267,7 +263,7 @@ export default function ChatPage() {
                   </div>
                 ))}
 
-                {/* Typing status */}
+                {/* Typing */}
                 {sending && (
                   <div style={{ width: '100%', background: 'rgba(255,255,255,0.018)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <div style={{ maxWidth: 860, margin: '0 auto', padding: '14px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -294,7 +290,11 @@ export default function ChatPage() {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={e => {
+                  setInput(e.target.value)
+                  e.target.style.height = 'auto'
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+                }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
                 placeholder="Ask KIP for a business idea…"
                 rows={1}

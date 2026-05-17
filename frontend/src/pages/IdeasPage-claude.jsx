@@ -22,10 +22,7 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
     } catch { toast.error('Failed to save feedback.') }
   }
 
-  // Enhanced Status Logic: If a plan exists, mark as Launched
-  const status = idea.plan_id
-    ? { label: 'Launched', color: 'var(--gold)', bg: 'rgba(245,166,35,0.1)', border: 'rgba(245,166,35,0.25)', Icon: Rocket }
-    : idea.accepted === true
+  const status = idea.accepted === true
     ? { label: 'Accepted', color: 'var(--green)',       bg: 'rgba(0,230,118,0.1)',  border: 'rgba(0,230,118,0.25)',  Icon: CheckCircle }
     : idea.accepted === false
     ? { label: 'Declined', color: 'var(--red)',         bg: 'rgba(255,83,112,0.1)', border: 'rgba(255,83,112,0.25)', Icon: XCircle }
@@ -180,9 +177,11 @@ export default function IdeasPage() {
         api.get('/business/my-plans').catch(() => ({ data: [] })),
       ])
 
+      // Build a map from idea_id → plan_id
       const planMap = {}
       if (Array.isArray(plansRes.data)) {
         plansRes.data.forEach(plan => {
+          // plan.idea_id links plan back to the idea
           if (plan.idea_id) {
             planMap[plan.idea_id] = plan.id
           }
@@ -207,6 +206,8 @@ export default function IdeasPage() {
     setStartingId(ideaId)
     try {
       const { data } = await api.post('/business/start', { idea_id: ideaId })
+
+      // ── FIX: backend may return {id: X} or {plan_id: X} ──
       const planId = data.plan_id ?? data.id ?? null
 
       if (!planId) {
@@ -238,9 +239,9 @@ export default function IdeasPage() {
           </p>
         </div>
 
-        {/* Ideas grid (Responsive minmax setup) */}
+        {/* Ideas grid */}
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
             {[0, 1, 2].map(i => (
               <div key={i} className="shimmer-load" style={{ height: 200, borderRadius: 16 }} />
             ))}
@@ -259,7 +260,7 @@ export default function IdeasPage() {
             </Link>
           </div>
         ) : (
-          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', gap: 16 }}>
+          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
             {ideas.map(idea => (
               <IdeaCard
                 key={idea.id}

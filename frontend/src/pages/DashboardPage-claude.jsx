@@ -218,42 +218,42 @@ export default function DashboardPage() {
           <StatCard icon={CheckCircle}  label="Ideas Accepted"  value={stats?.accepted_ideas}       color="var(--green)" delay={120} />
         </div>
 
-        {/* ── RESPONSIVE TWO COLUMN GRID ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+        {/* ── TWO COLUMN ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
           {/* Ask KIP prompt card */}
-          <div className="kip-card kip-card-glow animate-slide-up" style={{ animationDelay: '200ms', padding: 24 }}>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 14, flexShrink: 0,
-                background: 'linear-gradient(135deg, var(--blue), var(--mid))',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'var(--glow-blue)',
-              }}>
-                <TrendingUp size={20} color="#fff" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}>
-                  Get a Business Idea
-                </h3>
-                <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
-                  Tell KIP your capital, location, and any skills. KIP will analyse the market and generate a personalised recommendation.
-                </p>
-                <div style={{
-                  background: 'rgba(27,110,243,0.08)',
-                  border: '1px solid rgba(27,110,243,0.2)',
-                  borderRadius: 10, padding: '10px 14px',
-                  fontSize: 13, color: 'var(--muted)', fontStyle: 'italic',
-                  marginBottom: 16
-                }}>
-                  "I have K5,000 and want to start a business in Matero, Lusaka."
-                </div>
-                <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '9px 16px' }}>
-                  Start Conversation <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
+{/*           <div className="kip-card kip-card-glow animate-slide-up" style={{ animationDelay: '200ms', padding: 24 }}> */}
+{/*             <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}> */}
+{/*               <div style={{ */}
+{/*                 width: 44, height: 44, borderRadius: 14, flexShrink: 0, */}
+{/*                 background: 'linear-gradient(135deg, var(--blue), var(--mid))', */}
+{/*                 display: 'flex', alignItems: 'center', justifyContent: 'center', */}
+{/*                 boxShadow: 'var(--glow-blue)', */}
+{/*               }}> */}
+{/*                 <TrendingUp size={20} color="#fff" /> */}
+{/*               </div> */}
+{/*               <div style={{ flex: 1 }}> */}
+{/*                 <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}> */}
+{/*                   Get a Business Idea */}
+{/*                 </h3> */}
+{/*                 <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}> */}
+{/*                   Tell KIP your capital, location, and any skills. KIP will analyse the market and generate a personalised recommendation. */}
+{/*                 </p> */}
+{/*                 <div style={{ */}
+{/*                   background: 'rgba(27,110,243,0.08)', */}
+{/*                   border: '1px solid rgba(27,110,243,0.2)', */}
+{/*                   borderRadius: 10, padding: '10px 14px', */}
+{/*                   fontSize: 13, color: 'var(--muted)', fontStyle: 'italic', */}
+{/*                   marginBottom: 16 */}
+{/*                 }}> */}
+{/*                   "I have K5,000 and want to start a business in Matero, Lusaka." */}
+{/*                 </div> */}
+{/*                 <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '9px 16px' }}> */}
+{/*                   Start Conversation <ArrowRight size={14} /> */}
+{/*                 </Link> */}
+{/*               </div> */}
+{/*             </div> */}
+{/*           </div> */}
 
           {/* Recent ideas */}
           <div className="kip-card animate-slide-up" style={{ animationDelay: '260ms', padding: 24 }}>
@@ -275,7 +275,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="stagger space-y-2">
-                {ideas.slice(0, 3).map((idea, idx) => (
+                {ideas.map((idea, idx) => (
                   <div key={idea.id}
                     className="animate-slide-up"
                     style={{
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                       borderRadius: 12,
                       transition: 'all 0.2s ease',
                     }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {idea.idea_name}
                       </div>
