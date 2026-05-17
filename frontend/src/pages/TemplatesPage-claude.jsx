@@ -58,13 +58,12 @@ function LetterModal({ template, plans, onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,12,24,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0' }}
       onClick={onClose}>
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 640, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 640, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 18px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
           <div>
-            {/* CHANGED: color: '#fff' -> var(--text) */}
-            <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', margin: 0 }}>{template.title}</h2>
+            <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff', margin: 0 }}>{template.title}</h2>
             <p style={{ fontSize: 11, color: 'var(--muted)', margin: 0 }}>{template.description}</p>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}>
@@ -105,7 +104,7 @@ function LetterModal({ template, plans, onClose }) {
             </div>
           ) : (
             <div>
-              <div style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, marginBottom: 12, whiteSpace: 'pre-wrap', fontSize: 13, color: 'var(--text)', lineHeight: 1.7 }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 16, marginBottom: 12, whiteSpace: 'pre-wrap', fontSize: 13, color: 'var(--text)', lineHeight: 1.7 }}>
                 {letter}
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -134,10 +133,9 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
       {showModal && isGen && (
         <LetterModal template={template} plans={plans} onClose={() => setShowModal(false)} />
       )}
-      {/* CHANGED: Added className="kip-card" and hooked up dynamic theme vars */}
-      <div className="kip-card" style={{
-        border: `1px solid ${colors.border}`, 
-        borderRadius: 16,
+      <div style={{
+        background: 'linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))',
+        border: `1px solid ${colors.border}`, borderRadius: 16,
         padding: '16px', display: 'flex', flexDirection: 'column', gap: 10,
       }}>
         {/* Header */}
@@ -146,8 +144,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
             <FileText size={16} style={{ color: template.color }} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            {/* CHANGED: color: '#fff' -> var(--text) */}
-            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3, marginBottom: 2 }}>
+            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: '#fff', lineHeight: 1.3, marginBottom: 2 }}>
               {template.title}
             </div>
             {template.institution && (
@@ -279,8 +276,7 @@ export default function TemplatesPage() {
 
         {/* Header */}
         <div style={{ marginBottom: 20 }}>
-          {/* CHANGED: color: '#fff' -> var(--text) */}
-          <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 5 }}>
+          <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 5 }}>
             Templates & Documents
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
@@ -294,9 +290,9 @@ export default function TemplatesPage() {
           overflowX: 'auto',
           overflowY: 'hidden',
           WebkitOverflowScrolling: 'touch',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          borderBottom: '1px solid var(--border)', /* CHANGED: solid rgba(255,255,255,0.07) -> var(--border) */
+          scrollbarWidth: 'none',          /* Firefox */
+          msOverflowStyle: 'none',         /* IE/Edge */
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
           marginBottom: 20,
           gap: 0,
         }}>
@@ -317,6 +313,7 @@ export default function TemplatesPage() {
                 marginBottom: -1,
               }}>
                 <Icon size={14} />
+                {/* Show short label on very narrow screens */}
                 <span className="tab-label-full">{tab.label}</span>
                 <span className="tab-label-short" style={{ display: 'none' }}>{tab.short}</span>
               </button>
