@@ -126,7 +126,7 @@ function StatCard({ icon: Icon, label, value, color, glow, delay = 0 }) {
     </div>
   )
 }
-active
+
 /* ── Main ────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { user } = useAuth()
