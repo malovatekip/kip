@@ -472,3 +472,51 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   background: var(--header-bg) !important;
   border-bottom: 1px solid var(--border) !important;
 }
+
+
+/* ==========================================================================
+   ─── LIGHT THEME TEXT SANITATION OVERRIDES ────────────────────────────────
+   Fixes invisible hardcoded inline styles (color: '#fff') and text-white classes
+   ========================================================================== */
+
+:root:not([data-theme="dark"]), [data-theme="light"] {
+
+  /* 1. Intercept hardcoded inline white styles across pages (Dashboard, Ideas, etc.) */
+  [style*="color:#fff"],
+  [style*="color: #fff"],
+  [style*="color:#ffffff"],
+  [style*="color: #ffffff"],
+  [style*="color:white"],
+  [style*="color: white"],
+  [style*="color:rgb(255,255,255)"],
+  [style*="color: rgb(255, 255, 255)"] {
+    color: var(--text) !important;
+  }
+
+  /* 2. Intercept global Tailwind text-white configurations */
+  .text-white {
+    color: var(--text) !important;
+  }
+
+  /* 3. Protect elements that MUST stay white (Buttons, User Bubbles, Indicators) */
+  .kip-btn-primary,
+  .kip-btn-primary *,
+  .kip-btn-teal,
+  .kip-btn-teal *,
+  .kip-btn-copper,
+  .kip-btn-copper *,
+  .bubble-user,
+  .bubble-user *,
+  button[style*="background: linear-gradient"] *,
+  button[style*="background:linear-gradient"] *,
+  div[style*="background: linear-gradient"] *,
+  div[style*="background:linear-gradient"] * {
+    color: #FFFFFF !important;
+  }
+
+  /* 4. Fix specific gray values that become unreadable in light mode */
+  .text-gray-400,
+  [style*="color: #gray-400"] {
+    color: var(--muted) !important;
+  }
+}
