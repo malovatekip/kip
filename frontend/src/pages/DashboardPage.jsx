@@ -1,359 +1,479 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  MessageSquare, Lightbulb, CheckCircle, ArrowRight,
-  MapPin, DollarSign, Rocket, TrendingUp, Zap, Activity
+  TrendingUp, TrendingDown, Minus,
+  DollarSign, Users, Calendar, Zap,
+  ChevronDown, ClipboardList, MapPin,
+  Plus, ArrowRight, BarChart2, Lightbulb
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import KipMarkdown from '../components/KipMarkdown'
 import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
 
-/* ── Animated counter ────────────────────────────────── */
-function CountUp({ target, duration = 1200, prefix = '' }) {
-  const [val, setVal] = useState(0)
-  const started = useRef(false)
-  useEffect(() => {
-    if (started.current || !target) return
-    started.current = true
-    const step = target / (duration / 16)
-    let cur = 0
-    const t = setInterval(() => {
-      cur += step
-      if (cur >= target) { setVal(target); clearInterval(t) }
-      else setVal(Math.floor(cur))
-    }, 16)
-    return () => clearInterval(t)
-  }, [target, duration])
-  return <>{prefix}{val}</>
+/* ── Tiny sparkline ──────────────────────────────────── */
+function Sparkline({ data, color = '#2B7FFF', height = 48 }) {
+  if (!data || data.length < 2) return null
+  const w = 200, h = height
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w
+    const y = h - ((v - min) / range) * (h - 6) - 3
+    return `${x},${y}`
+  }).join(' ')
+  const fillPts = `0,${h} ${pts} ${w},${h}`
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height }} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`sg-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={fillPts} fill={`url(#sg-${color.replace('#','')})`} />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  )
 }
 
-/* ── KIP Score Dial ──────────────────────────────────── */
-function ScoreDial({ score = 0, band = 'Explorer', band_desc = '' }) {
-  const [drawn, setDrawn] = useState(0)
-  const r = 54
-  const circ = 2 * Math.PI * r
-  const offset = circ * (1 - drawn / 100)
+/* ── Bar chart ───────────────────────────────────────── */
+function BarChart({ data, labels, color = '#2B7FFF' }) {
+  if (!data || data.length === 0) return null
+  const max = Math.max(...data, 1)
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 80 }}>
+      {data.map((v, i) => (
+        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <div style={{
+            width: '100%', borderRadius: '4px 4px 0 0',
+            background: `linear-gradient(to top, ${color}, ${color}99)`,
+            height: `${Math.max((v / max) * 68, v > 0 ? 4 : 0)}px`,
+            transition: 'height 0.6s cubic-bezier(0.4,0,0.2,1)',
+            minHeight: v > 0 ? 4 : 0,
+          }} />
+          {labels && (
+            <span style={{ fontSize: 9, color: 'var(--faint)', fontFamily: 'Syne', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              {labels[i]}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
 
-  const bandColors = {
-    Explorer: '#7B9ABB', Researcher: '#4B9EFF',
-    Planner: '#00D4B1', Entrepreneur: '#F5A623', Operator: '#00E676'
-  }
-  const color = bandColors[band] || '#4B9EFF'
+/* ── Stat card ───────────────────────────────────────── */
+function StatCard({ label, value, sub, trend, color, icon: Icon, spark, children }) {
+  const trendColor = trend > 0 ? 'var(--green)' : trend < 0 ? 'var(--red)' : 'var(--muted)'
+  const TrendIcon  = trend > 0 ? TrendingUp : trend < 0 ? TrendingDown : Minus
+  return (
+    <div className="kip-card" style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon size={15} style={{ color }} />
+          </div>
+          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 600, color: 'var(--muted)' }}>{label}</span>
+        </div>
+        {trend !== undefined && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, fontFamily: 'Syne', color: trendColor }}>
+            <TrendIcon size={12} />
+            {Math.abs(trend).toFixed(1)}%
+          </div>
+        )}
+      </div>
+      <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: 'var(--muted)' }}>{sub}</div>}
+      {spark && <div style={{ marginTop: 4 }}>{spark}</div>}
+      {children}
+    </div>
+  )
+}
+
+/* ── Business selector ───────────────────────────────── */
+function BusinessSelector({ plans, selected, onSelect }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      let cur = 0
-      const iv = setInterval(() => {
-        cur += 1.4
-        if (cur >= score) { setDrawn(score); clearInterval(iv) }
-        else setDrawn(Math.floor(cur))
-      }, 16)
-      return () => clearInterval(iv)
-    }, 400)
-    return () => clearTimeout(t)
-  }, [score])
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!plans.length) return null
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: 140, height: 140 }}>
-        {/* Outer glow ring */}
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button onClick={() => setOpen(o => !o)} style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '10px 16px', borderRadius: 12, cursor: 'pointer',
+        background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.3)',
+        fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--blue-bright)',
+        transition: 'all 0.2s ease',
+      }}>
+        <BarChart2 size={16} />
+        <span style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selected?.business_name || 'Select Business'}
+        </span>
+        <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
+      </button>
+
+      {open && (
         <div style={{
-          position: 'absolute', inset: -6,
-          borderRadius: '50%',
-          background: `conic-gradient(${color}30 ${drawn}%, transparent ${drawn}%)`,
-          filter: 'blur(8px)',
-          transition: 'background 0.05s',
-        }} />
-        <svg width="140" height="140" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-          {/* Track */}
-          <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-          {/* Background arc */}
-          <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="12" />
-          {/* Progress */}
-          <circle
-            cx="60" cy="60" r={r} fill="none"
-            stroke={color} strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray={circ}
-            strokeDashoffset={offset}
-            className="score-circle"
-            style={{ filter: `drop-shadow(0 0 6px ${color}90)` }}
-          />
-        </svg>
-        {/* Center content */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
+          position: 'absolute', top: 'calc(100% + 8px)', left: 0,
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 14, padding: 6, zIndex: 100, minWidth: 240,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         }}>
-          <span style={{
-            fontFamily: 'Syne', fontWeight: 800, fontSize: 34,
-            color: '#fff', lineHeight: 1
+          {plans.map(plan => (
+            <button key={plan.id} onClick={() => { onSelect(plan); setOpen(false) }} style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 12px', borderRadius: 9, cursor: 'pointer', border: 'none',
+              background: selected?.id === plan.id ? 'var(--blue-dim)' : 'transparent',
+              color: selected?.id === plan.id ? 'var(--blue-bright)' : 'var(--text)',
+              fontFamily: 'Plus Jakarta Sans', fontWeight: 500, fontSize: 13,
+              textAlign: 'left', transition: 'background 0.15s ease',
+            }}>
+              <BarChart2 size={14} style={{ flexShrink: 0, color: 'var(--blue-bright)' }} />
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {plan.business_name}
+              </span>
+              {selected?.id === plan.id && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--blue-bright)', flexShrink: 0 }} />}
+            </button>
+          ))}
+          <div style={{ borderTop: '1px solid var(--border)', margin: '6px 0' }} />
+          <Link to="/ideas" onClick={() => setOpen(false)} style={{
+            display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px',
+            borderRadius: 9, textDecoration: 'none', fontSize: 12,
+            color: 'var(--muted)', fontFamily: 'Plus Jakarta Sans',
           }}>
-            {drawn}
-          </span>
-          <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 500 }}>/ 100</span>
+            <Plus size={13} /> Start a new business
+          </Link>
         </div>
-      </div>
-
-      <div style={{ textAlign: 'center', marginTop: 10 }}>
-        <div style={{
-          fontFamily: 'Syne', fontWeight: 700, fontSize: 13,
-          color, letterSpacing: '0.04em'
-        }}>{band}</div>
-        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{band_desc}</div>
-      </div>
+      )}
     </div>
   )
 }
 
-/* ── Stat Card ───────────────────────────────────────── */
-function StatCard({ icon: Icon, label, value, color, glow, delay = 0 }) {
-  return (
-    <div className="kip-card stat-card animate-slide-up" style={{ animationDelay: `${delay}ms` }}>
-      <div className="stat-icon" style={{ background: `${color}18`, boxShadow: `0 0 20px ${color}20` }}>
-        <Icon size={20} style={{ color }} />
-      </div>
-      <div>
-        <div style={{
-          fontFamily: 'Syne', fontWeight: 800, fontSize: 28,
-          color: '#fff', lineHeight: 1
-        }}>
-          <CountUp target={value || 0} duration={1100} />
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3, fontWeight: 500 }}>{label}</div>
-      </div>
-    </div>
-  )
+/* ── Day labels ──────────────────────────────────────── */
+const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+
+function getDayLabel(dateStr) {
+  if (!dateStr) return ''
+  try {
+    return DAY_SHORT[new Date(dateStr).getDay() || 6]
+  } catch { return '' }
 }
 
 /* ── Main ────────────────────────────────────────────── */
 export default function DashboardPage() {
-  const { user } = useAuth()
-  const [stats,   setStats]   = useState(null)
-  const [ideas,   setIdeas]   = useState([])
-  const [score,   setScore]   = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { user }   = useAuth()
+  const navigate   = useNavigate()
+  const [plans,    setPlans]    = useState([])
+  const [selected, setSelected] = useState(null)
+  const [planData, setPlanData] = useState(null)
+  const [news,     setNews]     = useState([])
+  const [ideas,    setIdeas]    = useState([])
+  const [loading,  setLoading]  = useState(true)
+  const [logLoad,  setLogLoad]  = useState(false)
 
+  const firstName = user?.full_name?.split(' ')[0] || 'there'
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+
+  // Load all plans + news + ideas on mount
   useEffect(() => {
     Promise.all([
-      api.get('/dashboard/stats').catch(() => ({ data: null })),
-      api.get('/dashboard/recent-ideas').catch(() => ({ data: [] })),
-      api.get('/dashboard/score').catch(() => ({ data: null })),
-    ]).then(([s, id, sc]) => {
-      setStats(s.data); setIdeas(id.data); setScore(sc.data)
-    }).finally(() => setLoading(false))
+      api.get('/business/my-plans').catch(() => ({ data: [] })),
+      api.get('/news/articles?limit=3').catch(() => ({ data: [] })),
+      api.get('/ideas/').catch(() => ({ data: [] })),
+    ]).then(([p, n, i]) => {
+      const planList = p.data || []
+      setPlans(planList)
+      setNews(n.data?.articles || n.data || [])
+      setIdeas(i.data || [])
+
+      // Auto-select saved preference or first plan
+      const savedId = parseInt(localStorage.getItem('kip_dashboard_plan') || '0')
+      const pick    = planList.find(p => p.id === savedId) || planList[0] || null
+      if (pick) setSelected(pick)
+      else       setLoading(false)
+    })
   }, [])
 
-  const first = user?.full_name?.split(' ')[0] || ''
-  const hour  = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  // Load plan detail when selected changes
+  useEffect(() => {
+    if (!selected) return
+    localStorage.setItem('kip_dashboard_plan', selected.id)
+    setLogLoad(true)
+    api.get(`/business/plan/${selected.id}`)
+      .then(r => setPlanData(r.data))
+      .catch(() => setPlanData(null))
+      .finally(() => { setLogLoad(false); setLoading(false) })
+  }, [selected?.id])
+
+  // Compute stats from logs
+  const logs      = planData?.logs || []
+  const last7     = logs.slice(0, 7).reverse()       // oldest first for chart
+  const last14    = logs.slice(0, 14)
+  const prev7     = logs.slice(7, 14).reverse()
+
+  const totalRev7  = last7.reduce((s, l) => s + (l.revenue  || 0), 0)
+  const totalExp7  = last7.reduce((s, l) => s + (l.expenses || 0), 0)
+  const totalProfit7 = totalRev7 - totalExp7
+  const totalCust7 = last7.reduce((s, l) => s + (l.customers || 0), 0)
+
+  const prevRev7   = prev7.reduce((s, l) => s + (l.revenue  || 0), 0)
+  const prevCust7  = prev7.reduce((s, l) => s + (l.customers || 0), 0)
+
+  const revTrend  = prevRev7  > 0 ? ((totalRev7  - prevRev7)  / prevRev7)  * 100 : 0
+  const custTrend = prevCust7 > 0 ? ((totalCust7 - prevCust7) / prevCust7) * 100 : 0
+
+  const revData   = last7.map(l => l.revenue  || 0)
+  const profData  = last7.map(l => (l.revenue || 0) - (l.expenses || 0))
+  const custData  = last7.map(l => l.customers || 0)
+  const dayLabels = last7.map(l => getDayLabel(l.created_at))
+
+  // Peak day
+  const peakIdx  = revData.indexOf(Math.max(...revData))
+  const peakDay  = dayLabels[peakIdx] || '—'
+  const peakRev  = revData[peakIdx] || 0
+
+  // Profit margin
+  const margin = totalRev7 > 0 ? ((totalProfit7 / totalRev7) * 100).toFixed(1) : '—'
+
+  // Days logged
+  const daysLogged = logs.length
+
+  if (loading) return (
+    <Layout>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(43,127,255,0.2)', borderTopColor: 'var(--blue)', animation: 'spinSlow 0.8s linear infinite' }} />
+      </div>
+    </Layout>
+  )
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 16px', position: 'relative', zIndex: 1 }}>
 
-        {/* ── HERO PANEL ── */}
-        <div className="hero-panel animate-fade-in" style={{ padding: '32px 36px', marginBottom: 28 }}>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-
-              {/* Left: greeting */}
-              <div style={{ flex: 1, minWidth: 240 }}>
-                {/* CHANGED: Swapped .live-dot for direct red properties and customized text label */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: 'var(--red, #FF3B30)',
-                    boxShadow: '0 0 8px var(--red, #FF3B30)'
-                  }} />
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'Syne' }}>
-                    KIP Intelligence is currently under maintenance
-                  </span>
-                </div>
-                <h1 style={{
-                  fontFamily: 'Syne', fontWeight: 800,
-                  fontSize: 'clamp(24px,3vw,34px)',
-                  color: '#fff', lineHeight: 1.15, marginBottom: 10
-                }}>
-                  {greeting},<br />
-                  <span style={{
-                    background: 'linear-gradient(90deg, #fff 0%, #90CAF9 60%, #00D4B1 100%)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-                  }}>{first}.</span>
-                </h1>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', maxWidth: 340, lineHeight: 1.6, marginBottom: 24 }}>
-                  Your AI business advisor is ready. Ask KIP for ideas, check the live news feed, or continue coaching your business.
-                </p>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
-                    <MessageSquare size={15} /> Ask KIP
-                  </Link>
-                  <Link to="/news" className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>
-                    <Activity size={15} /> Live News Feed
-                  </Link>
-                </div>
-              </div>
-
-              {/* Right: KIP Score */}
-              {score && (
-                <div style={{
-                  flexShrink: 0,
-                  background: 'rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 20,
-                  padding: '20px 28px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'Syne', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
-                    KIP Score
-                  </div>
-                  <ScoreDial score={score.score} band={score.band} band_desc={score.band_desc} />
-                </div>
-              )}
-            </div>
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 22 }}>
+          <div>
+            <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 3 }}>
+              {greeting}, {firstName} 👋
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+              {new Date().toLocaleDateString('en-ZM', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
           </div>
+          {plans.length > 0 && (
+            <BusinessSelector plans={plans} selected={selected} onSelect={setSelected} />
+          )}
         </div>
 
-        {/* ── STAT CARDS ── */}
-        <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 28 }}>
-          <StatCard icon={MessageSquare} label="Conversations"   value={stats?.total_conversations} color="var(--blue)"  delay={0} />
-          <StatCard icon={Lightbulb}    label="Ideas Generated" value={stats?.total_ideas}          color="var(--teal)"  delay={60} />
-          <StatCard icon={CheckCircle}  label="Ideas Accepted"  value={stats?.accepted_ideas}       color="var(--green)" delay={120} />
-        </div>
-
-        {/* ── RESPONSIVE TWO COLUMN GRID ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-
-          {/* Ask KIP prompt card */}
-          <div className="kip-card kip-card-glow animate-slide-up" style={{ animationDelay: '200ms', padding: 24 }}>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 14, flexShrink: 0,
-                background: 'linear-gradient(135deg, var(--blue), var(--mid))',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'var(--glow-blue)',
-              }}>
-                <TrendingUp size={20} color="#fff" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}>
-                  Get a Business Idea
-                </h3>
-                <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
-                  Tell KIP your capital, location, and any skills. KIP will analyse the market and generate a personalised recommendation.
-                </p>
-                <div style={{
-                  background: 'rgba(27,110,243,0.08)',
-                  border: '1px solid rgba(27,110,243,0.2)',
-                  borderRadius: 10, padding: '10px 14px',
-                  fontSize: 13, color: 'var(--muted)', fontStyle: 'italic',
-                  marginBottom: 16
-                }}>
-                  "I have K5,000 and want to start a business in Matero, Lusaka."
-                </div>
-                <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '9px 16px' }}>
-                  Start Conversation <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent ideas */}
-          <div className="kip-card animate-slide-up" style={{ animationDelay: '260ms', padding: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff' }}>Recent Ideas</h3>
-              <Link to="/ideas" style={{ fontSize: 12, color: 'var(--blue-bright)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
-                View all <ArrowRight size={12} />
+        {/* ── No business yet ── */}
+        {plans.length === 0 && (
+          <div className="kip-card" style={{ padding: '40px 24px', textAlign: 'center', marginBottom: 20 }}>
+            <Lightbulb size={44} style={{ color: 'var(--faint)', margin: '0 auto 14px', display: 'block' }} className="animate-float" />
+            <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
+              No businesses started yet
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
+              Ask KIP for a business idea, accept it, then click Start Business to see your dashboard here.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
+                <Zap size={15} /> Ask KIP for an Idea
               </Link>
-            </div>
-
-            {loading ? (
-              <div className="space-y-3">
-                {[0,1,2].map(i => <div key={i} className="shimmer-load" style={{ height: 52, borderRadius: 10 }} />)}
-              </div>
-            ) : ideas.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '28px 0' }}>
-                <Lightbulb size={36} style={{ color: 'var(--faint)', margin: '0 auto 10px', display: 'block' }} className="animate-float" />
-                <p style={{ fontSize: 13, color: 'var(--muted)' }}>No ideas yet. Ask KIP to start!</p>
-              </div>
-            ) : (
-              <div className="stagger space-y-2">
-                {ideas.slice(0, 3).map((idea, idx) => (
-                  <div key={idea.id}
-                    className="animate-slide-up"
-                    style={{
-                      animationDelay: `${idx * 70}ms`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      gap: 12, padding: '10px 14px',
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: 12,
-                      transition: 'all 0.2s ease',
-                    }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {idea.idea_name}
-                      </div>
-                      <div style={{ display: 'flex', gap: 10, marginTop: 3, flexWrap: 'wrap' }}>
-                        {idea.location && (
-                          <span style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <MapPin size={10} /> {idea.location}
-                          </span>
-                        )}
-                        {idea.capital_amount && (
-                          <span style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <DollarSign size={10} /> K{idea.capital_amount?.toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {idea.plan_id ? (
-                      <Link to={`/business/${idea.plan_id}`}
-                        style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--gold)', fontWeight: 600, fontFamily: 'Syne', textDecoration: 'none', whiteSpace: 'nowrap', padding: '5px 10px', background: 'rgba(245,166,35,0.1)', borderRadius: 8, border: '1px solid rgba(245,166,35,0.25)' }}>
-                        <Rocket size={11} /> Business
-                      </Link>
-                    ) : (
-                      <span className={`kip-badge ${idea.accepted ? 'kip-badge-green' : 'kip-badge-blue'}`}>
-                        {idea.accepted ? 'Accepted' : 'Pending'}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── KIP Score breakdown (if has score) ── */}
-        {score && score.score > 0 && (
-          <div className="kip-card animate-slide-up" style={{ marginTop: 16, padding: 24, animationDelay: '320ms' }}>
-            <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 16 }}>
-              Score Breakdown
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
-              {Object.entries(score.breakdown || {}).map(([key, data]) => {
-                const labels = { conversations: 'Conversations', ideas_generated: 'Ideas Generated', ideas_accepted: 'Ideas Accepted', business_started: 'Business Started', daily_logs: 'Daily Logs' }
-                const pct = (data.points / data.max) * 100
-                return (
-                  <div key={key} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>{labels[key] || key}</span>
-                      <span style={{ fontFamily: 'Syne', fontSize: 13, fontWeight: 700, color: '#fff' }}>{data.points}/{data.max}</span>
-                    </div>
-                    <div className="kip-progress">
-                      <div className="kip-progress-fill" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                )
-              })}
+              <Link to="/ideas" className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>
+                My Ideas
+              </Link>
             </div>
           </div>
         )}
+
+        {/* ── Business dashboard ── */}
+        {selected && (
+          <>
+            {/* Business name + quick actions */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="kip-badge kip-badge-green">{selected.status?.toUpperCase() || 'ACTIVE'}</span>
+                  <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)' }}>{selected.business_name}</span>
+                </div>
+                <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>
+                  {daysLogged} day{daysLogged !== 1 ? 's' : ''} logged · Last 7 days shown
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Link to={`/business/${selected.id}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '8px 14px' }}>
+                  <ClipboardList size={14} /> Log Today
+                </Link>
+                <Link to={`/business/${selected.id}`} className="kip-btn kip-btn-ghost" style={{ fontSize: 12, padding: '8px 14px' }}>
+                  Full Dashboard <ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+
+            {logLoad ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 12 }}>
+                {[0,1,2,3].map(i => <div key={i} className="shimmer-load" style={{ height: 120, borderRadius: 16 }} />)}
+              </div>
+            ) : logs.length === 0 ? (
+              <div className="kip-card" style={{ padding: '30px 24px', textAlign: 'center', marginBottom: 16 }}>
+                <ClipboardList size={36} style={{ color: 'var(--faint)', margin: '0 auto 12px', display: 'block' }} />
+                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', marginBottom: 6 }}>No logs yet for {selected.business_name}</h3>
+                <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Log your first day to see revenue trends, profit charts, and customer data here.</p>
+                <Link to={`/business/${selected.id}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
+                  <ClipboardList size={14} /> Log Day 1
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* ── Stat cards ── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: 12, marginBottom: 16 }}>
+
+                  <StatCard label="Revenue (7 days)" value={`K${totalRev7.toLocaleString()}`}
+                    trend={revTrend} color="var(--green)" icon={DollarSign}
+                    sub={`K${(totalRev7/Math.max(last7.length,1)).toFixed(0)}/day avg`}
+                    spark={<Sparkline data={revData} color="var(--green)" height={40} />}
+                  />
+
+                  <StatCard label="Net Profit (7 days)" value={`K${totalProfit7.toLocaleString()}`}
+                    trend={revTrend} color={totalProfit7 >= 0 ? 'var(--gold-bright)' : 'var(--red)'} icon={TrendingUp}
+                    sub={`${margin}% margin`}
+                    spark={<Sparkline data={profData} color={totalProfit7 >= 0 ? 'var(--gold)' : 'var(--red)'} height={40} />}
+                  />
+
+                  <StatCard label="Customers (7 days)" value={totalCust7.toLocaleString()}
+                    trend={custTrend} color="var(--teal)" icon={Users}
+                    sub={`${(totalCust7/Math.max(last7.length,1)).toFixed(1)}/day avg`}
+                    spark={<Sparkline data={custData} color="var(--teal)" height={40} />}
+                  />
+
+                  <StatCard label="Peak Day" value={peakDay}
+                    color="var(--blue-bright)" icon={Calendar}
+                    sub={`K${peakRev.toLocaleString()} best single day`}
+                  />
+
+                </div>
+
+                {/* ── Revenue bar chart (last 7 days) ── */}
+                <div className="kip-card" style={{ padding: '18px 20px', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <div>
+                      <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>Daily Revenue — Last 7 Days</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>K per day</div>
+                    </div>
+                    {revTrend !== 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, fontFamily: 'Syne', color: revTrend > 0 ? 'var(--green)' : 'var(--red)' }}>
+                        {revTrend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                        {Math.abs(revTrend).toFixed(1)}% vs prev week
+                      </div>
+                    )}
+                  </div>
+                  <BarChart data={revData} labels={dayLabels} color="var(--blue)" />
+                </div>
+
+                {/* ── Recent log + coaching ── */}
+                {logs[0] && (
+                  <div className="kip-card" style={{ padding: '16px 18px', marginBottom: 16 }}>
+                    <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <Zap size={14} style={{ color: 'var(--gold-bright)' }} />
+                      Latest KIP Coaching
+                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 4 }}>
+                        {logs[0].created_at ? new Date(logs[0].created_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short' }) : ''}
+                      </span>
+                    </div>
+                    {logs[0].coaching ? (
+                      <KipMarkdown content={logs[0].coaching} />
+                    ) : (
+                      <p style={{ fontSize: 13, color: 'var(--muted)' }}>No coaching yet for the latest log.</p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {/* ── Divider ── */}
+        {(plans.length > 0) && <div className="kip-divider" />}
+
+        {/* ── Bottom row: recent ideas + news ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
+
+          {/* Recent ideas */}
+          {ideas.length > 0 && (
+            <div className="kip-card" style={{ padding: '16px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Recent Ideas</span>
+                <Link to="/ideas" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>View all</Link>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {ideas.slice(0, 3).map(idea => (
+                  <div key={idea.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
+                    <Lightbulb size={13} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: 'var(--text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {idea.idea_name}
+                    </span>
+                    <span style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 600, color: idea.accepted ? 'var(--green)' : 'var(--muted)' }}>
+                      {idea.accepted ? 'Active' : 'Pending'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* News */}
+          {news.length > 0 && (
+            <div className="kip-card" style={{ padding: '16px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Economic News</span>
+                <Link to="/news" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>See all</Link>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {news.slice(0, 3).map((item, i) => (
+                  <a key={i} href={item.url || item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5, fontWeight: 500, marginBottom: 2 }}>
+                      {item.title}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--faint)' }}>{item.source || 'KIP News'}</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick actions */}
+          <div className="kip-card" style={{ padding: '16px 18px' }}>
+            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 12 }}>Quick Actions</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { to: '/chat',      label: 'Ask KIP for ideas',     icon: Zap,          color: 'var(--blue-bright)' },
+                { to: '/templates', label: 'Templates & documents',  icon: BarChart2,    color: 'var(--gold)'        },
+                { to: '/survey',    label: 'Submit area survey',     icon: MapPin,       color: 'var(--teal)'        },
+              ].map(({ to, label, icon: Icon, color }) => (
+                <Link key={to} to={to} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  borderRadius: 9, textDecoration: 'none',
+                  background: 'var(--input-bg)', border: '1px solid var(--border)',
+                  transition: 'all 0.15s ease',
+                }}>
+                  <Icon size={14} style={{ color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'var(--text)', fontWeight: 500 }}>{label}</span>
+                  <ArrowRight size={12} style={{ color: 'var(--faint)', marginLeft: 'auto' }} />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
 
       </div>
     </Layout>
