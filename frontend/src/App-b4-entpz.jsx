@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
@@ -17,7 +16,6 @@ import EnhancedLogPage       from './pages/EnhancedLogPage'
 import SurveyPage            from './pages/SurveyPage'
 import TemplatesPage         from './pages/TemplatesPage'
 import GeneralSurveyPage     from './pages/GeneralSurveyPage'
-import EnterprisePage        from './pages/EnterprisePage'
 
 function Protected({ children }) {
   const token =
@@ -60,7 +58,6 @@ function AppRoutes() {
         <Route path="/ideas"      element={<Protected><IdeasPage /></Protected>} />
         <Route path="/templates"  element={<Protected><TemplatesPage /></Protected>} />
         <Route path="/survey"     element={<Protected><GeneralSurveyPage /></Protected>} />
-        <Route path="/enterprise" element={<Protected><EnterprisePage /></Protected>} />
 
         {/* Business */}
         <Route path="/business/:planId"        element={<Protected><BusinessDashboardPage /></Protected>} />

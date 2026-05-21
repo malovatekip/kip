@@ -6,43 +6,34 @@ import os
 load_dotenv()
 
 from app.database import engine, Base
+from app.models import user, conversation
+from app.models import business_dashboard
+from app.models import business_idea
+from app.models import enhanced_logs
 
-# Import all models so Base.metadata.create_all creates every table
-from app.models import user, conversation        # noqa
-from app.models import business_dashboard        # noqa
-from app.models import business_idea             # noqa
-from app.models import enhanced_logs             # noqa
-
-# Sprint 10 — business chat history + plan versions
-# These tables are also created by _ensure_tables() in business_chat.py
-# but importing here ensures they exist on first startup
 try:
-    from app.models import business_chat_model   # noqa
+    from app.models import enterprise_models
 except ImportError:
-    pass  # model file not yet present — tables created by _ensure_tables()
+    pass
 
 from app.routes import (
     auth, chat, ideas, dashboard, news,
     business_dashboard as bd_routes,
     enhanced_logs as log_routes,
     templates,
+    business_chat,
 )
-from app.routes import business_chat
+from app.routes import enterprise
+from app.routes import add_own_business
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    title="Kwacha Intelligence Platform — KIP API",
-    version="3.1.0",
-)
+app = FastAPI(title="Kwacha Intelligence Platform — KIP API", version="4.0.0")
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
-# Add your Railway frontend URL here after deploying
 FRONTEND_URLS = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "zealous-trust-production-32af.up.railway.app",
-    os.getenv("FRONTEND_URL", ""),          # set in Railway variables
+    os.getenv("FRONTEND_URL", ""),
 ]
 
 app.add_middleware(
@@ -53,22 +44,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routes ────────────────────────────────────────────────────────────────────
-app.include_router(auth.router,           prefix="/api/auth",          tags=["Auth"])
-app.include_router(chat.router,           prefix="/api/chat",          tags=["Chat"])
-app.include_router(ideas.router,          prefix="/api/ideas",         tags=["Ideas"])
-app.include_router(dashboard.router,      prefix="/api/dashboard",     tags=["Dashboard"])
-app.include_router(news.router,           prefix="/api/news",          tags=["News"])
-app.include_router(bd_routes.router,      prefix="/api/business",      tags=["Business"])
-app.include_router(log_routes.router,     prefix="/api/logs",          tags=["Logs"])
-app.include_router(templates.router,      prefix="/api/templates",     tags=["Templates"])
-app.include_router(business_chat.router,  prefix="/api/business-chat", tags=["Business Chat"])
-
+app.include_router(auth.router,            prefix="/api/auth",           tags=["Auth"])
+app.include_router(chat.router,            prefix="/api/chat",           tags=["Chat"])
+app.include_router(ideas.router,           prefix="/api/ideas",          tags=["Ideas"])
+app.include_router(dashboard.router,       prefix="/api/dashboard",      tags=["Dashboard"])
+app.include_router(news.router,            prefix="/api/news",           tags=["News"])
+app.include_router(bd_routes.router,       prefix="/api/business",       tags=["Business"])
+app.include_router(log_routes.router,      prefix="/api/logs",           tags=["Logs"])
+app.include_router(templates.router,       prefix="/api/templates",      tags=["Templates"])
+app.include_router(business_chat.router,   prefix="/api/business-chat",  tags=["Business Chat"])
+app.include_router(enterprise.router,      prefix="/api/enterprise",     tags=["Enterprise"])
+app.include_router(add_own_business.router,prefix="/api/business",       tags=["Business"])
 
 @app.get("/")
 def root():
-    return {"platform": "KIP", "version": "3.1.0", "status": "operational"}
-
+    return {"platform": "KIP", "version": "4.0.0", "status": "operational"}
 
 @app.get("/health")
 def health():
