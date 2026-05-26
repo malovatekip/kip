@@ -24,7 +24,12 @@ router = APIRouter()
 # ── Table bootstrap ───────────────────────────────────────────────────────────
 
 def _ensure_tables(db: Session):
-    """Create chat tables if they don't exist. Called on every request — fast no-op if tables exist."""
+    """Create chat tables if they don't exist. Called on every request — fast no-op if tables exist.
+
+    Also runs idempotent ALTER TABLE migrations to add columns that were
+    introduced after the initial schema (update_summary, pending_resolved).
+    Safe to run on every request: each ALTER is guarded by a PRAGMA check.
+    """
     db.execute(sqlt("""
         CREATE TABLE IF NOT EXISTS business_chat_messages (
             id                      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,6 +55,26 @@ def _ensure_tables(db: Session):
             created_at     TEXT    DEFAULT CURRENT_TIMESTAMP
         )
     """))
+    db.commit()
+
+    # ── Schema migrations: add columns missing from older deployments ─────────
+    existing_columns = {
+        row[1]
+        for row in db.execute(
+            sqlt("PRAGMA table_info(business_chat_messages)")
+        ).fetchall()
+    }
+
+    if "update_summary" not in existing_columns:
+        db.execute(sqlt(
+            "ALTER TABLE business_chat_messages ADD COLUMN update_summary TEXT"
+        ))
+
+    if "pending_resolved" not in existing_columns:
+        db.execute(sqlt(
+            "ALTER TABLE business_chat_messages ADD COLUMN pending_resolved INTEGER DEFAULT 0"
+        ))
+
     db.commit()
 
 
