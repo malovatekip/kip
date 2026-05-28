@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
@@ -18,6 +17,11 @@ import SurveyPage            from './pages/SurveyPage'
 import TemplatesPage         from './pages/TemplatesPage'
 import GeneralSurveyPage     from './pages/GeneralSurveyPage'
 import EnterprisePage        from './pages/EnterprisePage'
+
+// Legal pages
+import TermsPage             from './pages/legal/TermsPage'
+import PrivacyPage           from './pages/legal/PrivacyPage'
+import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
 
 function Protected({ children }) {
   const token =
@@ -48,19 +52,26 @@ function AppRoutes() {
       />
       <Routes>
         {/* Public */}
-        <Route path="/"         element={<LandingPage />} />
-        <Route path="/login"    element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/"              element={<LandingPage />} />
+        <Route path="/login"         element={<LoginPage />} />
+        <Route path="/register"      element={<RegisterPage />} />
+
+        {/* Legal — public, no auth required */}
+        <Route path="/legal/terms"   element={<TermsPage />} />
+        <Route path="/legal/privacy" element={<PrivacyPage />} />
+        <Route path="/legal/cookies" element={<CookiePage />} />
+        <Route path="/about"         element={<AboutPage />} />
+        <Route path="/contact"       element={<ContactPage />} />
 
         {/* Protected */}
-        <Route path="/dashboard"  element={<Protected><DashboardPage /></Protected>} />
-        <Route path="/chat"       element={<Protected><ChatPage /></Protected>} />
-        <Route path="/chat/:id"   element={<Protected><ChatPage /></Protected>} />
-        <Route path="/news"       element={<Protected><NewsPage /></Protected>} />
-        <Route path="/ideas"      element={<Protected><IdeasPage /></Protected>} />
-        <Route path="/templates"  element={<Protected><TemplatesPage /></Protected>} />
-        <Route path="/survey"     element={<Protected><GeneralSurveyPage /></Protected>} />
-        <Route path="/enterprise" element={<Protected><EnterprisePage /></Protected>} />
+        <Route path="/dashboard"   element={<Protected><DashboardPage /></Protected>} />
+        <Route path="/chat"        element={<Protected><ChatPage /></Protected>} />
+        <Route path="/chat/:id"    element={<Protected><ChatPage /></Protected>} />
+        <Route path="/news"        element={<Protected><NewsPage /></Protected>} />
+        <Route path="/ideas"       element={<Protected><IdeasPage /></Protected>} />
+        <Route path="/templates"   element={<Protected><TemplatesPage /></Protected>} />
+        <Route path="/survey"      element={<Protected><GeneralSurveyPage /></Protected>} />
+        <Route path="/enterprise"  element={<Protected><EnterprisePage /></Protected>} />
 
         {/* Business */}
         <Route path="/business/:planId"        element={<Protected><BusinessDashboardPage /></Protected>} />
