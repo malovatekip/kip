@@ -1,10 +1,10 @@
 // ── CookiePage ────────────────────────────────────────────────────────────────
 import React, { useState } from 'react'
-import LegalLayout, { Section, P, UL, Callout } from '../components/LegalLayout'
+import LegalLayout, { Section, P, UL, Callout } from '../../components/LegalLayout'
 import { Link } from 'react-router-dom'
-import api from '../lib/api'
+import api from '../../lib/api'
 import toast from 'react-hot-toast'
-import KIP_LOGO from '../kipLogo'
+import KIP_LOGO from '../../kipLogo'
 import { Mail, MessageSquare, MapPin, ArrowRight, CheckCircle } from 'lucide-react'
 
 export function CookiePage() {
@@ -63,7 +63,7 @@ export function CookiePage() {
 
       <Section title="5. Contact">
         <P>
-          Questions about data storage? Email <strong>privacy@malovate.com</strong> or visit our <a href="/legal/privacy" style={{ color: 'var(--blue-bright)' }}>Privacy Policy</a>.
+          Questions about data storage? Email <strong>kip.support@gmail.com</strong> or visit our <a href="/legal/privacy" style={{ color: 'var(--blue-bright)' }}>Privacy Policy</a>.
         </P>
       </Section>
     </LegalLayout>
@@ -126,11 +126,11 @@ export function AboutPage() {
         </P>
       </Section>
 
-      <Section title="The ZICTA Innovation Challenge">
-        <P>
-          KIP was developed as part of the ZICTA Innovation Challenge — the Zambia Information and Communications Technology Authority's initiative to encourage homegrown technology innovation. We are proud to be building for Zambia, in Zambia.
-        </P>
-      </Section>
+{/*       <Section title="The ZICTA Innovation Challenge"> */}
+{/*         <P> */}
+{/*           KIP was developed as part of the ZICTA Innovation Challenge — the Zambia Information and Communications Technology Authority's initiative to encourage homegrown technology innovation. We are proud to be building for Zambia, in Zambia. */}
+{/*         </P> */}
+{/*       </Section> */}
 
       <Section title="Technology">
         <P>
@@ -141,9 +141,9 @@ export function AboutPage() {
       <Section title="Contact Us">
         <P>
           We'd love to hear from entrepreneurs, investors, and partners.<br />
-          <strong>General:</strong> hello@malovate.com<br />
-          <strong>Support:</strong> support@malovate.com<br />
-          <strong>Partnerships:</strong> partners@malovate.com<br />
+          <strong>General:</strong> kip.malovate.ai.com<br />
+          <strong>Support:</strong> kip.support@gmail.com<br />
+          <strong>Whatsapp:</strong> +260750925784<br />
           Or visit our <a href="/contact" style={{ color: 'var(--blue-bright)' }}>contact page</a>.
         </P>
       </Section>
@@ -180,10 +180,10 @@ export function ContactPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14, marginBottom: 32 }}>
         {[
-          { icon: Mail,         label: 'General Enquiries',  value: 'hello@malovate.com',      color: 'var(--blue-bright)' },
-          { icon: MessageSquare,label: 'Support',            value: 'support@malovate.com',    color: 'var(--teal)'        },
-          { icon: Mail,         label: 'Partnerships',       value: 'partners@malovate.com',   color: 'var(--gold)'        },
-          { icon: MapPin,       label: 'Location',           value: 'Lusaka, Zambia',          color: 'var(--green)'       },
+          { icon: Mail,         label: 'General Enquiries',  value: 'kip.malovate.ai@gmail.com',      color: 'var(--blue-bright)' },
+          { icon: MessageSquare,label: 'Support',            value: 'kip.support@gmail.com',    color: 'var(--teal)'        },
+          { icon: Mail,         label: 'Whatsapp',       value: '+260750925784',   color: 'var(--gold)'        },
+          { icon: MapPin,       label: 'Location',           value: 'Kitwe, Zambia',          color: 'var(--green)'       },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>

@@ -1,5 +1,5 @@
 import React from 'react'
-import LegalLayout, { Section, P, UL, Callout } from '../components/LegalLayout'
+import LegalLayout, { Section, P, UL, Callout } from '../../components/LegalLayout'
 
 export default function TermsPage() {
   return (
@@ -128,7 +128,7 @@ export default function TermsPage() {
           These Terms are governed by and construed in accordance with the laws of the Republic of Zambia. Any dispute arising from these Terms shall be subject to the exclusive jurisdiction of the courts of Zambia.
         </P>
         <Callout color="var(--muted)">
-          ⚖ Note to Paul: This clause and the limitation of liability section should be reviewed by a Zambian commercial lawyer before mass launch to ensure full compliance with the Zambia Consumer Protection Act and any other applicable legislation.
+{/*           ⚖ Note to Paul: This clause and the limitation of liability section should be reviewed by a Zambian commercial lawyer before mass launch to ensure full compliance with the Zambia Consumer Protection Act and any other applicable legislation. */}
         </Callout>
       </Section>
 
@@ -141,7 +141,7 @@ export default function TermsPage() {
       <Section title="13. Contact">
         <P>
           For questions about these Terms, contact us at:<br />
-          <strong>Email:</strong> legal@malovate.com<br />
+          <strong>Email:</strong> malovate.tech@gmail.com<br />
           <strong>Company:</strong> Malovate Limited, Zambia<br />
           <strong>Support:</strong> <a href="/contact" style={{ color: 'var(--blue-bright)' }}>Contact page</a>
         </P>

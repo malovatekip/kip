@@ -1,5 +1,5 @@
 import React from 'react'
-import LegalLayout, { Section, P, UL, Callout } from '../components/LegalLayout'
+import LegalLayout, { Section, P, UL, Callout } from '../../components/LegalLayout'
 
 export default function PrivacyPage() {
   return (
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           <strong>Malovate Limited</strong> ("Malovate", "we", "us") is the data controller responsible for your personal data on the Kwacha Intelligence Platform ("KIP"). We are incorporated in Zambia.
         </P>
         <P>
-          For data protection queries, contact our Data Protection Officer at: <strong>privacy@malovate.com</strong>
+          For data protection queries, contact our Data Protection Officer at: <strong>paulmaloba21@gmail.com</strong>
         </P>
       </Section>
 
@@ -127,10 +127,10 @@ export default function PrivacyPage() {
           'Withdraw consent — where processing is based on consent, withdraw it at any time',
         ]} />
         <P>
-          To exercise any of these rights, email <strong>privacy@malovate.com</strong> with your request. We will respond within 30 days as required by law.
+          To exercise any of these rights, email <strong>kip.support@gmail.com</strong> with your request. We will respond within 30 days as required by law.
         </P>
         <Callout color="var(--muted)">
-          ⚖ Note to Paul: Confirm that Malovate is registered with the Zambia Information and Communications Technology Authority (ZICTA) as a data controller under the Data Protection Act before mass launch.
+{/*           ⚖ Note to Paul: Confirm that Malovate is registered with the Zambia Information and Communications Technology Authority (ZICTA) as a data controller under the Data Protection Act before mass launch. */}
         </Callout>
       </Section>
 
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
 
       <Section title="9. Children's Privacy">
         <P>
-          KIP is not intended for use by persons under the age of 18. We do not knowingly collect personal data from minors. If you believe a minor has created an account, please contact privacy@malovate.com and we will delete the account promptly.
+          KIP is not intended for use by persons under the age of 18. We do not knowingly collect personal data from minors. If you believe a minor has created an account, please contact kip.malovate.ai@gmail.com and we will delete the account promptly.
         </P>
       </Section>
 
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
       <Section title="11. Contact">
         <P>
           For privacy-related concerns:<br />
-          <strong>Email:</strong> privacy@malovate.com<br />
+          <strong>Email:</strong> paulmaloba21@gmail.com<br />
           <strong>Data Protection Officer:</strong> Malovate Limited, Zambia<br /><br />
           To report a data protection concern to the regulator:<br />
           <strong>ZICTA:</strong> Zambia Information and Communications Technology Authority — zicta.zm

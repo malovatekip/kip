@@ -78,9 +78,9 @@ export default function Footer() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {[
-                { label: 'General',      value: 'hello@malovate.com'    },
-                { label: 'Support',      value: 'support@malovate.com'  },
-                { label: 'Partnerships', value: 'partners@malovate.com' },
+                { label: 'General',      value: 'malovate.tech@gmail.com'    },
+                { label: 'Support',      value: 'kip.support@gmail.com'  },
+                { label: 'Whatsapp', value: '+260750925784' },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <div style={{ fontSize: 10, color: 'var(--faint)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 1 }}>{label}</div>
