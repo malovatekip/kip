@@ -111,9 +111,9 @@ export default function ChatPage() {
 
   const SUGGESTIONS = [
     "I have K5,000. What business can I start in Lusaka?",
-    "I have K20,000 in Kitwe Riverside. Any ideas?",
+    "Show me how to calculate the Price Elasticity of Demand?",
     "Best business for K50,000 with no skills in Ndola?",
-    "What suits a teacher with K10,000 in Chipata?",
+    "What is driving inflation in Zambia?",
   ]
 
   /* ── Conversation list ─────────────────────── */
@@ -226,7 +226,7 @@ export default function ChatPage() {
                   <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: 'var(--glow-blue)' }}>
                     <Zap size={24} color="#fff" />
                   </div>
-                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Sorry, KIP is currently offline</h2>
+                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Chat with KIP</h2>
                   <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>Tell me your capital, location, and skills — I'll find the right business for you.</p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -296,7 +296,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                placeholder="KIP is currently offline"
+                placeholder="ask KIP"
                 rows={1}
                 className="kip-input"
                 style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}
