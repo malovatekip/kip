@@ -1,9 +1,8 @@
 import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { ThemeProvider } from './hooks/useTheme'
-import { PricingPage, BillingPage } from './pages/PricingAndBilling'
 
 import LandingPage           from './pages/LandingPage'
 import LoginPage             from './pages/LoginPage'
@@ -18,25 +17,13 @@ import SurveyPage            from './pages/SurveyPage'
 import TemplatesPage         from './pages/TemplatesPage'
 import GeneralSurveyPage     from './pages/GeneralSurveyPage'
 import EnterprisePage        from './pages/EnterprisePage'
-
-// Legal pages
 import TermsPage             from './pages/legal/TermsPage'
 import PrivacyPage           from './pages/legal/PrivacyPage'
 import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
-
-import CapitalAccessPage from './pages/CapitalAccessPage'
-import MarketIntelligencePage from './pages/MarketIntelligencePage'
-import LearnPage from './pages/LearnPage'
-import BizSimPage from './pages/BizSimPage'
-
-
-
+import { PricingPage, BillingPage }           from './pages/PricingAndBilling'
 
 function Protected({ children }) {
-  const token =
-    localStorage.getItem('kip_token') ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('access_token')
+  const { token } = useAuth()
   return token ? children : <Navigate to="/login" replace />
 }
 
@@ -64,11 +51,7 @@ function AppRoutes() {
         <Route path="/"              element={<LandingPage />} />
         <Route path="/login"         element={<LoginPage />} />
         <Route path="/register"      element={<RegisterPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-
-
-
-        {/* Legal — public, no auth required */}
+        <Route path="/pricing"       element={<PricingPage />} />
         <Route path="/legal/terms"   element={<TermsPage />} />
         <Route path="/legal/privacy" element={<PrivacyPage />} />
         <Route path="/legal/cookies" element={<CookiePage />} />
@@ -76,7 +59,6 @@ function AppRoutes() {
         <Route path="/contact"       element={<ContactPage />} />
 
         {/* Protected */}
-        <Route path="/billing" element={<Protected><BillingPage /></Protected>} />
         <Route path="/dashboard"   element={<Protected><DashboardPage /></Protected>} />
         <Route path="/chat"        element={<Protected><ChatPage /></Protected>} />
         <Route path="/chat/:id"    element={<Protected><ChatPage /></Protected>} />
@@ -85,10 +67,7 @@ function AppRoutes() {
         <Route path="/templates"   element={<Protected><TemplatesPage /></Protected>} />
         <Route path="/survey"      element={<Protected><GeneralSurveyPage /></Protected>} />
         <Route path="/enterprise"  element={<Protected><EnterprisePage /></Protected>} />
-        <Route path="/capital" element={<Protected><CapitalAccessPage /></Protected>} />
-        <Route path="/market" element={<Protected><MarketIntelligencePage /></Protected>} />
-        <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
-        <Route path="/bizsim" element={<Protected><BizSimPage /></Protected>} />
+        <Route path="/billing"     element={<Protected><BillingPage /></Protected>} />
 
         {/* Business */}
         <Route path="/business/:planId"        element={<Protected><BusinessDashboardPage /></Protected>} />
@@ -103,10 +82,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   )
 }

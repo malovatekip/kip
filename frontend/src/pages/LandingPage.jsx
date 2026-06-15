@@ -40,11 +40,12 @@ export default function LandingPage() {
             <div style={{ display: 'flex', gap: 10 }}>
               <Link to="/login" className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '8px 18px' }}>Sign In</Link>
               <Link to="/register" className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '8px 18px' }}>Get Started Free</Link>
+
             </div>
           </div>
         </header>
 
-        {/* Hero */}
+        {/* Hero sign */}
         <section style={{ padding: 'clamp(60px,10vh,120px) 24px', textAlign: 'center' }}>
           <div style={{ maxWidth: 780, margin: '0 auto' }}>
             <div style={{
@@ -96,6 +97,7 @@ export default function LandingPage() {
               <Link to="/login" className="kip-btn kip-btn-ghost" style={{ fontSize: 15, padding: '13px 28px' }}>
                 Sign In
               </Link>
+              <Link to="/pricing" className="kip-btn kip-btn-primary" style={{ fontSize: 15, padding: '13px 28px' }}>View Pricing</Link>
             </div>
           </div>
         </section>
@@ -177,6 +179,7 @@ export default function LandingPage() {
             <Link to="/register" className="kip-btn kip-btn-primary" style={{ fontSize: 15, padding: '13px 32px' }}>
               Get Started Free <ArrowRight size={16} />
             </Link>
+
           </div>
         </section>
 

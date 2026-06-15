@@ -6,7 +6,7 @@ Tables are created inline via raw SQL so no import chain can break the route.
 import json
 import os
 import re
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import text as sqlt
 from pydantic import BaseModel
@@ -18,6 +18,7 @@ from app.security import get_current_user
 from app.models.user import User
 from app.models.business_dashboard import BusinessLaunchPlan, DailyBusinessLog
 from app.models.business_idea import BusinessIdea
+from app.routes.language_support import get_language_from_request, language_instruction
 
 router = APIRouter()
 
@@ -207,9 +208,11 @@ def get_history(
 @router.post("/chat")
 async def business_chat(
     req: BusinessChatRequest,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    lang = get_language_from_request(request)
     _ensure_tables(db)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -250,6 +253,7 @@ async def business_chat(
 
     context = _build_context(plan, idea, logs, survey)
     system  = f"BUSINESS CONTEXT:\n{'='*60}\n{context}\n{'='*60}\n\n{SYSTEM_BASE}"
+    system += "\n\n" + language_instruction(lang)
 
     # Load recent history
     hist = db.execute(sqlt(

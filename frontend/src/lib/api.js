@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getLanguage } from '../hooks/useLanguage'
 
 //const api = axios.create({ baseURL: '/api' }) ==
 const api = axios.create({
@@ -9,6 +10,7 @@ const api = axios.create({
 // Attach token to every request automatically ==
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('kip_token')
+  config.headers['X-KIP-Language'] = getLanguage()
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })

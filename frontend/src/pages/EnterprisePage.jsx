@@ -51,6 +51,19 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
   const [loading, setLoading] = useState(false)
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
+//   const submit = async () => {
+//     if (!form.name.trim()) { toast.error('Enter enterprise name.'); return }
+//     setLoading(true)
+//     try {
+//       const { data } = await api.post('/enterprise/create', form)
+//       toast.success('Enterprise created!')
+//       onCreated(data)
+//       onClose()
+//     } catch (err) {
+//       toast.error(err.response?.data?.detail || 'Could not create enterprise.')
+//     } finally { setLoading(false) }
+//   }
+
   const submit = async () => {
     if (!form.name.trim()) { toast.error('Enter enterprise name.'); return }
     setLoading(true)
@@ -60,7 +73,19 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
       onCreated(data)
       onClose()
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not create enterprise.')
+      const errData = err.response?.data;
+
+      // Safely drill down to find a string message
+      let errorMsg = 'Could not create enterprise.';
+      if (errData?.detail?.message) {
+        errorMsg = errData.detail.message;
+      } else if (errData?.message) {
+        errorMsg = errData.message;
+      } else if (typeof errData?.detail === 'string') {
+        errorMsg = errData.detail;
+      }
+
+      toast.error(errorMsg);
     } finally { setLoading(false) }
   }
 
@@ -120,7 +145,14 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
       onAdded()
       onClose()
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not add branch.')
+      const errData = err.response?.data;
+
+      let errorMsg = 'Could not add branch.';
+      if (errData?.detail?.message) errorMsg = errData.detail.message;
+      else if (errData?.message) errorMsg = errData.message;
+      else if (typeof errData?.detail === 'string') errorMsg = errData.detail;
+
+      toast.error(errorMsg);
     } finally { setLoading(false) }
   }
 
@@ -269,7 +301,7 @@ export default function EnterprisePage() {
   const [showCreate,     setShowCreate]     = useState(false)
   const [showAddBranch,  setShowAddBranch]  = useState(false)
 
-  const isPremium = ['premium','enterprise','pro'].includes((user?.plan_tier || 'free').toLowerCase())
+//   const isPremium = ['premium','enterprise','pro'].includes((user?.plan_tier || 'free').toLowerCase())
 
   const loadEnterprises = () => {
     api.get('/enterprise/my-enterprises').then(r => {
@@ -305,7 +337,7 @@ export default function EnterprisePage() {
   const totalProfit    = branches.reduce((s, b) => s + (b.profit_7d   || 0), 0)
   const totalCustomers = branches.reduce((s, b) => s + (b.customers_7d|| 0), 0)
 
-  if (!isPremium) return <Layout><PremiumGate /></Layout>
+//   if (!isPremium) return <Layout><PremiumGate /></Layout>
 
   return (
     <Layout>

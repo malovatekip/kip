@@ -26,6 +26,12 @@ from app.routes import (
 from app.routes import enterprise
 from app.routes import add_own_business
 
+from app.routes import capital_access
+from app.routes import learn
+from app.routes import bizsim_routes
+
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Kwacha Intelligence Platform — KIP API", version="4.0.0")
@@ -55,6 +61,9 @@ app.include_router(templates.router,       prefix="/api/templates",      tags=["
 app.include_router(business_chat.router,   prefix="/api/business-chat",  tags=["Business Chat"])
 app.include_router(enterprise.router,      prefix="/api/enterprise",     tags=["Enterprise"])
 app.include_router(add_own_business.router,prefix="/api/business",       tags=["Business"])
+app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital"])
+app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
+app.include_router(bizsim_routes.router, prefix="/api/bizsim", tags=["BizSim"])
 
 @app.get("/")
 def root():

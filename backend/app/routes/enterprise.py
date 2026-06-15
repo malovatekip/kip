@@ -114,7 +114,7 @@ async def create_enterprise(
     db: Session = Depends(get_db)
 ):
     """Create a new enterprise. Premium only."""
-    _require_premium(current_user)
+    # _require_premium(current_user)
     _ensure_tables(db)
 
     enterprise = EnterpriseBusiness(

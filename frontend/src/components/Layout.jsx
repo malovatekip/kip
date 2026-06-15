@@ -5,10 +5,14 @@ import { useTheme } from '../hooks/useTheme'
 import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
-  FileText, Globe, X, Menu, Sun, Moon, Building2, Crown
+  FileText, Globe, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
+  BarChart2, BookOpen, Gamepad2
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
+import TrialBanner from './TrialBanner'
+import OfflineBanner from './OfflineBanner'
+import LanguageToggle from './LanguageToggle'
 
 const NAV = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard'   },
@@ -16,6 +20,10 @@ const NAV = [
   { to: '/news',       icon: Newspaper,       label: 'News'        },
   { to: '/ideas',      icon: Lightbulb,       label: 'My Ideas'    },
   { to: '/templates',  icon: FileText,        label: 'Templates'   },
+  { to: '/learn', icon: BookOpen, label: 'Learn' },
+  { to: '/bizsim', icon: Gamepad2, label: 'Simulate' },
+  { to: '/capital', icon: DollarSign, label: 'Funding' },
+  { to: '/market', icon: BarChart2, label: 'Market Intel' },
   { to: '/survey',     icon: Globe,           label: 'Survey'      },
   { to: '/enterprise', icon: Crown,           label: 'Enterprise', premium: true },
 ]
@@ -89,7 +97,6 @@ export default function Layout({ children }) {
       </Link>
     )
   }
-
   return (
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--base)', position: 'relative' }}>
       <div className="mesh-bg" />
@@ -110,6 +117,7 @@ export default function Layout({ children }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, letterSpacing: '0.1em', color: 'var(--text)' }}>KIP</div>
               <div style={{ fontSize: 9, color: 'var(--muted)' }}>Business Intelligence</div>
+
             </div>
           )}
           {!collapsed && <ThemeBtn size={15} />}
@@ -123,7 +131,7 @@ export default function Layout({ children }) {
             </div>
           ))}
         </nav>
-
+        <LanguageToggle />
         <div style={{ borderTop: '1px solid var(--border)', padding: '10px 8px' }}>
           {collapsed && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}><ThemeBtn /></div>}
           <div className="relative group" style={{ marginBottom: 4 }}>
@@ -221,6 +229,8 @@ export default function Layout({ children }) {
           </div>
         </header>
 
+{/*         <TrialBanner /> */}
+{/*         <OfflineBanner /> */}
         <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 64px)', WebkitOverflowScrolling: 'touch' }} className="kip-main-content">
           {children}
         </main>

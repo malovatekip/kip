@@ -435,3 +435,31 @@ def get_town_survey(slug: str, current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Town not found.")
     with open(fp) as f:
         return json.load(f)
+
+@router.get("/market-intelligence")
+def get_market_intelligence(db: Session = Depends(get_db)):
+    """Public aggregated market data by town — no auth required."""
+    if not os.path.exists(SURVEY_DIR):
+        return {"towns": []}
+    towns = []
+    for fname in sorted(os.listdir(SURVEY_DIR)):
+        if not fname.endswith('.json'):
+            continue
+        fp = os.path.join(SURVEY_DIR, fname)
+        try:
+            with open(fp) as f:
+                d = json.load(f)
+            agg = d.get("aggregated", {})
+            if agg.get("total_submissions", 0) == 0:
+                continue
+            towns.append({
+                "town":        d.get("town", fname),
+                "slug":        d.get("slug", fname.replace('.json','')),
+                "submissions": agg.get("total_submissions", 0),
+                "last_updated":d.get("last_updated"),
+                "aggregated":  agg,
+            })
+        except Exception:
+            pass
+    towns.sort(key=lambda x: x["submissions"], reverse=True)
+    return {"towns": towns, "total": len(towns)}

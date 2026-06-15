@@ -41,6 +41,7 @@ export default function Footer() {
                 { to: '/login',    label: 'Sign In'          },
                 { to: '/about',    label: 'About KIP'        },
                 { to: '/contact',  label: 'Contact Us'       },
+                { to: '/pricing', label: 'Pricing' }
               ].map(({ to, label }) => (
                 <Link key={to} to={to} style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.15s' }}
                   onMouseEnter={e => e.target.style.color = 'var(--text)'}

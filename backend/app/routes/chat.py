@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
@@ -9,6 +9,7 @@ from app.models.conversation import Conversation, Message
 from app.schemas import ChatMessage, ChatResponse, ConversationOut
 from app.security import get_current_user
 from app.services.kip_engine import generate_kip_response
+from app.routes.language_support import get_language_from_request
 
 router = APIRouter()
 
@@ -16,9 +17,11 @@ router = APIRouter()
 @router.post("/send", response_model=ChatResponse)
 async def send_message(
     payload: ChatMessage,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    lang = get_language_from_request(request)
     # Get or create conversation
     if payload.conversation_id:
         conv = db.query(Conversation).filter(
@@ -50,7 +53,8 @@ async def send_message(
         user_message=payload.message,
         history=history[:-1],
         user=current_user,
-        db=db
+        db=db,
+        lang=lang
     )
 
     # Save KIP reply

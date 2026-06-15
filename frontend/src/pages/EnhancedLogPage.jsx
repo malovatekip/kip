@@ -10,6 +10,7 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { submitLog } from '../lib/submitLog'
 
 /* ── Collapsible section ─────────────────────────────── */
 function Section({ icon: Icon, title, color, children, defaultOpen = false }) {
@@ -146,8 +147,17 @@ export default function EnhancedLogPage() {
         notes:        form.notes      || null,
       }
 
-      // ── Calls /api/business/log — the correct endpoint ──
-      const { data } = await api.post('/business/log', payload)
+      // ── Calls /api/business/log — the correct endpoint  ──
+//       const { data } = await api.post('/business/log', payload)
+      const result = await submitLog({ ...payload, plan_id: parseInt(planId) })
+      const data = result.data || {}
+
+      if (result.queued) {
+        toast.success('Log saved offline — will sync when you\'re back online.')
+        setSubmitted(true)
+        setCoaching('Your log has been saved offline. KIP coaching will be available once your log syncs to the server.')
+        return
+      }
 
       setCoaching(data.coaching)
       setSubmitted(true)
@@ -326,7 +336,7 @@ export default function EnhancedLogPage() {
           </div>
         </Section>
 
-        {/* Submit */}
+        {/* Submit await */}
         <button onClick={handleSubmit} disabled={loading} style={{
           width: '100%', padding: '14px 0', marginTop: 8,
           background: 'linear-gradient(135deg, var(--blue), var(--mid))',

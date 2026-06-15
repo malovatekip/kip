@@ -6,6 +6,15 @@ import { AuthProvider } from './hooks/useAuth'
 import App from './App'
 import './index.css'
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'LOG_SYNCED') {
+      // Optional: show a toast when a queued log syncs
+      console.log('KIP: offline log synced')
+    }
+  })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
