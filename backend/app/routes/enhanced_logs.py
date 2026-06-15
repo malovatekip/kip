@@ -4,7 +4,7 @@ All endpoints for daily logs, ML predictions, weekly reviews, and market survey.
 """
 
 import json
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime, timedelta
@@ -18,6 +18,7 @@ from app.models.enhanced_logs import (
     EnhancedDailyLog, BusinessLogTemplate, WeeklyReview,
     MLPrediction, MarketSurvey
 )
+from app.routes.language_support import get_language_from_request, language_instruction
 from app.services.ml_engine import run_all_predictions
 from app.services.log_service import (
     generate_log_template, generate_daily_coaching, generate_weekly_review
@@ -26,7 +27,7 @@ from app.services.log_service import (
 router = APIRouter()
 
 
-# ── Schemas ────────────────────────────────────────────────────────────────
+# ── Schemas ──────────────────────────────────────────────────────────────── submit
 
 class DailyLogRequest(BaseModel):
     plan_id: int
@@ -148,9 +149,11 @@ async def get_log_template(
 @router.post("/submit")
 async def submit_log(
     req: DailyLogRequest,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    lang = get_language_from_request(request)
     """
     Submit today's log. Triggers ML predictions and coaching generation.
     """
@@ -247,7 +250,8 @@ async def submit_log(
         ml_predictions=ml,
         business_name=plan.business_name,
         user_name=current_user.full_name,
-        projected_monthly_profit=plan.projected_monthly_profit or 0
+        projected_monthly_profit=plan.projected_monthly_profit or 0,
+        lang=lang
     )
     log.coaching_response = coaching
     log.coaching_at = datetime.utcnow()
@@ -325,9 +329,11 @@ def get_predictions(
 @router.post("/weekly-review/{plan_id}")
 async def trigger_weekly_review(
     plan_id: int,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    lang = get_language_from_request(request)
     """Generate or retrieve the weekly review."""
     plan = db.query(BusinessLaunchPlan).filter(
         BusinessLaunchPlan.id == plan_id,
@@ -358,7 +364,8 @@ async def trigger_weekly_review(
         logs=[_log_to_dict(l) for l in current_logs],
         business_name=plan.business_name,
         user_name=current_user.full_name,
-        prev_week_logs=[_log_to_dict(l) for l in prev_logs] if prev_logs else None
+        prev_week_logs=[_log_to_dict(l) for l in prev_logs] if prev_logs else None,
+        lang=lang
     )
 
     # Save weekly review

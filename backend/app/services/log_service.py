@@ -10,6 +10,7 @@ from typing import List, Dict, Optional
 import anthropic
 
 from app.services.ml_engine import run_all_predictions
+from app.routes.language_support import language_instruction
 
 COACHING_PROMPT = """
 You are KIP — the Kwacha Intelligence Platform — acting as a daily business performance coach.
@@ -133,7 +134,8 @@ async def generate_daily_coaching(
     ml_predictions: Dict,
     business_name: str,
     user_name: str,
-    projected_monthly_profit: float = 0
+    projected_monthly_profit: float = 0,
+    lang: str ="en"
 ) -> str:
     """
     Generate personalised daily coaching after a log submission.
