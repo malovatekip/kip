@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
+@import './styles/kip-tokens.css';
+@import './styles/kip-components.css';
+
+@import './styles/kip-bridge.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,6 +20,8 @@
 
   --blue:        #2B7FFF;
   --blue-bright: #5BA3FF;
+  --copper:      #C2410C;     /* Rich copper */
+  --copper-light:#F59E0B;
   --blue-dim:    rgba(43,127,255,0.18);
   --blue-mid:    #1A5FCC;
 
@@ -112,7 +119,7 @@
   --input-border: rgba(0,0,0,0.12);
 }
 
-/* ─── Base ─────────────────────────────────────────── */
+/* ─── Base ─────────────────────────────────────────── card */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
