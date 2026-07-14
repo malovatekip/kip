@@ -1,13 +1,16 @@
+import { TranslationProvider } from './context/TranslationContext'
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
+// import { LoginPage, RegisterPage } from './pages/AuthPages'
 import { ThemeProvider } from './hooks/useTheme'
 import { PricingPage, BillingPage } from './pages/PricingAndBilling'
 
 import LandingPage           from './pages/LandingPage'
 import LoginPage             from './pages/LoginPage'
 import RegisterPage          from './pages/RegisterPage'
+import VerifyEmailPage       from './pages/VerifyEmailPage'
 import DashboardPage         from './pages/DashboardPage'
 import ChatPage              from './pages/ChatPage'
 import NewsPage              from './pages/NewsPage'
@@ -28,6 +31,10 @@ import CapitalAccessPage from './pages/CapitalAccessPage'
 import MarketIntelligencePage from './pages/MarketIntelligencePage'
 import LearnPage from './pages/LearnPage'
 import BizSimPage from './pages/BizSimPage'
+
+// ── NEW: Startup guidance page (CTO addition — business registration roadmap) ──
+import StartupPage     from './pages/StartupPage'
+import StartupChatPage from './pages/StartupChatPage'
 
 
 
@@ -64,6 +71,7 @@ function AppRoutes() {
         <Route path="/"              element={<LandingPage />} />
         <Route path="/login"         element={<LoginPage />} />
         <Route path="/register"      element={<RegisterPage />} />
+        <Route path="/verify-email"  element={<VerifyEmailPage />} />
         <Route path="/pricing" element={<PricingPage />} />
 
 
@@ -90,6 +98,11 @@ function AppRoutes() {
         <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
         <Route path="/bizsim" element={<Protected><BizSimPage /></Protected>} />
 
+        {/* ── NEW: Startup guidance — protected, business registration roadmap ── */}
+        <Route path="/startup"            element={<Protected><StartupPage /></Protected>} />
+        <Route path="/startup/chat"       element={<Protected><StartupChatPage /></Protected>} />
+        <Route path="/startup/chat/:stepId" element={<Protected><StartupChatPage /></Protected>} />
+
         {/* Business */}
         <Route path="/business/:planId"        element={<Protected><BusinessDashboardPage /></Protected>} />
         <Route path="/business/:planId/log"    element={<Protected><EnhancedLogPage /></Protected>} />
@@ -104,9 +117,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+        <TranslationProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </TranslationProvider>
     </ThemeProvider>
   )
 }

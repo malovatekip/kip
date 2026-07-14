@@ -1,0 +1,148 @@
+/*
+ * KIP CSS Bridge
+ * ==============
+ * Remaps the old dark-mode variable names to the new light design system.
+ * This means Layout.jsx, all page components, and all existing styles
+ * continue working without any changes — they just get light values now.
+ *
+ * IMPORT ORDER in index.css must be:
+ *   @import './styles/kip-tokens.css';    (new token system)
+ *   @import './styles/kip-components.css'; (new component classes)
+ *   @import './styles/kip-bridge.css';     (this file — overrides old dark vars)
+ *
+ * The bridge file must come LAST so it wins over anything the old system set.
+ */
+
+:root {
+  /* ── Backgrounds ──────────────────────────────────────────────────────── */
+  --base:           #F7F8FC;      /* was: dark navy. Now: bright off-white */
+  --card:           #FFFFFF;      /* was: #111E35. Now: pure white card     */
+  --sidebar-bg:     #FFFFFF;      /* was: dark. Now: clean white sidebar    */
+  --input-bg:       #F1F3F9;      /* was: dark input. Now: light grey       */
+  --nav-active-bg:  rgba(26, 108, 240, 0.08);  /* light blue tint on active */
+  --nav-active-border: rgba(26, 108, 240, 0.20);
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --text:           #0C1421;      /* was: #F1F5F9 (white). Now: near-black  */
+  --muted:          #6B7A99;      /* was: #64748B (light grey on dark).     */
+  --faint:          #9DAACC;      /* very subtle text                       */
+
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --border:         #E2E8F2;      /* was: dark blue-grey. Now: light grey   */
+
+  /* ── Brand colours — these stay the same ─────────────────────────────── */
+  --blue:           #1A6CF0;
+  --blue-bright:    #1A6CF0;
+  --blue-mid:       #4B8DE3;
+  --blue-dim:       rgba(26, 108, 240, 0.10);
+  --teal:           #0D9488;
+  --teal-dim:       rgba(13, 148, 136, 0.10);
+  --gold:           #C8763A;
+  --gold-dim:       rgba(200, 118, 58, 0.10);
+  --green:          #16A34A;
+  --green-dim:      rgba(22, 163, 74, 0.10);
+  --red:            #DC2626;
+  --red-dim:        rgba(220, 38, 38, 0.10);
+  --purple:         #7C3AED;
+  --purple-dim:     rgba(124, 58, 237, 0.10);
+
+  /* ── Mesh / particle background ──────────────────────────────────────── */
+  /* Your existing .mesh-bg class probably draws a dark gradient.
+     We reset it to nothing so KipBackground handles the ambient colour. */
+}
+
+/* Override the mesh-bg to be invisible — KipBackground handles ambience */
+.mesh-bg {
+  display: none !important;
+}
+
+/* ── Dark mode — when user explicitly toggles dark ───────────────────── */
+[data-theme="dark"] {
+  --base:           #0C1221;
+  --card:           #162032;
+  --sidebar-bg:     #111927;
+  --input-bg:       #1C2A3E;
+  --nav-active-bg:  rgba(26, 108, 240, 0.15);
+  --nav-active-border: rgba(26, 108, 240, 0.30);
+
+  --text:           #EEF2FF;
+  --muted:          #A8B8D8;
+  --faint:          #465570;
+  --border:         #1E3050;
+}
+
+/* ── Ensure body background is always correct ────────────────────────── */
+body {
+  background-color: var(--base);
+  color: var(--text);
+}
+
+/* ── Sidebar gets white background in light mode ─────────────────────── */
+aside {
+  background: var(--sidebar-bg) !important;
+}
+
+/* ── Bottom nav gets white background in light mode ─────────────────── */
+.kip-bottom-nav {
+  background: var(--sidebar-bg) !important;
+  border-top: 1px solid var(--border) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Headers get semi-transparent white ─────────────────────────────── */
+.kip-mobile-header {
+  background: rgba(247, 248, 252, 0.92) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Theme toggle button ─────────────────────────────────────────────── */
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+.theme-toggle:hover {
+  background: var(--blue-dim);
+  border-color: var(--blue-mid);
+  color: var(--blue);
+}
+
+/* ── KIP tooltip (collapsed sidebar labels) ──────────────────────────── */
+.kip-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--text);
+  color: var(--base);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.group:hover .kip-tooltip {
+  opacity: 1;
+}
+
+/* ── Particle/energy background cleanup ──────────────────────────────── */
+/* If you have any canvas or particle elements, hide them */
+canvas[id="particle-canvas"],
+.particle-container,
+.energy-field {
+  display: none !important;
+}

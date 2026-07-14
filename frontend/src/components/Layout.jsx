@@ -1,3 +1,5 @@
+import KipBackground from './KipBackground'
+
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
@@ -6,7 +8,7 @@ import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
   FileText, Globe, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
-  BarChart2, BookOpen, Gamepad2
+  BarChart2, BookOpen, Gamepad2, Rocket
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
@@ -16,13 +18,14 @@ import LanguageToggle from './LanguageToggle'
 
 const NAV = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard'   },
-  { to: '/chat',       icon: MessageSquare,   label: 'Ask KIP'     },
+  { to: '/chat',       icon: MessageSquare,   label: 'Chat'     },
   { to: '/news',       icon: Newspaper,       label: 'News'        },
-  { to: '/ideas',      icon: Lightbulb,       label: 'My Ideas'    },
-  { to: '/templates',  icon: FileText,        label: 'Templates'   },
+  { to: '/ideas',      icon: Lightbulb,       label: 'Ideas'    },
+  { to: '/startup',    icon: Rocket,          label: 'Startup'     },
+  { to: '/templates',  icon: FileText,        label: 'Forms'   },
   { to: '/learn', icon: BookOpen, label: 'Learn' },
   { to: '/bizsim', icon: Gamepad2, label: 'Simulate' },
-  { to: '/capital', icon: DollarSign, label: 'Funding' },
+//   { to: '/capital', icon: DollarSign, label: 'Funding' },
   { to: '/market', icon: BarChart2, label: 'Market Intel' },
   { to: '/survey',     icon: Globe,           label: 'Survey'      },
   { to: '/enterprise', icon: Crown,           label: 'Enterprise', premium: true },
@@ -99,12 +102,13 @@ export default function Layout({ children }) {
   }
   return (
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--base)', position: 'relative' }}>
-      <div className="mesh-bg" />
+        <KipBackground />
+
 
       {mobileOpen && (
         <div onClick={() => setMobileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }} />
       )}
-
+{/*       <EnergyField/> */}
       {/* Desktop sidebar */}
       <aside className="kip-sidebar-desktop" style={{
         width: collapsed ? 68 : 256, flexShrink: 0, display: 'none',

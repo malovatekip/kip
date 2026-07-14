@@ -194,7 +194,7 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* ── Chat area ── */}
+        {/* ── Chat area ask── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
 
           {/* Header */}
@@ -296,11 +296,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-<<<<<<< HEAD
                 placeholder="Ask Kip"
-=======
-                placeholder="ask KIP"
->>>>>>> db86f1e71e506e16af51885932373d71f70aa510
                 rows={1}
                 className="kip-input"
                 style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}

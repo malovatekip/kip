@@ -405,7 +405,7 @@ export default function DashboardPage() {
         {/* ── Divider ── */}
         {(plans.length > 0) && <div className="kip-divider" />}
 
-        {/* ── Bottom row: recent ideas + news ── */}
+        {/* ── Bottom row: recent ideas + news  ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
 
           {/* Recent ideas */}

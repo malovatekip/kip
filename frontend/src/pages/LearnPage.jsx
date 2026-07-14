@@ -268,7 +268,7 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
       </div>
 
       <div style={{ padding: '12px 16px', background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.25)', borderRadius: 12, marginBottom: 18, fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-        <strong style={{ color: 'var(--text)' }}>FinScope-aligned assessment.</strong> These questions mirror the Bank of Zambia's multidimensional financial literacy framework. Answer all {questions.length} questions honestly. You need <strong style={{ color: 'var(--blue-bright)' }}>70%</strong> to earn your badge.
+        <strong style={{ color: 'var(--text)' }}>Assessment.</strong> Answer all {questions.length} questions honestly. You need <strong style={{ color: 'var(--blue-bright)' }}>70%</strong> to earn your badge.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18 }}>
@@ -322,7 +322,7 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
   )
 }
 
-// ── Result view ────────────────────────────────────────────────────────────────
+// ── Result view ──────────────────────────────────────────────────────────────── design
 function ResultView({ result, course, onRetry, onBack }) {
   const [showAll, setShowAll] = useState(false)
   return (
@@ -583,7 +583,7 @@ export default function LearnPage() {
             <div style={{ display: 'flex', gap: 10, padding: '12px 16px', background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.2)', borderRadius: 12, marginBottom: 18 }}>
               <Zap size={14} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
               <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: 0, lineHeight: 1.65 }}>
-                <strong style={{ color: 'var(--text)' }}>Why this matters:</strong> The Zambia FinScope 2025 Survey (Bank of Zambia) found that only <strong style={{ color: 'var(--blue-bright)' }}>46.1%</strong> of Zambian adults are financially literate and only <strong style={{ color: 'var(--green)' }}>39.1%</strong> are financially healthy. KIP Learn is designed to help change those numbers.
+{/*                 <strong style={{ color: 'var(--text)' }}>Why this matters:</strong> The Zambia FinScope 2025 Survey (Bank of Zambia) found that only <strong style={{ color: 'var(--blue-bright)' }}>46.1%</strong> of Zambian adults are financially literate and only <strong style={{ color: 'var(--green)' }}>39.1%</strong> are financially healthy. KIP Learn is designed to help change those numbers. */}
               </p>
             </div>
 

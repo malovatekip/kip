@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   FileText, ExternalLink, Sparkles, Mail, BarChart2,
-  BookOpen, Loader2, X, Download, CheckCircle
+  BookOpen, Loader2, X, Download, CheckCircle, Search,
+  Landmark, Rocket
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { STARTUP_FORMS, AUTHORITIES } from '../data/startupData'
 
 /* Tab definitions — short label for mobile */
 const TABS = [
@@ -13,6 +16,7 @@ const TABS = [
   { key: 'forms',          label: 'Forms',         short: 'Forms',    icon: FileText   },
   { key: 'letters',        label: 'Letters',       short: 'Letters',  icon: Mail       },
   { key: 'business_plans', label: 'Business Plans',short: 'Plans',    icon: BarChart2  },
+  { key: 'startup',        label: 'Startup & Registration', short: 'Startup', icon: Rocket },
 ]
 
 const COLOR_MAP = {
@@ -24,9 +28,12 @@ const COLOR_MAP = {
   '#2B7FFF': { bg: 'rgba(43,127,255,0.1)',  border: 'rgba(43,127,255,0.3)'  },
 }
 
-const getColors = (color) => COLOR_MAP[color] || COLOR_MAP['#2B7FFF']
+function getColors(color) {
+  if (COLOR_MAP[color]) return COLOR_MAP[color]
+  return { bg: `${color}1A`, border: `${color}4D` }
+}
 
-/* ── Letter modal ──────────────────────────────────── */
+/* ── Letter modal (existing AI letter generation ) ──────────────── */
 function LetterModal({ template, plans, onClose }) {
   const [planId,    setPlanId]    = useState(plans[0]?.id || '')
   const [recipient, setRecipient] = useState('')
@@ -60,10 +67,8 @@ function LetterModal({ template, plans, onClose }) {
       onClick={onClose}>
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 640, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}>
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 18px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
           <div>
-            {/* CHANGED: color: '#fff' -> var(--text) */}
             <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', margin: 0 }}>{template.title}</h2>
             <p style={{ fontSize: 11, color: 'var(--muted)', margin: 0 }}>{template.description}</p>
           </div>
@@ -72,7 +77,6 @@ function LetterModal({ template, plans, onClose }) {
           </button>
         </div>
 
-        {/* Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 18 }}>
           {!letter ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -120,7 +124,188 @@ function LetterModal({ template, plans, onClose }) {
   )
 }
 
-/* ── Template card ─────────────────────────────────── */
+/* ── NEW: Government / Startup form detail modal ─────────────────────────── */
+function GovFormModal({ form, onClose }) {
+  const authority = AUTHORITIES[form.authority] || {}
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,12,24,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 560, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{
+          padding: '18px 20px', borderBottom: '1px solid var(--border)', flexShrink: 0,
+          background: `${form.color}0D`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 11, background: `${form.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Landmark size={18} style={{ color: form.color }} />
+              </div>
+              <div>
+                <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0, marginBottom: 3 }}>{form.name}</h2>
+                <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0 }}>{form.full_name}</p>
+              </div>
+            </div>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', flexShrink: 0 }}>
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+              Purpose
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>{form.purpose}</p>
+          </div>
+
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+              Required For
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {form.required_for.map((r, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8 }}>
+                  <CheckCircle size={13} style={{ color: form.color, flexShrink: 0, marginTop: 1 }} />
+                  <span style={{ fontSize: 13, color: 'var(--text)' }}>{r}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{
+            padding: '14px 16px', borderRadius: 12, marginBottom: 18,
+            background: 'var(--input-bg)', border: '1px solid var(--border)',
+          }}>
+            <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+              Issuing Authority
+            </div>
+            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: form.color, marginBottom: 4 }}>
+              {authority.full_name || form.institution}
+            </div>
+            {authority.phone && (
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>📞 {authority.phone}</div>
+            )}
+            {authority.email && authority.email !== 'N/A — visit in person' && (
+              <div style={{ fontSize: 12, color: 'var(--muted)' }}>✉ {authority.email}</div>
+            )}
+          </div>
+
+          {/* How to get — shown on Articles of Association and any form with this field */}
+          {form.how_to_get && form.how_to_get.length > 0 && (
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+                How to Obtain
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {form.how_to_get.map((h, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: form.color, flexShrink: 0, marginTop: 6 }} />
+                    <span style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.6 }}>{h}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Key clauses — Articles of Association specific */}
+          {form.key_clauses && form.key_clauses.length > 0 && (
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+                Key Clauses to Include
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                {form.key_clauses.map((clause, i) => (
+                  <div key={i} style={{
+                    display: 'flex', gap: 7, padding: '7px 10px',
+                    background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 8,
+                  }}>
+                    <CheckCircle size={11} style={{ color: form.color, flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ fontSize: 11.5, color: 'var(--text)', lineHeight: 1.5 }}>{clause}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{
+            display: 'flex', gap: 10, padding: '12px 14px', borderRadius: 10,
+            background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.2)',
+          }}>
+            <Rocket size={14} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
+            <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
+              See this form in context within KIP's{' '}
+              <a href="/startup" style={{ color: 'var(--blue-bright)', fontWeight: 600 }}>Startup Registration Roadmap</a>.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+          <a href={form.url} target="_blank" rel="noopener noreferrer"
+            className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '12px 0', fontSize: 14, textDecoration: 'none' }}>
+            <ExternalLink size={15} /> Visit {form.institution} to Access This Form
+          </a>
+          <p style={{ fontSize: 10.5, color: 'var(--faint)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>
+            KIP links to official government sources — forms are not hosted here as they may change.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── NEW: Government / Startup form card ─────────────────────────────────── */
+function GovFormCard({ form, onOpen }) {
+  const colors = getColors(form.color)
+  return (
+    <div className="kip-card" style={{
+      border: `1px solid ${colors.border}`, borderRadius: 16,
+      padding: 16, display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Landmark size={16} style={{ color: form.color }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3, marginBottom: 2 }}>
+            {form.name}
+          </div>
+          <span style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: form.color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            {form.institution}
+          </span>
+        </div>
+        <span style={{ fontSize: 9, fontFamily: 'Syne', fontWeight: 800, color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.25)', borderRadius: 20, padding: '2px 7px', flexShrink: 0 }}>
+          GOV
+        </span>
+      </div>
+
+      <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.55, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {form.purpose}
+      </p>
+
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+        {form.tags?.slice(0, 3).map(tag => (
+          <span key={tag} style={{ fontSize: 10, fontWeight: 600, fontFamily: 'Syne', padding: '2px 8px', borderRadius: 20, background: colors.bg, color: form.color, border: `1px solid ${colors.border}` }}>
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 'auto' }}>
+        <button onClick={() => onOpen(form)} style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          padding: '10px 0', borderRadius: 10, cursor: 'pointer',
+          fontFamily: 'Syne', fontWeight: 600, fontSize: 12,
+          color: form.color, background: colors.bg, border: `1px solid ${colors.border}`,
+        }}>
+          <FileText size={12} /> View Form Details
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Template card (existing AI letters / business plans) ──────── */
 function TemplateCard({ template, plans, onGeneratePlan, generating }) {
   const [showModal, setShowModal] = useState(false)
   const [planId,    setPlanId]    = useState(plans[0]?.id || '')
@@ -134,19 +319,16 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
       {showModal && isGen && (
         <LetterModal template={template} plans={plans} onClose={() => setShowModal(false)} />
       )}
-      {/* CHANGED: Added className="kip-card" and hooked up dynamic theme vars */}
       <div className="kip-card" style={{
-        border: `1px solid ${colors.border}`, 
+        border: `1px solid ${colors.border}`,
         borderRadius: 16,
         padding: '16px', display: 'flex', flexDirection: 'column', gap: 10,
       }}>
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <FileText size={16} style={{ color: template.color }} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            {/* CHANGED: color: '#fff' -> var(--text) */}
             <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3, marginBottom: 2 }}>
               {template.title}
             </div>
@@ -167,7 +349,6 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
           {template.description}
         </p>
 
-        {/* Tags */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
           {template.tags?.slice(0, 3).map(tag => (
             <span key={tag} style={{ fontSize: 10, fontWeight: 600, fontFamily: 'Syne', padding: '2px 8px', borderRadius: 20, background: colors.bg, color: template.color, border: `1px solid ${colors.border}` }}>
@@ -176,7 +357,6 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
           ))}
         </div>
 
-        {/* Business selector for plan generation */}
         {isPlan && plans.length > 0 && (
           <div>
             <label style={{ display: 'block', fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 5 }}>Select business</label>
@@ -186,7 +366,6 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
           </div>
         )}
 
-        {/* Action */}
         <div style={{ marginTop: 'auto' }}>
           {isLink && (
             <a href={template.url} target="_blank" rel="noopener noreferrer" style={{
@@ -237,11 +416,15 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
 
 /* ── Main page ─────────────────────────────────────── */
 export default function TemplatesPage() {
-  const [activeTab,  setActiveTab]  = useState('all')
+  const [searchParams]      = useSearchParams()
+  const initialFilter       = searchParams.get('filter')
+  const [activeTab,  setActiveTab]  = useState(initialFilter === 'startup' ? 'startup' : 'all')
   const [templates,  setTemplates]  = useState([])
   const [plans,      setPlans]      = useState([])
   const [loading,    setLoading]    = useState(true)
   const [generating, setGenerating] = useState(null)
+  const [query,       setQuery]      = useState('')
+  const [govFormOpen, setGovFormOpen] = useState(null)
 
   useEffect(() => {
     api.get('/templates/list')
@@ -250,7 +433,27 @@ export default function TemplatesPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = activeTab === 'all' ? templates : templates.filter(t => t.category === activeTab)
+  useEffect(() => {
+    if (initialFilter === 'startup') setActiveTab('startup')
+  }, [initialFilter])
+
+  const allItems = activeTab === 'startup' || activeTab === 'all'
+    ? [...templates, ...STARTUP_FORMS.map(f => ({ ...f, _isGovForm: true }))]
+    : templates
+
+  const filteredByTab = activeTab === 'all'
+    ? allItems
+    : allItems.filter(t => t.category === activeTab || (activeTab === 'startup' && t._isGovForm))
+
+  const filtered = query.trim()
+    ? filteredByTab.filter(t => {
+        const haystack = [
+          t.title, t.name, t.full_name, t.description, t.purpose,
+          ...(t.tags || []),
+        ].filter(Boolean).join(' ').toLowerCase()
+        return haystack.includes(query.trim().toLowerCase())
+      })
+    : filteredByTab
 
   const handleGeneratePlan = async (planId, templateId) => {
     if (!planId) { toast.error('Select a business first.'); return }
@@ -275,20 +478,32 @@ export default function TemplatesPage() {
 
   return (
     <Layout>
+      {govFormOpen && (
+        <GovFormModal form={govFormOpen} onClose={() => setGovFormOpen(null)} />
+      )}
+
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '20px 16px', position: 'relative', zIndex: 1 }}>
 
-        {/* Header */}
         <div style={{ marginBottom: 20 }}>
-          {/* CHANGED: color: '#fff' -> var(--text) */}
           <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 5 }}>
             Templates & Documents
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-            Government forms, AI letters, and business plans for banks and CDF.
+            Government forms, AI letters, business plans, and startup registration documents
           </p>
         </div>
 
-        {/* ── Tabs — horizontally scrollable, no overflow ── */}
+        <div style={{ position: 'relative', marginBottom: 18 }}>
+          <Search size={14} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--faint)' }} />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder='Search forms by name — e.g. "PACRA Form 2", "NAPSA", "loan letter"…'
+            className="kip-input"
+            style={{ paddingLeft: 38, fontSize: 13 }}
+          />
+        </div>
+
         <div style={{
           display: 'flex',
           overflowX: 'auto',
@@ -296,7 +511,7 @@ export default function TemplatesPage() {
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          borderBottom: '1px solid var(--border)', /* CHANGED: solid rgba(255,255,255,0.07) -> var(--border) */
+          borderBottom: '1px solid var(--border)',
           marginBottom: 20,
           gap: 0,
         }}>
@@ -330,21 +545,49 @@ export default function TemplatesPage() {
           }
         `}</style>
 
-        {/* Grid */}
+        {activeTab === 'startup' && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+            padding: '14px 18px', borderRadius: 14, marginBottom: 18,
+            background: 'linear-gradient(135deg, rgba(43,127,255,0.1), rgba(0,240,200,0.06))',
+            border: '1px solid rgba(43,127,255,0.25)',
+          }}>
+            <Rocket size={18} style={{ color: 'var(--blue-bright)', flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+                Official registration forms from PACRA, ZRA, NAPSA, NHIMA, WCFCB, NCC and ZDA
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                See these forms in the context of a full registration roadmap on the Startup page.
+              </div>
+            </div>
+            <a href="/startup" className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '8px 16px', flexShrink: 0, textDecoration: 'none' }}>
+              Go to Startup Guide
+            </a>
+          </div>
+        )}
+
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 14 }}>
             {[0,1,2,3,4,5].map(i => <div key={i} className="shimmer-load" style={{ height: 200, borderRadius: 16 }} />)}
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="kip-card" style={{ padding: '50px 24px', textAlign: 'center' }}>
+            <Search size={32} style={{ color: 'var(--faint)', margin: '0 auto 12px', display: 'block' }} />
+            <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>
+              No documents found{query ? ` for "${query}"` : ''}.
+            </p>
+          </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,280px),1fr))', gap: 14 }}>
             {filtered.map(t => (
-              <TemplateCard key={t.id} template={t} plans={plans}
-                onGeneratePlan={handleGeneratePlan} generating={generating} />
+              t._isGovForm
+                ? <GovFormCard key={t.id} form={t} onOpen={setGovFormOpen} />
+                : <TemplateCard key={t.id} template={t} plans={plans} onGeneratePlan={handleGeneratePlan} generating={generating} />
             ))}
           </div>
         )}
 
-        {/* No businesses notice */}
         {!loading && plans.length === 0 && (activeTab === 'business_plans' || activeTab === 'all') && (
           <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(245,166,35,0.07)', border: '1px solid rgba(245,166,35,0.22)', fontSize: 13, color: 'var(--gold)' }}>
             💡 Accept a business idea and click <strong>Start Business</strong> to unlock plan generation.

@@ -1,0 +1,287 @@
+/*
+ * KIP Design Token System
+ * ========================
+ * Single source of truth for every colour, spacing, radius, shadow,
+ * and typography value in the application.
+ *
+ * How to use:
+ *   background: var(--surface-1);
+ *   color: var(--text-primary);
+ *   padding: var(--space-4) var(--space-6);
+ *   border-radius: var(--radius-lg);
+ *
+ * Replace this file in: frontend/src/styles/kip-tokens.css
+ * Import in:           frontend/src/index.css  →  @import './styles/kip-tokens.css';
+ */
+
+/* ============================================================
+   ROOT — LIGHT MODE (default)
+   ============================================================ */
+:root {
+
+  /* ── Base backgrounds ──────────────────────────────────────── */
+  --bg-base:        #F7F8FC;   /* Page background — cool off-white */
+  --bg-subtle:      #F1F3F9;   /* Section backgrounds, sidebars */
+  --surface-1:      #FFFFFF;   /* Cards, modals, dropdowns */
+  --surface-2:      #F7F8FC;   /* Nested cards, input backgrounds */
+  --surface-3:      #EEF1F8;   /* Hovered surfaces, active states */
+
+  /* Glass surface — used over the living gradient background */
+  --surface-glass:  rgba(255, 255, 255, 0.72);
+  --surface-glass-border: rgba(255, 255, 255, 0.60);
+  --glass-blur:     16px;
+
+  /* ── Brand colours ─────────────────────────────────────────── */
+  /* Blue — Intelligence */
+  --blue-50:        #EEF4FE;
+  --blue-100:       #D6E6FD;
+  --blue-200:       #AECDF9;
+  --blue-300:       #76ACEF;
+  --blue-400:       #4B8DE3;
+  --blue-500:       #1A6CF0;   /* Primary brand blue */
+  --blue-600:       #1559CC;
+  --blue-700:       #1047A8;
+  --blue-dim:       rgba(26, 108, 240, 0.10);
+  --blue-glow:      rgba(26, 108, 240, 0.25);
+
+  /* Gold — Opportunity */
+  --gold-50:        #FDF6EE;
+  --gold-100:       #FAE6CC;
+  --gold-200:       #F5CC99;
+  --gold-300:       #EDAA5F;
+  --gold-400:       #DC8A30;
+  --gold-500:       #C8763A;   /* Primary gold */
+  --gold-600:       #A85F25;
+  --gold-700:       #884A18;
+  --gold-dim:       rgba(200, 118, 58, 0.10);
+  --gold-glow:      rgba(200, 118, 58, 0.25);
+
+  /* Copper — African Entrepreneurship */
+  --copper-50:      #FCF3EE;
+  --copper-100:     #F5DDD0;
+  --copper-200:     #E8B99E;
+  --copper-300:     #D48E6B;
+  --copper-400:     #BB6B42;
+  --copper-500:     #A0522D;   /* Primary copper */
+  --copper-600:     #824220;
+  --copper-700:     #633215;
+  --copper-dim:     rgba(160, 82, 45, 0.10);
+  --copper-glow:    rgba(160, 82, 45, 0.20);
+
+  /* Semantic colours */
+  --green-500:      #16A34A;
+  --green-dim:      rgba(22, 163, 74, 0.10);
+  --red-500:        #DC2626;
+  --red-dim:        rgba(220, 38, 38, 0.10);
+  --teal-500:       #0D9488;
+  --teal-dim:       rgba(13, 148, 136, 0.10);
+  --purple-500:     #7C3AED;
+  --purple-dim:     rgba(124, 58, 237, 0.10);
+
+  /* ── Text ──────────────────────────────────────────────────── */
+  --text-primary:   #0C1421;   /* Near-black, blue-tinted */
+  --text-secondary: #3D4E6A;   /* Secondary copy */
+  --text-muted:     #6B7A99;   /* Timestamps, metadata */
+  --text-faint:     #9DAACC;   /* Placeholders, disabled */
+  --text-inverse:   #FFFFFF;   /* Text on dark backgrounds */
+  --text-blue:      #1A6CF0;
+  --text-gold:      #C8763A;
+  --text-green:     #16A34A;
+  --text-red:       #DC2626;
+
+  /* ── Borders ───────────────────────────────────────────────── */
+  --border:         #E2E8F2;   /* Standard border */
+  --border-light:   #EEF1F8;   /* Subtle separator */
+  --border-strong:  #C8D0E0;   /* Emphasized border */
+  --border-blue:    rgba(26, 108, 240, 0.30);
+  --border-gold:    rgba(200, 118, 58, 0.30);
+
+  /* ── Spacing ───────────────────────────────────────────────── */
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-8:    32px;
+  --space-10:   40px;
+  --space-12:   48px;
+  --space-16:   64px;
+  --space-20:   80px;
+  --space-24:   96px;
+
+  /* ── Border radius ─────────────────────────────────────────── */
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  /* ── Typography ────────────────────────────────────────────── */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+
+  --text-xs:    11px;
+  --text-sm:    13px;
+  --text-base:  15px;
+  --text-md:    17px;
+  --text-lg:    20px;
+  --text-xl:    24px;
+  --text-2xl:   30px;
+  --text-3xl:   36px;
+  --text-4xl:   48px;
+  --text-5xl:   60px;
+
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold:800;
+
+  --leading-tight:  1.25;
+  --leading-snug:   1.40;
+  --leading-normal: 1.60;
+  --leading-relaxed:1.75;
+
+  /* ── Shadows ───────────────────────────────────────────────── */
+  --shadow-xs:  0 1px 2px rgba(12, 20, 33, 0.04);
+  --shadow-sm:  0 2px 8px rgba(12, 20, 33, 0.06), 0 1px 2px rgba(12, 20, 33, 0.04);
+  --shadow-md:  0 4px 16px rgba(12, 20, 33, 0.08), 0 2px 4px rgba(12, 20, 33, 0.04);
+  --shadow-lg:  0 8px 32px rgba(12, 20, 33, 0.10), 0 4px 8px rgba(12, 20, 33, 0.05);
+  --shadow-xl:  0 16px 48px rgba(12, 20, 33, 0.12), 0 8px 16px rgba(12, 20, 33, 0.06);
+  --shadow-2xl: 0 24px 64px rgba(12, 20, 33, 0.14), 0 12px 24px rgba(12, 20, 33, 0.07);
+
+  /* Coloured glows for hover states */
+  --shadow-blue:   0 8px 32px rgba(26, 108, 240, 0.20);
+  --shadow-gold:   0 8px 32px rgba(200, 118, 58, 0.22);
+  --shadow-green:  0 8px 32px rgba(22, 163, 74, 0.20);
+  --shadow-red:    0 8px 24px rgba(220, 38, 38, 0.18);
+
+  /* ── Transitions ───────────────────────────────────────────── */
+  --ease-out-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-expo:    cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out:     cubic-bezier(0.45, 0, 0.55, 1);
+  --transition-fast: 120ms var(--ease-out-expo);
+  --transition-base: 200ms var(--ease-out-expo);
+  --transition-slow: 350ms var(--ease-out-expo);
+
+  /* ── Layout ────────────────────────────────────────────────── */
+  --sidebar-w:       240px;
+  --sidebar-w-collapsed: 64px;
+  --content-max-w:   1200px;
+  --content-padding: var(--space-8);
+}
+
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+[data-theme="dark"] {
+  --bg-base:        #0C1221;
+  --bg-subtle:      #111927;
+  --surface-1:      #162032;
+  --surface-2:      #1C2A3E;
+  --surface-3:      #223248;
+
+  --surface-glass:  rgba(22, 32, 50, 0.80);
+  --surface-glass-border: rgba(255, 255, 255, 0.08);
+
+  --text-primary:   #EEF2FF;
+  --text-secondary: #A8B8D8;
+  --text-muted:     #6B7FA8;
+  --text-faint:     #465570;
+  --text-inverse:   #0C1421;
+
+  --border:         #1E3050;
+  --border-light:   #172440;
+  --border-strong:  #2A4070;
+
+  --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.20);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.28);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.40);
+
+  /* Brand colours stay the same — they're identity, not mood */
+}
+
+
+/* ============================================================
+   GLOBAL BASE STYLES
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  line-height: var(--leading-normal);
+  min-height: 100vh;
+}
+
+/* Grain texture overlay — the secret ingredient */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ── Typography defaults ──────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+a {
+  color: var(--blue-500);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

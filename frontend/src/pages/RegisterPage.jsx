@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
       login(token, data.user)
 
-      toast.success(`Welcome to KIP, ${(data.user.full_name || '').split(' ')[0]}!`)
+      toast.success(`Welcome to KIP, ${(data.user.full_name || '').split(' ')[0]}! Check your email to verify your account.`)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Registration failed. Please try again.')
