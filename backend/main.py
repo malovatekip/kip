@@ -10,9 +10,15 @@ from app.models import user, conversation
 from app.models import business_dashboard
 from app.models import business_idea
 from app.models import enhanced_logs
+from app.models import startup_chat as startup_chat_models
 
 try:
     from app.models import enterprise_models
+except ImportError:
+    pass
+
+try:
+    from app.models import subscription_models
 except ImportError:
     pass
 
@@ -22,6 +28,7 @@ from app.routes import (
     enhanced_logs as log_routes,
     templates,
     business_chat,
+    startup_chat,
 )
 from app.routes import enterprise
 from app.routes import add_own_business
@@ -30,9 +37,40 @@ from app.routes import capital_access
 from app.routes import learn
 from app.routes import bizsim_routes
 
+from app.routes.briefings import router as briefings_router
+from app.routes import i18n_routes
+
 
 
 Base.metadata.create_all(bind=engine)
+
+def _migrate_user_verification_columns():
+    """Add email-verification columns to an existing `users` table created before they existed."""
+    from sqlalchemy import text, inspect
+    inspector = inspect(engine)
+    if "users" not in inspector.get_table_names():
+        return
+    existing = {col["name"] for col in inspector.get_columns("users")}
+    is_sqlite = engine.dialect.name == "sqlite"
+    bool_type = "BOOLEAN DEFAULT 0" if is_sqlite else "BOOLEAN DEFAULT FALSE"
+    statements = []
+    if "is_verified" not in existing:
+        statements.append(f"ALTER TABLE users ADD COLUMN is_verified {bool_type}")
+    if "verification_token" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN verification_token VARCHAR(255)")
+    if "verification_token_expires" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN verification_token_expires TIMESTAMP")
+    if not statements:
+        return
+    with engine.connect() as conn:
+        for stmt in statements:
+            conn.execute(text(stmt))
+        conn.commit()
+
+try:
+    _migrate_user_verification_columns()
+except Exception:
+    pass
 
 app = FastAPI(title="Kwacha Intelligence Platform — KIP API", version="4.0.0")
 
@@ -51,6 +89,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router,            prefix="/api/auth",           tags=["Auth"])
+app.include_router(i18n_routes.router, prefix="/api/i18n", tags=["i18n"])
 app.include_router(chat.router,            prefix="/api/chat",           tags=["Chat"])
 app.include_router(ideas.router,           prefix="/api/ideas",          tags=["Ideas"])
 app.include_router(dashboard.router,       prefix="/api/dashboard",      tags=["Dashboard"])
@@ -59,11 +98,14 @@ app.include_router(bd_routes.router,       prefix="/api/business",       tags=["
 app.include_router(log_routes.router,      prefix="/api/logs",           tags=["Logs"])
 app.include_router(templates.router,       prefix="/api/templates",      tags=["Templates"])
 app.include_router(business_chat.router,   prefix="/api/business-chat",  tags=["Business Chat"])
+app.include_router(startup_chat.router,    prefix="/api/startup-chat",   tags=["Startup Chat"])
 app.include_router(enterprise.router,      prefix="/api/enterprise",     tags=["Enterprise"])
 app.include_router(add_own_business.router,prefix="/api/business",       tags=["Business"])
 app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital"])
 app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
 app.include_router(bizsim_routes.router, prefix="/api/bizsim", tags=["BizSim"])
+
+app.include_router(briefings_router, prefix="/api/news", tags=["briefings"])
 
 @app.get("/")
 def root():

@@ -13,6 +13,7 @@ from app.services.kip_prompt import build_system_prompt
 from app.services.knowledge_base import get_knowledge_base
 from app.data.town_profiles import get_town_profile
 from app.services.map_service import get_map_context
+from app.routes.language_support import language_instruction
 
 
 # ── Strict idea detection ──────────────────────────────────────────────────
@@ -116,7 +117,8 @@ async def generate_kip_response(
     user_message: str,
     history: list,
     user,
-    db=None
+    db=None,
+    lang: str = "en"
 ) -> Tuple[str, bool]:
     """
     The K-BIG-1 engine with web search enabled.
@@ -172,7 +174,7 @@ async def generate_kip_response(
         retrieved_knowledge=retrieved_knowledge,
         town_profile=combined_location,
         user_idea_history=idea_history
-    )
+    ) + language_instruction(lang)
 
     # Build message list
     messages = []

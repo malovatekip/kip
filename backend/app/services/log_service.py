@@ -192,7 +192,7 @@ ML ALERTS:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=550,
-            system=COACHING_PROMPT,
+            system=COACHING_PROMPT + language_instruction(lang),
             messages=[{"role": "user", "content": user_message}]
         )
         return response.content[0].text.strip()
@@ -219,7 +219,8 @@ async def generate_weekly_review(
     logs: List[Dict],
     business_name: str,
     user_name: str,
-    prev_week_logs: Optional[List[Dict]] = None
+    prev_week_logs: Optional[List[Dict]] = None,
+    lang: str = "en"
 ) -> Dict:
     """
     Generate a full weekly review: KPIs + ML patterns + KIP narrative.
@@ -268,7 +269,7 @@ async def generate_weekly_review(
     }
 
     # KIP narrative (Claude API)
-    narrative = await _generate_review_narrative(kpis, business_name, user_name)
+    narrative = await _generate_review_narrative(kpis, business_name, user_name, lang=lang)
 
     return {**kpis, "kip_narrative": narrative}
 
@@ -328,7 +329,7 @@ def _assess_trend(revenue: float, expenses: float, prev_logs: Optional[List]) ->
     return "red"
 
 
-async def _generate_review_narrative(kpis: Dict, business_name: str, user_name: str) -> str:
+async def _generate_review_narrative(kpis: Dict, business_name: str, user_name: str, lang: str = "en") -> str:
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         rev = kpis.get('total_revenue', 0)
@@ -344,7 +345,7 @@ async def _generate_review_narrative(kpis: Dict, business_name: str, user_name: 
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=400,
-            system=WEEKLY_REVIEW_PROMPT,
+            system=WEEKLY_REVIEW_PROMPT + language_instruction(lang),
             messages=[{"role": "user", "content":
                 f"Business: {business_name} | Owner: {user_name}\n"
                 f"Weekly KPIs:\n{json.dumps(kpis, indent=2)}"

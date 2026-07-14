@@ -9,8 +9,8 @@ Structure:
 - Smaller town profiles are at city level
 - All profiles will be expanded over time with founder ground-truth input
 
-IMPORTANT: Profiles marked "NEEDS_FOUNDER_REVIEW" require Paul Maloba
-to review and correct with on-the-ground knowledge.
+IMPORTANT: Profiles marked "NEEDS_FOUNDER_REVIEW" require
+to be reviewed and corrected with on-the-ground knowledge.
 """
 
 from typing import Optional

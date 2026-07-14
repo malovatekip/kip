@@ -23,14 +23,19 @@ def get_knowledge_base():
         return _KnowledgeBase(_collection)
 
     try:
-        ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
         _client = chromadb.PersistentClient(path=CHROMA_PATH)
-        _collection = _client.get_or_create_collection(
-            name="kip_knowledge",
-            embedding_function=ef,
-        )
+        try:
+            # Reuse whatever embedding function the persisted collection was
+            # created with, to avoid a "new vs persisted" ef conflict.
+            _collection = _client.get_collection(name="kip_knowledge")
+        except Exception:
+            ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+            _collection = _client.create_collection(
+                name="kip_knowledge",
+                embedding_function=ef,
+            )
         print(f"[KIP Knowledge] Loaded. {_collection.count()} chunks in database.")
         print(f"[KIP Knowledge] Path: {CHROMA_PATH}")
     except Exception as e:

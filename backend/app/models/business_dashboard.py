@@ -6,7 +6,7 @@ class BusinessLaunchPlan(Base):
     __tablename__ = "business_launch_plans"
     id              = Column(Integer, primary_key=True, index=True)
     user_id         = Column(Integer, ForeignKey("users.id"), nullable=False)
-    idea_id         = Column(Integer, ForeignKey("business_ideas.id"), nullable=False)
+    idea_id         = Column(Integer, ForeignKey("business_ideas.id"), nullable=True)
     business_name   = Column(String(255), nullable=False)
     location        = Column(String(255), nullable=True)
     capital_amount  = Column(Float, nullable=True)

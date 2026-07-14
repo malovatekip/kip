@@ -17,6 +17,7 @@ class UserOut(BaseModel):
     full_name: str
     email: str
     plan_tier: str
+    is_verified: bool
     created_at: datetime
     class Config:
         from_attributes = True
@@ -51,6 +52,33 @@ class ChatResponse(BaseModel):
     conversation_id: int
     reply: str
     idea_saved: bool = False
+
+# ── Startup Chat ──
+class StartupChatMessage(BaseModel):
+    message: str
+    conversation_id: Optional[int] = None
+    step_context: Optional[str] = None
+
+class StartupMessageOut(BaseModel):
+    id: int
+    role: str
+    content: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+class StartupConversationOut(BaseModel):
+    id: int
+    title: str
+    step_emoji: Optional[str] = None
+    created_at: datetime
+    messages: List[StartupMessageOut] = []
+    class Config:
+        from_attributes = True
+
+class StartupChatResponse(BaseModel):
+    conversation_id: int
+    reply: str
 
 # ── Business Ideas ──
 class IdeaOut(BaseModel):
