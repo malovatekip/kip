@@ -11,32 +11,11 @@ import {
 } from 'lucide-react'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
-
-// ── Colour palette ────────────────────────────────────────────────────────────
-const C = {
-  navy:    '#0A1628',
-  card:    '#111E35',
-  border:  '#1E3A5F',
-  blue:    '#2B7FFF',
-  teal:    '#00D4B1',
-  gold:    '#F6AD55',
-  green:   '#1AE06E',
-  red:     '#EF4444',
-  purple:  '#8B5CF6',
-  orange:  '#F59E0B',
-  pink:    '#EC4899',
-  white:   '#F1F5F9',
-  muted:   '#64748B',
-}
-
-const BIZ_COLOURS = {
-  grocery:   '#1D9E75',
-  poultry:   '#F59E0B',
-  restaurant:'#EF4444',
-  transport: '#3B82F6',
-  phone:     '#8B5CF6',
-  food_stall:'#10B981',
-}
+import { C, BIZ_COLOURS } from '../components/bizsim/theme'
+import StorySetup from '../components/bizsim/StorySetup'
+import EventCard from '../components/bizsim/EventCard'
+import DayCanvas from '../components/bizsim/DayCanvas'
+import GameAudio from '../components/bizsim/GameAudio'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt  = n => `K${(n || 0).toLocaleString('en-ZM', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -108,131 +87,6 @@ function HealthBar({ value, max, colour, label }) {
           transition: 'width 0.6s ease', boxShadow: `0 0 8px ${colour}80`,
         }} />
       </div>
-    </div>
-  )
-}
-
-// ── Setup screen ──────────────────────────────────────────────────────────────
-function SetupScreen({ onStart }) {
-  const [businesses, setBusinesses] = useState([])
-  const [selected,   setSelected]   = useState(null)
-  const [bizName,    setBizName]     = useState('')
-  const [starting,   setStarting]    = useState(false)
-
-  useEffect(() => {
-    api.get('/bizsim/business-types')
-      .then(r => setBusinesses(r.data.businesses || []))
-      .catch(() => {})
-  }, [])
-
-  const handleStart = async () => {
-    if (!selected) { toast.error('Choose a business type.'); return }
-    if (!bizName.trim()) { toast.error('Name your business.'); return }
-    setStarting(true)
-    try {
-      await onStart(selected.id, bizName.trim())
-    } finally {
-      setStarting(false)
-    }
-  }
-
-  return (
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px' }}>
-      {/* Hero */}
-      <div style={{ textAlign: 'center', padding: '32px 0 24px' }}>
-        <div style={{
-          display: 'inline-block', fontSize: 11, fontFamily: 'Syne',
-          fontWeight: 700, letterSpacing: '0.15em', color: C.teal,
-          background: `${C.teal}15`, border: `1px solid ${C.teal}30`,
-          padding: '4px 14px', borderRadius: 20, marginBottom: 14,
-        }}>
-          KIP BUSINESS SIMULATOR
-        </div>
-        <h1 style={{
-          fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(22px,5vw,36px)',
-          color: C.white, lineHeight: 1.15, marginBottom: 10,
-        }}>
-          Run a real Zambian business.<br />
-          <span style={{ background: `linear-gradient(135deg, ${C.gold}, ${C.teal})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Feel every decision.
-          </span>
-        </h1>
-        <p style={{ fontSize: 14, color: C.muted, maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-          Set prices, manage cash flow, negotiate with suppliers, and survive market shocks.
-          Get live AI coaching from KIP. Real economics. Real consequences.
-        </p>
-      </div>
-
-      {/* Business selector */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: C.muted, letterSpacing: '0.1em', marginBottom: 12 }}>
-          CHOOSE YOUR BUSINESS
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
-          {businesses.map(biz => (
-            <button key={biz.id} onClick={() => setSelected(biz)} style={{
-              padding: '14px 16px', borderRadius: 14, cursor: 'pointer',
-              textAlign: 'left', position: 'relative', overflow: 'hidden',
-              background: selected?.id === biz.id ? `${biz.colour}20` : C.card,
-              border: `1px solid ${selected?.id === biz.id ? biz.colour : C.border}`,
-              transition: 'all 0.2s ease',
-              boxShadow: selected?.id === biz.id ? `0 0 20px ${biz.colour}30` : 'none',
-            }}>
-              {selected?.id === biz.id && (
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: biz.colour }} />
-              )}
-              <div style={{ fontSize: 26, marginBottom: 6 }}>{biz.emoji}</div>
-              <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: C.white, marginBottom: 2 }}>{biz.name}</div>
-              <div style={{ fontSize: 10, color: biz.colour, fontFamily: 'Syne', fontWeight: 600, marginBottom: 6 }}>{biz.location}</div>
-              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>{biz.description}</div>
-              <div style={{ marginTop: 8, padding: '5px 8px', background: `${biz.colour}15`, borderRadius: 6, fontSize: 10, color: biz.colour, fontFamily: 'Syne', fontWeight: 700 }}>
-                {biz.mechanic}
-              </div>
-              <div style={{ marginTop: 8, fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: C.white }}>
-                {fmt(biz.capital)} <span style={{ fontSize: 10, fontWeight: 400, color: C.muted }}>starting capital</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Name input */}
-      {selected && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: C.muted, letterSpacing: '0.1em', marginBottom: 10 }}>
-            NAME YOUR BUSINESS
-          </div>
-          <input
-            value={bizName} onChange={e => setBizName(e.target.value)}
-            placeholder={`e.g. Chanda's ${selected.name}`}
-            style={{
-              width: '100%', padding: '12px 16px', borderRadius: 12,
-              background: C.card, border: `1px solid ${selected.colour}50`,
-              color: C.white, fontSize: 15, fontFamily: 'Syne', fontWeight: 600,
-              outline: 'none', boxSizing: 'border-box',
-              boxShadow: `0 0 0 0px ${selected.colour}`,
-              transition: 'box-shadow 0.2s',
-            }}
-            onFocus={e => e.target.style.boxShadow = `0 0 0 3px ${selected.colour}30`}
-            onBlur={e => e.target.style.boxShadow = '0 0 0 0px transparent'}
-          />
-        </div>
-      )}
-
-      <button onClick={handleStart} disabled={!selected || !bizName.trim() || starting}
-        style={{
-          width: '100%', padding: '15px 0', borderRadius: 14, cursor: 'pointer',
-          background: selected ? `linear-gradient(135deg, ${selected.colour}, ${selected.colour}cc)` : '#1E3A5F',
-          border: 'none', color: '#fff', fontFamily: 'Syne', fontWeight: 800, fontSize: 16,
-          boxShadow: selected ? `0 8px 32px ${selected.colour}40` : 'none',
-          transition: 'all 0.3s ease', opacity: !selected || !bizName.trim() ? 0.6 : 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        }}>
-        {starting
-          ? <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> Opening for business…</>
-          : <>Open for Business <ChevronRight size={18} /></>
-        }
-      </button>
     </div>
   )
 }
@@ -548,7 +402,7 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       </div>
 
       {/* Run day button */}
-      <button onClick={() => onSubmit({ stock_buy: stock, price, marketing: mkt, save_amount: save, negotiated_cogs: dealLocked || undefined })}
+      <button onClick={() => { GameAudio.init(); onSubmit({ stock_buy: stock, price, marketing: mkt, save_amount: save, negotiated_cogs: dealLocked || undefined }) }}
         disabled={loading}
         style={{
           width: '100%', padding: '16px', borderRadius: 14, cursor: 'pointer',
@@ -972,6 +826,9 @@ export default function BizSimPage() {
   const [leaderboard, setLeaderboard] = useState([])
   const [missions,    setMissions]    = useState([])
   const [tab,         setTab]         = useState('game')  // game|stats|leaderboard
+  const [pendingEvents,   setPendingEvents]   = useState([])
+  const [eventIndex,      setEventIndex]      = useState(0)
+  const [dayCanvasResult, setDayCanvasResult] = useState(null)
 
   const loadSession = useCallback(async () => {
     try {
@@ -1026,48 +883,71 @@ export default function BizSimPage() {
     loadExtras()
   }
 
+  const advanceToNextDay = async () => {
+    try {
+      const { data } = await api.get('/bizsim/event/today')
+      if (data.events?.length) {
+        setPendingEvents(data.events)
+        setEventIndex(0)
+        setScreen('event_card')
+      } else {
+        setScreen('game')
+      }
+    } catch {
+      setScreen('game')
+    }
+  }
+
   const handleRunDay = async (decision) => {
     setRunning(true)
     try {
       const { data } = await api.post('/bizsim/day/run', decision)
-      setDayResult(data.day_result)
 
       // Refresh session
       const { data: sd } = await api.get('/bizsim/session')
       setSession(sd.session)
 
-      if (data.bankrupt) {
-        setScreen('failure')
-        return
-      }
-
-      if (data.newly_completed_missions?.length) {
-        data.newly_completed_missions.forEach(mid => {
-          const m = missions.find(m => m.id === mid)
-          if (m) toast.success(`🏅 Mission complete: ${m.name}! +K${m.reward}`)
-        })
-      }
-
-      if (data.coaching) {
-        setCoaching(data.coaching)
-        setWeekNum(Math.floor((sd.session?.day - 1) / 7))
-        setScreen('coaching')
-        return
-      }
-
-      if (data.phase_unlocked) {
-        setUnlockPhase(data.phase_unlocked)
-        setScreen('phase_unlock')
-        return
-      }
-
-      setScreen('result')
-      loadExtras()
+      setDayCanvasResult({ ...data, __sessionDay: sd.session?.day })
+      setScreen('day_canvas')
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Day simulation failed.')
     } finally {
       setRunning(false)
     }
+  }
+
+  const handleDayCanvasComplete = () => {
+    const data = dayCanvasResult
+    if (!data) { setScreen('game'); return }
+    setDayResult(data.day_result)
+
+    if (data.bankrupt) {
+      setScreen('failure')
+      return
+    }
+
+    if (data.newly_completed_missions?.length) {
+      data.newly_completed_missions.forEach(mid => {
+        const m = missions.find(m => m.id === mid)
+        if (m) toast.success(`🏅 Mission complete: ${m.name}! +K${m.reward}`)
+      })
+    }
+
+    if (data.coaching) {
+      setCoaching(data.coaching)
+      setWeekNum(Math.floor((data.__sessionDay - 1) / 7))
+      setScreen('coaching')
+      return
+    }
+
+    if (data.phase_unlocked) {
+      setUnlockPhase(data.phase_unlocked)
+      setScreen('phase_unlock')
+      return
+    }
+
+    setScreen('result')
+    loadExtras()
   }
 
   const handleRestart = async () => {
@@ -1104,9 +984,9 @@ export default function BizSimPage() {
         </div>
       )}
 
-      {screen === 'setup' && <SetupScreen onStart={handleStart} />}
+      {screen === 'setup' && <StorySetup onStart={handleStart} />}
 
-      {['game','result','coaching','phase_unlock'].includes(screen) && session && (
+      {['game','event_card','day_canvas','result','coaching','phase_unlock'].includes(screen) && session && (
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
 
           {/* Top bar */}
@@ -1182,14 +1062,37 @@ export default function BizSimPage() {
                 {screen === 'game' && (
                   <DecisionPanel session={session} biz={bizMeta} onSubmit={handleRunDay} loading={running} />
                 )}
+                {screen === 'event_card' && pendingEvents[eventIndex] && (
+                  <EventCard
+                    event={pendingEvents[eventIndex]}
+                    onChoose={async (choiceId) => {
+                      const { data } = await api.post('/bizsim/event/choose', {
+                        event_id: pendingEvents[eventIndex].id, choice_id: choiceId,
+                      })
+                      await refreshSession()
+                      return data.consequence
+                    }}
+                    onContinue={() => {
+                      if (eventIndex + 1 < pendingEvents.length) setEventIndex(i => i + 1)
+                      else setScreen('game')
+                    }}
+                  />
+                )}
+                {screen === 'day_canvas' && dayCanvasResult && (
+                  <DayCanvas
+                    dayResult={dayCanvasResult.day_result}
+                    rivalName={session?.rival_name}
+                    onComplete={handleDayCanvasComplete}
+                  />
+                )}
                 {screen === 'result' && (
-                  <DayResult result={dayResult} session={session} onContinue={() => setScreen('game')} />
+                  <DayResult result={dayResult} session={session} onContinue={advanceToNextDay} />
                 )}
                 {screen === 'coaching' && (
-                  <CoachingScreen coaching={coaching} weekNum={weekNum} onContinue={() => { setScreen('game'); loadExtras() }} />
+                  <CoachingScreen coaching={coaching} weekNum={weekNum} onContinue={() => { loadExtras(); advanceToNextDay() }} />
                 )}
                 {screen === 'phase_unlock' && (
-                  <PhaseUnlockScreen phase={unlockPhase} onContinue={() => setScreen('game')} />
+                  <PhaseUnlockScreen phase={unlockPhase} onContinue={advanceToNextDay} />
                 )}
               </div>
 

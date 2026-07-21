@@ -25,13 +25,15 @@ from app.database  import get_db
 from app.security  import get_current_user
 from app.models.user import User
 from app.routes.bizsim_engine import (
-    BUSINESS_TYPES, MISSIONS, ACCOUNTS,
+    BUSINESS_TYPES, BUSINESS_STORIES, MISSIONS, ACCOUNTS,
+    EVENT_DEFINITIONS, GUARANTEED_EVENTS,
     calculate_demand, apply_unique_mechanics,
     get_market_state, simulate_competitor_day,
     check_phase_unlock, check_missions,
     record_transaction, get_balance_sheet,
     generate_ai_coaching, generate_market_event,
     ai_supplier_negotiation,
+    select_event_for_day, get_event_definition, event_card_payload,
 )
 
 router = APIRouter()
@@ -69,14 +71,42 @@ def ensure_tables(db: Session):
             negotiated_cogs   REAL DEFAULT NULL,
             created_at        TEXT DEFAULT CURRENT_TIMESTAMP,
             updated_at        TEXT DEFAULT CURRENT_TIMESTAMP,
+            story_id          TEXT DEFAULT NULL,
+            debt_balance      REAL DEFAULT 0,
+            debt_original     REAL DEFAULT 0,
+            debt_rate         REAL DEFAULT 0,
+            debt_due_day      INTEGER DEFAULT NULL,
+            debt_lender       TEXT DEFAULT NULL,
+            debt_schedule     TEXT DEFAULT '[]',
+            debt_type         TEXT DEFAULT NULL,
+            rival_name        TEXT DEFAULT NULL,
+            rival_personality TEXT DEFAULT NULL,
+            reputation        REAL DEFAULT 50,
+            family_reputation REAL DEFAULT 50,
             UNIQUE(user_id)
         )
     """))
-    # ── Migration: add negotiated_cogs if missing (existing DBs) ─────────────
+    # ── Migration: add columns introduced after initial release (existing DBs) ──
     existing_cols = [row[1] for row in db.execute(text("PRAGMA table_info(bizsim_sessions)")).fetchall()]
-    if "negotiated_cogs" not in existing_cols:
-        db.execute(text("ALTER TABLE bizsim_sessions ADD COLUMN negotiated_cogs REAL DEFAULT NULL"))
-        db.commit()
+    migrations = [
+        ("negotiated_cogs",   "REAL DEFAULT NULL"),
+        ("story_id",          "TEXT DEFAULT NULL"),
+        ("debt_balance",      "REAL DEFAULT 0"),
+        ("debt_original",     "REAL DEFAULT 0"),
+        ("debt_rate",         "REAL DEFAULT 0"),
+        ("debt_due_day",      "INTEGER DEFAULT NULL"),
+        ("debt_lender",       "TEXT DEFAULT NULL"),
+        ("debt_schedule",     "TEXT DEFAULT '[]'"),
+        ("debt_type",         "TEXT DEFAULT NULL"),
+        ("rival_name",        "TEXT DEFAULT NULL"),
+        ("rival_personality", "TEXT DEFAULT NULL"),
+        ("reputation",        "REAL DEFAULT 50"),
+        ("family_reputation", "REAL DEFAULT 50"),
+    ]
+    for col, ddl in migrations:
+        if col not in existing_cols:
+            db.execute(text(f"ALTER TABLE bizsim_sessions ADD COLUMN {col} {ddl}"))
+            db.commit()
     db.execute(text("""
         CREATE TABLE IF NOT EXISTS bizsim_ledger (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,14 +142,50 @@ def ensure_tables(db: Session):
             created_at  TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """))
+    db.execute(text("""
+        CREATE TABLE IF NOT EXISTS bizsim_events_log (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id        INTEGER NOT NULL,
+            day               INTEGER NOT NULL,
+            event_id          TEXT NOT NULL,
+            category          TEXT NOT NULL,
+            title             TEXT NOT NULL,
+            choice_id         TEXT,
+            consequence_json  TEXT,
+            resolved          INTEGER DEFAULT 0,
+            created_at        TEXT DEFAULT CURRENT_TIMESTAMP,
+            resolved_at       TEXT
+        )
+    """))
     db.commit()
 
 
 
 
+
+# Explicit column list (name, not `SELECT *`) so row order is guaranteed to match
+# _SESSION_KEYS below regardless of a given DB's physical column order — SQLite
+# `ALTER TABLE ADD COLUMN` always appends physically, but a fresh `CREATE TABLE`
+# literal may list the same column in a different position, so `SELECT *` cannot
+# be trusted to line up with a fixed positional key list across differently
+# provisioned databases.
+_SESSION_KEYS = [
+    "id","user_id","biz_type","biz_name","phase","day","cash","inventory",
+    "inventory_value","total_revenue","total_expenses","total_profit",
+    "total_customers","loan_balance","loan_interest_rate","employees",
+    "employee_cost","market_state","competitors","completed_missions",
+    "history","status","flock_size","phase_unlocked","score",
+    "created_at","updated_at","negotiated_cogs",
+    "story_id","debt_balance","debt_original","debt_rate","debt_due_day",
+    "debt_lender","debt_schedule","debt_type",
+    "rival_name","rival_personality","reputation","family_reputation",
+]
+
+
 def _get_session(user_id: int, db: Session):
     row = db.execute(text(
-        "SELECT * FROM bizsim_sessions WHERE user_id=:uid AND status='active'"
+        f"SELECT {','.join(_SESSION_KEYS)} FROM bizsim_sessions "
+        "WHERE user_id=:uid AND status='active'"
     ), {"uid": user_id}).fetchone()
     return row
 
@@ -127,14 +193,8 @@ def _get_session(user_id: int, db: Session):
 def _session_to_dict(row) -> dict:
     if row is None:
         return None
-    keys = ["id","user_id","biz_type","biz_name","phase","day","cash","inventory",
-            "inventory_value","total_revenue","total_expenses","total_profit",
-            "total_customers","loan_balance","loan_interest_rate","employees",
-            "employee_cost","market_state","competitors","completed_missions",
-            "history","status","flock_size","phase_unlocked","score",
-            "created_at","updated_at"]
-    d = dict(zip(keys, row))
-    for k in ["market_state","competitors","completed_missions","history"]:
+    d = dict(zip(_SESSION_KEYS, row))
+    for k in ["market_state","competitors","completed_missions","history","debt_schedule"]:
         try:
             d[k] = json.loads(d[k] or "[]" if k != "market_state" else d[k] or "{}")
         except Exception:
@@ -171,6 +231,10 @@ class LoanRequest(BaseModel):
 class RepayRequest(BaseModel):
     amount: float
 
+class EventChoiceRequest(BaseModel):
+    event_id:  str
+    choice_id: str
+
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
@@ -190,6 +254,15 @@ def get_business_types():
                 "teaches":     v["teaches"],
                 "mechanic":    v["unique_mechanic"],
                 "unit":        v["unit"],
+                "story":               BUSINESS_STORIES[k]["narrative"],
+                "debt_lender":         BUSINESS_STORIES[k]["debt_lender"],
+                "debt_original":       BUSINESS_STORIES[k]["debt_original"],
+                "debt_rate":           BUSINESS_STORIES[k]["debt_rate"],
+                "debt_due_day":        BUSINESS_STORIES[k]["debt_due_day"],
+                "debt_type":           BUSINESS_STORIES[k]["debt_type"],
+                "rival_name":          BUSINESS_STORIES[k]["rival_name"],
+                "rival_personality":   BUSINESS_STORIES[k]["rival_personality"],
+                "rival_intro_dialogue":BUSINESS_STORIES[k]["rival_intro_dialogue"],
             }
             for k, v in BUSINESS_TYPES.items()
         ]
@@ -208,6 +281,7 @@ def start_game(
         raise HTTPException(400, "Invalid business type.")
 
     b           = BUSINESS_TYPES[req.biz_type]
+    story       = BUSINESS_STORIES[req.biz_type]
     start_cash  = b["phase1_capital"]
 
     # Remove any existing session for this user entirely (handles UNIQUE constraint)
@@ -216,18 +290,33 @@ def start_game(
     ), {"uid": current_user.id}).fetchone()
     if old:
         old_id = old[0]
-        db.execute(text("DELETE FROM bizsim_ledger   WHERE session_id=:sid"), {"sid": old_id})
-        db.execute(text("DELETE FROM bizsim_messages WHERE session_id=:sid"), {"sid": old_id})
-        db.execute(text("DELETE FROM bizsim_sessions WHERE id=:sid"),         {"sid": old_id})
+        db.execute(text("DELETE FROM bizsim_ledger      WHERE session_id=:sid"), {"sid": old_id})
+        db.execute(text("DELETE FROM bizsim_messages    WHERE session_id=:sid"), {"sid": old_id})
+        db.execute(text("DELETE FROM bizsim_events_log  WHERE session_id=:sid"), {"sid": old_id})
+        db.execute(text("DELETE FROM bizsim_sessions    WHERE id=:sid"),         {"sid": old_id})
     db.commit()
+
+    # Single named rival, driven by the business's story (Part 3: ONE rival per session)
+    rival_price = b["cogs_per_unit"] * b["optimal_markup"] * (
+        0.92 if story["rival_personality"] == "aggressive" else
+        1.3  if story["rival_personality"] == "premium"    else 1.05
+    )
+    rival = [{
+        "id": "rival_1", "name": story["rival_name"], "personality": story["rival_personality"],
+        "biz_type": req.biz_type, "price": rival_price, "revenue": 0, "customers": 0,
+    }]
 
     # Create new session
     db.execute(text("""
         INSERT INTO bizsim_sessions
           (user_id, biz_type, biz_name, cash, inventory, market_state,
-           competitors, completed_missions, history, status, flock_size, updated_at)
+           competitors, completed_missions, history, status, flock_size, updated_at,
+           story_id, debt_balance, debt_original, debt_rate, debt_due_day,
+           debt_lender, debt_schedule, debt_type, rival_name, rival_personality)
         VALUES
-          (:uid, :bt, :bn, :cash, 10, :ms, :comps, '[]', '[]', 'active', :flock, :now)
+          (:uid, :bt, :bn, :cash, 10, :ms, :comps, '[]', '[]', 'active', :flock, :now,
+           :story_id, :debt_balance, :debt_original, :debt_rate, :debt_due_day,
+           :debt_lender, :debt_schedule, :debt_type, :rival_name, :rival_personality)
     """), {
         "uid":   current_user.id,
         "bt":    req.biz_type,
@@ -236,16 +325,19 @@ def start_game(
         "ms":    json.dumps({"demand_index": 1.0, "weather_factor": 1.0,
                               "fuel_price": 1.0, "usd_zmw_rate": 1.0,
                               "volatility": 0.12, "cogs_mult": 1.0}),
-        "comps": json.dumps([
-            {"id": "comp_1", "name": "Bwalya's Shop",     "personality": "aggressive",
-             "biz_type": req.biz_type, "price": b["cogs_per_unit"] * b["optimal_markup"] * 0.92,
-             "revenue": 0, "customers": 0},
-            {"id": "comp_2", "name": "Mwanza Brothers",   "personality": "premium",
-             "biz_type": req.biz_type, "price": b["cogs_per_unit"] * b["optimal_markup"] * 1.25,
-             "revenue": 0, "customers": 0},
-        ]),
+        "comps": json.dumps(rival),
         "flock": 20 if req.biz_type == "poultry" else 0,
         "now":   datetime.utcnow().isoformat(),
+        "story_id":          story["story_id"],
+        "debt_balance":      story["debt_original"],
+        "debt_original":     story["debt_original"],
+        "debt_rate":         story["debt_rate"],
+        "debt_due_day":      story["debt_due_day"],
+        "debt_lender":       story["debt_lender"],
+        "debt_schedule":     json.dumps(story["debt_schedule"]),
+        "debt_type":         story["debt_type"],
+        "rival_name":        story["rival_name"],
+        "rival_personality": story["rival_personality"],
     })
     db.commit()
 
@@ -288,6 +380,110 @@ def get_session(
     return {"session": s, "balance_sheet": bs}
 
 
+@router.get("/event/today")
+def get_todays_event(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    ensure_tables(db)
+    row = _get_session(current_user.id, db)
+    if not row:
+        raise HTTPException(404, "No active game session.")
+    s = _session_to_dict(row)
+
+    existing = db.execute(text(
+        "SELECT event_id, choice_id, resolved FROM bizsim_events_log "
+        "WHERE session_id=:sid AND day=:day ORDER BY id ASC"
+    ), {"sid": s["id"], "day": s["day"]}).fetchall()
+
+    if existing:
+        events = []
+        for eid, choice_id, resolved in existing:
+            payload = event_card_payload(eid)
+            if payload:
+                events.append({**payload, "choice_id": choice_id, "resolved": bool(resolved)})
+    else:
+        picked = select_event_for_day(s["day"], s["debt_balance"], s["id"])
+        events = []
+        for e in picked:
+            db.execute(text(
+                "INSERT INTO bizsim_events_log (session_id, day, event_id, category, title) "
+                "VALUES (:sid, :day, :eid, :cat, :title)"
+            ), {"sid": s["id"], "day": s["day"], "eid": e["id"], "cat": e["category"], "title": e["title"]})
+            events.append({**event_card_payload(e["id"]), "choice_id": None, "resolved": False})
+        db.commit()
+
+    return {"events": events}
+
+
+@router.post("/event/choose")
+def choose_event(
+    req: EventChoiceRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    ensure_tables(db)
+    row = _get_session(current_user.id, db)
+    if not row:
+        raise HTTPException(404, "No active game session.")
+    s = _session_to_dict(row)
+
+    log_row = db.execute(text(
+        "SELECT id, resolved FROM bizsim_events_log "
+        "WHERE session_id=:sid AND day=:day AND event_id=:eid"
+    ), {"sid": s["id"], "day": s["day"], "eid": req.event_id}).fetchone()
+    if not log_row:
+        raise HTTPException(404, "No such event scheduled today.")
+    if log_row[1]:
+        raise HTTPException(400, "Event already resolved today.")
+
+    event = get_event_definition(req.event_id)
+    if not event:
+        raise HTTPException(404, "Unknown event.")
+    choice = next((c for c in event["choices"] if c["id"] == req.choice_id), None)
+    if not choice:
+        raise HTTPException(400, "Invalid choice.")
+
+    cash_delta = choice.get("cash_delta", 0)
+    rep_delta  = choice.get("reputation_delta", 0)
+    fam_delta  = choice.get("family_reputation_delta", 0)
+
+    if cash_delta != 0:
+        if cash_delta < 0:
+            entries = [
+                {"account": "misc_expense", "debit": abs(cash_delta), "credit": 0},
+                {"account": "cash",         "debit": 0,               "credit": abs(cash_delta)},
+            ]
+        else:
+            entries = [
+                {"account": "cash",         "debit": cash_delta, "credit": 0},
+                {"account": "misc_expense", "debit": 0,          "credit": cash_delta},
+            ]
+        record_transaction(db, s["id"], f"Event: {event['title']} ({req.choice_id})", entries, s["day"])
+
+    db.execute(text("""
+        UPDATE bizsim_sessions SET
+            cash = cash + :cash_delta,
+            reputation = MAX(0, MIN(100, reputation + :rep_delta)),
+            family_reputation = MAX(0, MIN(100, family_reputation + :fam_delta))
+        WHERE id=:sid
+    """), {"cash_delta": cash_delta, "rep_delta": rep_delta, "fam_delta": fam_delta, "sid": s["id"]})
+
+    consequence = {k: v for k, v in choice.items() if k not in ("id", "label")}
+    db.execute(text(
+        "UPDATE bizsim_events_log SET choice_id=:cid, consequence_json=:cj, resolved=1, resolved_at=:now "
+        "WHERE id=:id"
+    ), {"cid": req.choice_id, "cj": json.dumps(consequence), "now": datetime.utcnow().isoformat(), "id": log_row[0]})
+    db.commit()
+
+    return {
+        "consequence": consequence,
+        "cash_delta": cash_delta,
+        "reputation_delta": rep_delta,
+        "family_reputation_delta": fam_delta,
+    }
+
+
 @router.post("/day/run")
 async def run_day(
     req: DayRequest,
@@ -318,6 +514,13 @@ async def run_day(
         ai_event = await generate_market_event(s["biz_type"], s, day, lang)
 
     active_event = macro_event or ai_event
+
+    # ── 1b. Fold in today's resolved event-card consequence (if any) ─────────
+    event_log_row = db.execute(text(
+        "SELECT consequence_json FROM bizsim_events_log "
+        "WHERE session_id=:sid AND day=:day AND resolved=1 ORDER BY id DESC LIMIT 1"
+    ), {"sid": s["id"], "day": day}).fetchone()
+    card_consequence = json.loads(event_log_row[0]) if event_log_row and event_log_row[0] else {}
 
     # ── 2. Apply COGS multiplier ──────────────────────────────────────────────
     # Use negotiated supplier price if player locked one in, otherwise standard
@@ -372,11 +575,18 @@ async def run_day(
             event_demand_mult = active_event.get("demand_impact", active_event.get("demand_index", 1.0))
             event_cash_bonus  = active_event.get("cash_bonus", active_event.get("grant", 0))
 
+    # Fold in the day's event-card choice (cash_delta already applied at /event/choose)
+    if card_consequence:
+        event_demand_mult *= card_consequence.get("demand_mult", 1.0)
+    force_skip_day = bool(card_consequence.get("skip_day"))
+
     units_sold = min(
         int(demand_result["demand"] * event_demand_mult),
         s["inventory"] + stock_buy,
     )
     units_sold = max(0, units_sold)
+    if force_skip_day:
+        units_sold = 0
 
     # ── 6. Apply unique business mechanics ───────────────────────────────────
     stock_after = s["inventory"] + stock_buy - units_sold

@@ -103,28 +103,28 @@ export default function LandingPage() {
         </section>
 
         {/* Demo bubble */}
-        <section style={{ padding: '0 24px 80px' }}>
-          <div style={{ maxWidth: 640, margin: '0 auto' }}>
-            <div className="kip-card kip-card-glow" style={{ padding: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                <img src={KIP_LOGO} alt="KIP" style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginBottom: 8, fontFamily: 'Syne', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Example conversation</div>
-                  <div style={{ background: 'linear-gradient(135deg, #1B6EF3, #0D52CC)', borderRadius: '14px 14px 4px 14px', padding: '10px 14px', marginBottom: 12, display: 'inline-block' }}>
-                    <p style={{ fontSize: 13, color: '#fff', margin: 0 }}>"I have K3,000 and want to start a business in Riverside, Kitwe."</p>
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7 }}>
-                    <span style={{ color: 'var(--blue-bright)', fontWeight: 700 }}>KIP recommends:</span> <strong style={{ color: '#fff' }}>Mobile Phone Repair Shop.</strong><br />
-                    <span style={{ color: 'var(--muted)' }}>Setup: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K2,400</span>
-                    <span style={{ color: 'var(--muted)' }}> · Stock: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K400</span>
-                    <span style={{ color: 'var(--muted)' }}> · Reserve: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K200</span><br />
-                    <span style={{ color: 'var(--green)', fontWeight: 600 }}>Est. monthly profit: K800–K1,200 ✓</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+{/*         <section style={{ padding: '0 24px 80px' }}> */}
+{/*           <div style={{ maxWidth: 640, margin: '0 auto' }}> */}
+{/*             <div className="kip-card kip-card-glow" style={{ padding: 24 }}> */}
+{/*               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}> */}
+{/*                 <img src={KIP_LOGO} alt="KIP" style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} /> */}
+{/*                 <div style={{ flex: 1 }}> */}
+{/*                   <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginBottom: 8, fontFamily: 'Syne', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Example conversation</div> */}
+{/*                   <div style={{ background: 'linear-gradient(135deg, #1B6EF3, #0D52CC)', borderRadius: '14px 14px 4px 14px', padding: '10px 14px', marginBottom: 12, display: 'inline-block' }}> */}
+{/*                     <p style={{ fontSize: 13, color: '#fff', margin: 0 }}>"I have K3,000 and want to start a business in Riverside, Kitwe."</p> */}
+{/*                   </div> */}
+{/*                   <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7 }}> */}
+{/*                     <span style={{ color: 'var(--blue-bright)', fontWeight: 700 }}>KIP recommends:</span> <strong style={{ color: '#fff' }}>Mobile Phone Repair Shop.</strong><br /> */}
+{/*                     <span style={{ color: 'var(--muted)' }}>Setup: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K2,400</span> */}
+{/*                     <span style={{ color: 'var(--muted)' }}> · Stock: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K400</span> */}
+{/*                     <span style={{ color: 'var(--muted)' }}> · Reserve: </span><span style={{ color: 'var(--gold)', fontWeight: 700 }}>K200</span><br /> */}
+{/*                     <span style={{ color: 'var(--green)', fontWeight: 600 }}>Est. monthly profit: K800–K1,200 ✓</span> */}
+{/*                   </div> */}
+{/*                 </div> */}
+{/*               </div> */}
+{/*             </div> */}
+{/*           </div> */}
+{/*         </section> */}
 
         {/* Features */}
         <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.015)' }}>
@@ -190,7 +190,7 @@ export default function LandingPage() {
             <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--muted)', letterSpacing: '0.08em' }}>KWACHA INTELLIGENCE PLATFORM</span>
           </div>
 
-          <p style={{ fontSize: 12, color: 'var(--faint)' }}>© 2025 Malovate · Zambia · All rights reserved</p>
+          <p style={{ fontSize: 12, color: 'var(--faint)' }}>© 2026 Malovate · Zambia · All rights reserved</p>
         </footer>
 
       </div>

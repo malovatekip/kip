@@ -135,6 +135,141 @@ BUSINESS_TYPES = {
     },
 }
 
+# ── Business stories, debt, and named rivals ──────────────────────────────────
+
+BUSINESS_STORIES = {
+    "grocery": {
+        "story_id": "grocery",
+        "narrative": (
+            "Your grandmother Mama Bupe ran this market stall for 30 years. "
+            "When she passed last month, she left it to you — but also left "
+            "a K8,000 debt to Mr. Kamau, the local Kaloba lender. He gives "
+            "you 30 days to pay it back, or he takes the stall. You have "
+            "K3,000. The stall opens tomorrow."
+        ),
+        "debt_lender": "Mr. Kamau (Kaloba lender)",
+        "debt_original": 8000, "debt_rate": 60.0, "debt_due_day": 30,
+        "debt_type": "compounding_loan",
+        "debt_schedule": [
+            {"day": 30, "label": "Full Kaloba repayment to Mr. Kamau", "amount": 8000},
+        ],
+        "rival_name": "Mulenga", "rival_personality": "aggressive",
+        "rival_intro_dialogue": (
+            "Ah, Mama Bupe's grandchild! Welcome. Don't worry, I'll take "
+            "care of your customers when you close down. It won't be long."
+        ),
+    },
+    "poultry": {
+        "story_id": "poultry",
+        "narrative": (
+            "Your uncle Cosmas ran this broiler farm for 15 years before "
+            "drought killed half his flock. He borrowed K15,000 from DBZ to "
+            "restock. The farm is yours now — so is the loan. DBZ charges "
+            "12% p.a. You have 30 days before the first repayment is due. "
+            "The farm has 50 birds today. Make them count."
+        ),
+        "debt_lender": "DBZ (Development Bank of Zambia)",
+        "debt_original": 15000, "debt_rate": 12.0, "debt_due_day": 30,
+        "debt_type": "installment_loan",
+        "debt_schedule": [
+            {"day": 15, "label": "First DBZ repayment due"},
+            {"day": 30, "label": "Final DBZ repayment due"},
+        ],
+        "rival_name": "Blessings Farm", "rival_personality": "aggressive",
+        "rival_intro_dialogue": (
+            "New farm, eh? Fridays are undercut days around here. Good luck."
+        ),
+    },
+    "restaurant": {
+        "story_id": "restaurant",
+        "narrative": (
+            "You quit your government job to open this restaurant with "
+            "your cousin Priscilla. She contributed K10,000 in savings — "
+            "your share was supposed to be K10,000 too, but you only had "
+            "K4,000. Priscilla agreed to wait for her share of the profit. "
+            "If you can't show her K6,000 in profit within 30 days, she's "
+            "pulling out and taking her K10,000 back. The restaurant opens "
+            "Monday."
+        ),
+        "debt_lender": "Priscilla (business partner)",
+        "debt_original": 6000, "debt_rate": 0.0, "debt_due_day": 30,
+        "debt_type": "profit_target",
+        "debt_schedule": [
+            {"day": 30, "label": "K6,000 cumulative profit owed to Priscilla"},
+        ],
+        "rival_name": "Chef Mulilo's Kitchen", "rival_personality": "aggressive",
+        "rival_intro_dialogue": (
+            "Heard you and Priscilla opened up. Cute. My menu's cheaper and faster."
+        ),
+    },
+    "transport": {
+        "story_id": "transport",
+        "narrative": (
+            "You bought a secondhand minibus with K20,000 from a "
+            "microfinance company (Bayport). Monthly repayments are "
+            "K2,400. Day 15 and Day 30 are repayment days. If you miss a "
+            "payment, Bayport sends someone to repossess the bus. You have "
+            "K8,000 for fuel and operations. The route starts today."
+        ),
+        "debt_lender": "Bayport Microfinance",
+        "debt_original": 4800, "debt_rate": 0.0, "debt_due_day": 30,
+        "debt_type": "installment_loan",
+        "debt_schedule": [
+            {"day": 15, "label": "Bayport repayment due", "amount": 2400},
+            {"day": 30, "label": "Bayport repayment due", "amount": 2400},
+        ],
+        "rival_name": "Freddy's Express", "rival_personality": "consistent",
+        "rival_intro_dialogue": (
+            "New bus on the route? Mine's newer and I charge less. We'll see."
+        ),
+    },
+    "phone": {
+        "story_id": "phone",
+        "narrative": (
+            "Your older brother Kelvin flew to Dubai and shipped you "
+            "K30,000 worth of phone accessories on credit. He trusted you. "
+            "He needs the K30,000 back in 30 days — he has a mortgage "
+            "payment in Dubai that depends on it. Exchange rate today: "
+            "K27.50/USD. Every time it moves, your restock costs change. "
+            "Your brother is watching your progress."
+        ),
+        "debt_lender": "Kelvin (brother, Dubai inventory credit)",
+        "debt_original": 30000, "debt_rate": 0.0, "debt_due_day": 30,
+        "debt_type": "inventory_credit",
+        "debt_schedule": [
+            {"day": 30, "label": "K30,000 owed back to Kelvin", "amount": 30000},
+        ],
+        "rival_name": "iTech Accessories", "rival_personality": "premium",
+        "rival_intro_dialogue": (
+            "Nice little setup. My display looks better though. Good luck competing."
+        ),
+    },
+    "food_stall": {
+        "story_id": "food_stall",
+        "narrative": (
+            "You are the sole provider for your mother, two younger "
+            "sisters, and your sister's baby. K800 goes to rent and school "
+            "fees every 15 days — non-negotiable. Miss it and the landlord "
+            "kicks you all out. You have K2,000. The stall is borrowed "
+            "from Mrs. Phiri next door. She charges K100/day to use it. If "
+            "you can save K5,000 in 30 days, you can sign your own lease "
+            "and stop paying Mrs. Phiri."
+        ),
+        "debt_lender": "Mrs. Phiri (rent + stall fee)",
+        "debt_original": 1600, "debt_rate": 0.0, "debt_due_day": 30,
+        "debt_type": "rent_recurring",
+        "debt_schedule": [
+            {"day": 15, "label": "Rent + fees due", "amount": 800},
+            {"day": 30, "label": "Rent + fees due", "amount": 800},
+        ],
+        "rival_name": "Mama Janet's Kitchen", "rival_personality": "premium",
+        "rival_intro_dialogue": (
+            "Sweetie, everyone trusts my kitchen. You'll need more than a "
+            "smile to compete."
+        ),
+    },
+}
+
 # ── Chart of accounts (double-entry ledger) ───────────────────────────────────
 ACCOUNTS = {
     "cash":           {"type": "asset",     "normal": "debit"},
@@ -415,10 +550,10 @@ def simulate_competitor_day(competitor: dict, market_state: dict, player_price: 
     elif personality == "premium":
         # Maintains premium positioning
         target = optimal * random.uniform(1.3, 1.6)
-    elif personality == "follower":
-        # Follows player price with a lag
+    elif personality in ("follower", "reactive"):
+        # Follows/mirrors player price with a lag
         target = player_price * random.uniform(0.98, 1.05)
-    else:  # balanced
+    else:  # balanced / consistent
         target = optimal * random.uniform(0.95, 1.15)
 
     comp_price = max(cogs * 1.05, target)
@@ -432,6 +567,339 @@ def simulate_competitor_day(competitor: dict, market_state: dict, player_price: 
         "revenue":  round(comp_demand * comp_price, 2),
         "customers": comp_demand,
     }
+
+
+# ── Event card system ─────────────────────────────────────────────────────────
+# Server-authoritative: consequences live here, never trusted from the client.
+# Choice fields: cash_delta (applied immediately at /event/choose), reputation_delta
+# and family_reputation_delta (immediate, clamped 0-100), demand_mult (deferred —
+# folded into the day's demand multiplier by run_day), skip_day (deferred — forces
+# units_sold=0 for the day).
+
+EVENT_DEFINITIONS = [
+    # ── ZAMBIAN REALITY ────────────────────────────────────────────────────────
+    {
+        "id": "load_shedding", "category": "zambian_reality", "title": "Load Shedding!",
+        "flavour": "ZESCO just switched off your area. 8 hours of darkness.",
+        "choices": [
+            {"id": "A", "label": "Buy generator fuel (K150)", "cash_delta": -150, "demand_mult": 0.9},
+            {"id": "B", "label": "Wait it out", "demand_mult": 0.6},
+            {"id": "C", "label": "Close early", "skip_day": True},
+        ],
+    },
+    {
+        "id": "water_cuts", "category": "zambian_reality", "title": "Water Cuts",
+        "flavour": "No water for 4 hours. Your business cannot operate normally.",
+        "choices": [
+            {"id": "A", "label": "Buy bottled water (K80)", "cash_delta": -80, "demand_mult": 0.85},
+            {"id": "B", "label": "Partner with the next stall for shared supply", "cash_delta": -60},
+            {"id": "C", "label": "Close for the day", "skip_day": True},
+        ],
+    },
+    {
+        "id": "fuel_price_hike", "category": "zambian_reality", "title": "Fuel Price Hike",
+        "flavour": "Your supplier's delivery costs just rose. Restocking will cost more for the next few days.",
+        "choices": [
+            {"id": "A", "label": "Stock up now before prices rise further (K100)", "cash_delta": -100},
+            {"id": "B", "label": "Wait and see", "cash_delta": -150},
+        ],
+    },
+    {
+        "id": "pothole_season", "category": "zambian_reality", "title": "Pothole Season",
+        "flavour": "The road to your stall is full of potholes after the rains. Deliveries are getting damaged and delayed.",
+        "choices": [
+            {"id": "A", "label": "Pay K150 for a repair/detour kit", "cash_delta": -150},
+            {"id": "B", "label": "Risk it and carry on", "demand_mult": 0.85},
+        ],
+    },
+    {
+        "id": "market_council_fee", "category": "zambian_reality", "title": "Market Council Renovation Fee",
+        "flavour": "The Market Council says stalls must pay a renovation fee this week or lose their spot.",
+        "choices": [
+            {"id": "A", "label": "Pay K250 now", "cash_delta": -250, "reputation_delta": 5},
+            {"id": "B", "label": "Delay payment", "reputation_delta": -10},
+        ],
+    },
+    {
+        "id": "mobile_money_outage", "category": "zambian_reality", "title": "Mobile Money Network Outage",
+        "flavour": "MTN and Airtel mobile money are down across Lusaka. Customers can't pay you the way they're used to.",
+        "choices": [
+            {"id": "A", "label": "Cash-only today", "demand_mult": 0.8},
+            {"id": "B", "label": "Offer informal IOUs", "cash_delta": -50},
+        ],
+    },
+
+    # ── SOCIAL / FAMILY ────────────────────────────────────────────────────────
+    {
+        "id": "cousins_wedding", "category": "social_family", "title": "The Cousin's Wedding",
+        "flavour": "Your cousin Chanda is getting married in Ndola on Saturday. The family expects K500 from you.",
+        "choices": [
+            {"id": "A", "label": "Pay K500", "cash_delta": -500, "family_reputation_delta": 15},
+            {"id": "B", "label": "Send K200", "cash_delta": -200, "family_reputation_delta": 5},
+            {"id": "C", "label": "Refuse", "family_reputation_delta": -20},
+        ],
+    },
+    {
+        "id": "uncles_request", "category": "social_family", "title": "The Uncle's Request",
+        "flavour": "Uncle Sata needs K300 to fix his taxi. He says he'll repay you in two weeks. He hasn't repaid anything since 2019.",
+        "choices": [
+            {"id": "A", "label": "Give K300", "cash_delta": -300, "family_reputation_delta": 10},
+            {"id": "B", "label": "Give K100", "cash_delta": -100, "family_reputation_delta": 4},
+            {"id": "C", "label": "Refuse", "family_reputation_delta": -10},
+        ],
+    },
+    {
+        "id": "school_fees_season", "category": "social_family", "title": "School Fees Season",
+        "flavour": "Your younger sister's school fees are due. K450. Mum is asking.",
+        "choices": [
+            {"id": "A", "label": "Pay K450", "cash_delta": -450, "family_reputation_delta": 20},
+            {"id": "B", "label": "Negotiate for next week", "family_reputation_delta": 0},
+            {"id": "C", "label": "Refuse", "family_reputation_delta": -30},
+        ],
+    },
+    {
+        "id": "church_harambee", "category": "social_family", "title": "Church Harambee Appeal",
+        "flavour": "Your church is raising funds for a new roof. The pastor calls your name out during the announcement.",
+        "choices": [
+            {"id": "A", "label": "Give K200", "cash_delta": -200, "family_reputation_delta": 10},
+            {"id": "B", "label": "Give K50", "cash_delta": -50, "family_reputation_delta": 3},
+            {"id": "C", "label": "Decline", "family_reputation_delta": -12},
+        ],
+    },
+    {
+        "id": "sisters_graduation", "category": "social_family", "title": "Sister's Graduation",
+        "flavour": "Your sister is graduating from college. The family is planning a celebration and expects your contribution.",
+        "choices": [
+            {"id": "A", "label": "Give K350", "cash_delta": -350, "family_reputation_delta": 18},
+            {"id": "B", "label": "Give K150", "cash_delta": -150, "family_reputation_delta": 6},
+            {"id": "C", "label": "Skip it", "family_reputation_delta": -15},
+        ],
+    },
+    {
+        "id": "neighbours_funeral", "category": "social_family", "title": "Neighbour's Funeral Contribution",
+        "flavour": "A neighbour has passed away. Tradition expects a contribution and your presence at the funeral house.",
+        "choices": [
+            {"id": "A", "label": "Give K200 and attend", "cash_delta": -200, "family_reputation_delta": 12, "demand_mult": 0.9},
+            {"id": "B", "label": "Give K50, send apologies", "cash_delta": -50, "family_reputation_delta": 4},
+            {"id": "C", "label": "Don't attend", "family_reputation_delta": -20},
+        ],
+    },
+
+    # ── MARKET SHOCKS ──────────────────────────────────────────────────────────
+    {
+        "id": "cheap_knockoffs", "category": "market_shocks", "title": "Cheap Knockoffs",
+        "flavour": "A new vendor is selling fake versions of your product at 40% less.",
+        "choices": [
+            {"id": "A", "label": "Slash prices to match", "cash_delta": -100, "demand_mult": 1.15},
+            {"id": "B", "label": "Market your authenticity (K100)", "cash_delta": -100},
+            {"id": "C", "label": "Ignore it", "demand_mult": 0.85},
+        ],
+    },
+    {
+        "id": "viral_moment", "category": "market_shocks", "title": "Viral Moment",
+        "flavour": "Someone posted a video of your stall online and it's getting views.",
+        "choices": [
+            {"id": "A", "label": "Capitalise — buy extra supplies (K50)", "cash_delta": -50, "demand_mult": 1.4},
+            {"id": "B", "label": "Do nothing", "demand_mult": 1.2},
+        ],
+    },
+    {
+        "id": "supplier_strike", "category": "market_shocks", "title": "Supplier Strike",
+        "flavour": "Your main supplier's workers are striking. No delivery today.",
+        "choices": [
+            {"id": "A", "label": "Buy from an emergency supplier", "cash_delta": -80},
+            {"id": "B", "label": "Sell out of existing stock"},
+            {"id": "C", "label": "Close for the day", "skip_day": True},
+        ],
+    },
+    {
+        "id": "rival_poaches_customer", "category": "market_shocks", "title": "Rival Poaches Your Best Customer",
+        "flavour": "Your rival is offering steep discounts to lure away one of your best regular customers.",
+        "choices": [
+            {"id": "A", "label": "Offer a K80 loyalty discount", "cash_delta": -80},
+            {"id": "B", "label": "Let them go", "demand_mult": 0.95},
+        ],
+    },
+    {
+        "id": "bulk_wholesaler", "category": "market_shocks", "title": "Bulk Wholesaler Enters the Market",
+        "flavour": "A bulk wholesaler has set up nearby, selling at prices you can't match.",
+        "choices": [
+            {"id": "A", "label": "Match their price", "cash_delta": -100},
+            {"id": "B", "label": "Market to differentiate (K100)", "cash_delta": -100},
+            {"id": "C", "label": "Ignore it", "demand_mult": 0.9},
+        ],
+    },
+    {
+        "id": "counterfeit_currency", "category": "market_shocks", "title": "Counterfeit Currency Scare",
+        "flavour": "Word is going around that fake K100 notes are circulating in the market.",
+        "choices": [
+            {"id": "A", "label": "Check every note carefully", "demand_mult": 0.9},
+            {"id": "B", "label": "Mobile-money only today", "demand_mult": 0.85},
+            {"id": "C", "label": "Ignore it", "cash_delta": -60},
+        ],
+    },
+
+    # ── OPPORTUNITY ────────────────────────────────────────────────────────────
+    {
+        "id": "cdf_disbursement", "category": "opportunity", "title": "CDF Disbursement",
+        "flavour": "Your MP announced CDF funds for small businesses. You qualify.",
+        "choices": [
+            {"id": "A", "label": "Apply now (spend the morning on paperwork)", "cash_delta": 500, "demand_mult": 0.8},
+            {"id": "B", "label": "Skip the paperwork", "cash_delta": 0},
+        ],
+    },
+    {
+        "id": "bulk_order_inquiry", "category": "opportunity", "title": "Bulk Order Inquiry",
+        "flavour": "A caterer wants to buy a large batch upfront for a weekend wedding.",
+        "choices": [
+            {"id": "A", "label": "Accept at standard price", "cash_delta": 300},
+            {"id": "B", "label": "Negotiate for a premium", "cash_delta": 350},
+            {"id": "C", "label": "Decline", "cash_delta": 0},
+        ],
+    },
+    {
+        "id": "payday_weekend", "category": "opportunity", "title": "Payday Weekend",
+        "flavour": "Government workers just got paid. Spending is up across town this weekend.",
+        "choices": [
+            {"id": "A", "label": "Prepare extra stock (K100)", "cash_delta": -100, "demand_mult": 1.6},
+            {"id": "B", "label": "Business as usual", "demand_mult": 1.5},
+        ],
+    },
+    {
+        "id": "radio_interview", "category": "opportunity", "title": "Radio Interview Invite",
+        "flavour": "A local radio station wants to interview you about your business for their morning show.",
+        "choices": [
+            {"id": "A", "label": "Accept the interview", "demand_mult": 0.9, "reputation_delta": 15},
+            {"id": "B", "label": "Decline", "cash_delta": 0},
+        ],
+    },
+    {
+        "id": "corporate_bulk_contract", "category": "opportunity", "title": "Corporate Bulk Contract Inquiry",
+        "flavour": "A corporate office wants a standing weekly order from your business.",
+        "choices": [
+            {"id": "A", "label": "Accept the contract", "cash_delta": 250},
+            {"id": "B", "label": "Negotiate better terms", "cash_delta": 150},
+            {"id": "C", "label": "Decline", "cash_delta": 0},
+        ],
+    },
+    {
+        "id": "youth_empowerment_grant", "category": "opportunity", "title": "Youth Empowerment Fund Grant",
+        "flavour": "The Ministry of Youth is giving out small business grants today. You could qualify.",
+        "choices": [
+            {"id": "A", "label": "Apply (spend time on paperwork)", "cash_delta": 250, "demand_mult": 0.85},
+            {"id": "B", "label": "Skip it", "cash_delta": 0},
+        ],
+    },
+
+    # ── RISK & CONSEQUENCE ─────────────────────────────────────────────────────
+    {
+        "id": "health_inspector", "category": "risk_consequence", "title": "The Health Inspector",
+        "flavour": "A City Council health inspector visits your stall unannounced.",
+        "choices": [
+            {"id": "A", "label": "Pay K200 \"informal fee\"", "cash_delta": -200},
+            {"id": "B", "label": "Refuse and risk it", "skip_day": True, "reputation_delta": -5},
+        ],
+    },
+    {
+        "id": "fire_at_market", "category": "risk_consequence", "title": "Fire at the Market",
+        "flavour": "A stall two rows away caught fire. The market closes early while the situation is contained.",
+        "choices": [
+            {"id": "A", "label": "Evacuate immediately", "demand_mult": 0.6},
+            {"id": "B", "label": "Try to keep serving nearby", "demand_mult": 0.75, "reputation_delta": -5},
+        ],
+    },
+    {
+        "id": "customer_complaint", "category": "risk_consequence", "title": "A Customer Complaint",
+        "flavour": "A customer is threatening to tell everyone your products are fake or overpriced.",
+        "choices": [
+            {"id": "A", "label": "Refund them", "cash_delta": -50, "reputation_delta": 5},
+            {"id": "B", "label": "Replace the product", "cash_delta": -20, "reputation_delta": 8},
+            {"id": "C", "label": "Ignore it", "reputation_delta": -15},
+        ],
+    },
+    {
+        "id": "till_shortfall", "category": "risk_consequence", "title": "Till Shortfall",
+        "flavour": "You count your till at the end of the morning and K150 is missing.",
+        "choices": [
+            {"id": "A", "label": "Confront your helper", "cash_delta": -75, "family_reputation_delta": -4},
+            {"id": "B", "label": "Let it go", "cash_delta": -150},
+        ],
+    },
+    {
+        "id": "theft_attempt", "category": "risk_consequence", "title": "Theft Attempt",
+        "flavour": "You spot someone slipping stock into their jacket and bolting.",
+        "choices": [
+            {"id": "A", "label": "Chase them", "cash_delta": -25},
+            {"id": "B", "label": "Let it go", "cash_delta": -100},
+        ],
+    },
+    {
+        "id": "council_levy_inspection", "category": "risk_consequence", "title": "Council Multiple-Levy Inspection",
+        "flavour": "Council officers arrive demanding multiple \"levies\" before you can keep trading today.",
+        "choices": [
+            {"id": "A", "label": "Pay K300 \"assistance fee\"", "cash_delta": -300},
+            {"id": "B", "label": "Insist on doing it properly", "demand_mult": 0.5, "reputation_delta": 10},
+        ],
+    },
+]
+
+GUARANTEED_EVENTS = [
+    {
+        "id": "debt_reminder_day15", "category": "debt", "title": "A Reminder From Your Lender",
+        "flavour": "Fifteen days in. Your lender wants you to know exactly where things stand.",
+        "choices": [{"id": "A", "label": "Understood"}],
+    },
+    {
+        "id": "debt_final_warning_day29", "category": "debt", "title": "Final Warning",
+        "flavour": "One day left before your debt comes due. There is no more room to wait.",
+        "choices": [{"id": "A", "label": "Understood"}],
+    },
+]
+
+
+def get_event_definition(event_id: str) -> Optional[dict]:
+    return next((e for e in EVENT_DEFINITIONS if e["id"] == event_id), None) or \
+           next((e for e in GUARANTEED_EVENTS if e["id"] == event_id), None)
+
+
+def event_card_payload(event_id: str) -> dict:
+    """Client-facing view of an event: strips consequence numbers from choices."""
+    event = get_event_definition(event_id)
+    if not event:
+        return None
+    return {
+        "id": event["id"], "category": event["category"], "title": event["title"],
+        "flavour": event["flavour"],
+        "choices": [{"id": c["id"], "label": c["label"]} for c in event["choices"]],
+    }
+
+
+def select_event_for_day(day: int, debt_balance: float, session_id: int) -> list:
+    """Returns 0-2 event dicts scheduled for this day (Part 6 scheduling rules).
+    Deterministic per (session_id, day) so repeated calls before a choice is made
+    return the same result without needing a 'no event today' sentinel row."""
+    rng = random.Random(f"{session_id}-{day}")
+
+    if day == 15 and debt_balance > 0:
+        return [e for e in GUARANTEED_EVENTS if e["id"] == "debt_reminder_day15"]
+    if day == 29 and debt_balance > 0:
+        return [e for e in GUARANTEED_EVENTS if e["id"] == "debt_final_warning_day29"]
+
+    if day <= 7:
+        chance, max_events, bias = 0.40, 1, ["opportunity", "zambian_reality", "market_shocks"]
+    elif day <= 15:
+        chance, max_events, bias = 0.55, 1, None
+    elif day <= 22:
+        chance, max_events, bias = 0.65, 2, None
+    else:
+        chance, max_events, bias = 0.75, 2, ["risk_consequence", "social_family"]
+
+    picked = []
+    for _ in range(max_events):
+        if rng.random() < chance:
+            pool = [e for e in EVENT_DEFINITIONS if not bias or e["category"] in bias] or EVENT_DEFINITIONS
+            picked.append(rng.choice(pool))
+    return picked
 
 
 # ── Phase unlock logic ────────────────────────────────────────────────────────

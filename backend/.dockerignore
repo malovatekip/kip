@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+kip.db
+*.log
+.git/
+.pytest_cache/
+icons_output/
