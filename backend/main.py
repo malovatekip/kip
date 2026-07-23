@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+import asyncio
 import os
 
 load_dotenv()
 
-from app.database import engine, Base
+from app.database import engine, Base, SessionLocal
 from app.models import user, conversation
 from app.models import business_dashboard
 from app.models import business_idea
@@ -39,6 +40,11 @@ from app.routes import bizsim_routes
 
 from app.routes.briefings import router as briefings_router
 from app.routes import i18n_routes
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from app.models.models_briefing import EconomicBriefing
+from app.services.briefing_service import run_daily_briefing
 
 
 
@@ -106,6 +112,51 @@ app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
 app.include_router(bizsim_routes.router, prefix="/api/bizsim", tags=["BizSim"])
 
 app.include_router(briefings_router, prefix="/api/news", tags=["briefings"])
+
+# ── Economic briefing research scheduler ─────────────────────────────────────
+# Research is generated once here and shared by every user via the cached
+# `economic_briefings` table — no per-user request should ever trigger it.
+# Runs every BRIEFING_REFRESH_DAYS; narrow this once there's enough real
+# traffic to justify fresher research.
+BRIEFING_REFRESH_DAYS = 7
+
+_briefing_scheduler = AsyncIOScheduler()
+
+
+def _run_briefing_job():
+    db = SessionLocal()
+    try:
+        run_daily_briefing(db)
+    finally:
+        db.close()
+
+
+@app.on_event("startup")
+async def start_briefing_scheduler():
+    db = SessionLocal()
+    try:
+        has_briefings = db.query(EconomicBriefing.id).first() is not None
+    finally:
+        db.close()
+
+    if not has_briefings:
+        # Bootstrap so the page isn't empty until the first scheduled run;
+        # offloaded to a thread so it doesn't block server startup.
+        asyncio.get_event_loop().run_in_executor(None, _run_briefing_job)
+
+    _briefing_scheduler.add_job(
+        _run_briefing_job,
+        IntervalTrigger(days=BRIEFING_REFRESH_DAYS),
+        id="briefing_research",
+        replace_existing=True,
+    )
+    _briefing_scheduler.start()
+
+
+@app.on_event("shutdown")
+def stop_briefing_scheduler():
+    _briefing_scheduler.shutdown(wait=False)
+
 
 @app.get("/")
 def root():

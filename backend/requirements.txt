@@ -15,6 +15,9 @@ bcrypt>=4.2.0
 # AI
 anthropic>=0.40.0
 
+# Scheduled background jobs (e.g. periodic briefing research)
+apscheduler>=3.10.0
+
 # Vector DB / RAG
 chromadb>=0.5.0
 sentence-transformers>=3.0.0

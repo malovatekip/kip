@@ -17,7 +17,7 @@ from typing import Optional
 
 TOWN_PROFILES = {
 
-    # ─── COPPERBELT ────────────────────────────────────────────────────
+    # ─── COPPERBELT
     "kitwe": {
         "city": "Kitwe",
         "province": "Copperbelt",

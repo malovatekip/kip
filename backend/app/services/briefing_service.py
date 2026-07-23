@@ -251,11 +251,20 @@ def store_briefings(briefings: list[dict], db: Session) -> int:
     return stored
 
 
+_generation_running = False
+
+
 def run_daily_briefing(db: Session) -> dict:
     """
     Full pipeline: generate + store.
-    Called by the scheduler and the /refresh endpoint.
+    Called only by the scheduler in main.py — briefings are shared research,
+    not something an individual user request should trigger.
     """
-    briefings = generate_briefings()
-    count = store_briefings(briefings, db)
-    return {"status": "ok", "count": count, "date": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
+    global _generation_running
+    _generation_running = True
+    try:
+        briefings = generate_briefings()
+        count = store_briefings(briefings, db)
+        return {"status": "ok", "count": count, "date": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
+    finally:
+        _generation_running = False

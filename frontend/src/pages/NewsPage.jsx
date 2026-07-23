@@ -247,7 +247,7 @@ function BriefingCard({ briefing }) {
 }
 
 // ─── EMPTY STATE ────────────────────────────────────────────────────────────
-function BriefingsEmpty({ onRefresh, refreshing }) {
+function BriefingsEmpty() {
   return (
     <div style={{ textAlign: 'center', padding: '52px 24px' }}>
       <div style={{
@@ -260,20 +260,11 @@ function BriefingsEmpty({ onRefresh, refreshing }) {
         <Globe size={28} style={{ color: 'var(--blue-bright)', opacity: 0.6 }} />
       </div>
       <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 17, color: 'var(--text)', marginBottom: 8 }}>
-        No briefings yet for today
+        No briefings yet
       </h3>
       <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 360, margin: '0 auto 20px' }}>
-        KIP hasn't analysed today's economic news yet. Click refresh to have KIP search and simplify the latest stories from BoZ, State House, and government ministries.
+        KIP researches the latest stories from BoZ, State House, and government ministries on a schedule. Check back soon.
       </p>
-      <button
-        onClick={onRefresh}
-        disabled={refreshing}
-        className="kip-btn kip-btn-primary"
-        style={{ fontSize: 13, padding: '10px 22px' }}
-      >
-        <RefreshCw size={14} style={{ animation: refreshing ? 'spinSlow 0.8s linear infinite' : 'none' }} />
-        {refreshing ? 'KIP is researching…' : 'Generate Today\'s Briefing'}
-      </button>
     </div>
   )
 }
@@ -282,11 +273,8 @@ function BriefingsEmpty({ onRefresh, refreshing }) {
 function KipExplainsTab() {
   const [briefings,    setBriefings]    = useState([])
   const [loading,      setLoading]      = useState(true)
-  const [refreshing,   setRefreshing]   = useState(false)
   const [status,       setStatus]       = useState(null)
   const [filterCat,    setFilterCat]    = useState('all')
-  const [refreshMsg,   setRefreshMsg]   = useState(null)
-  const pollRef = React.useRef(null)
 
   const loadBriefings = useCallback(async () => {
     try {
@@ -306,42 +294,7 @@ function KipExplainsTab() {
 
   useEffect(() => {
     loadBriefings()
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [loadBriefings])
-
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    setRefreshMsg(null)
-    try {
-      const { data } = await api.post('/news/briefings/refresh')
-      setRefreshMsg(data.message || 'KIP is searching for today\'s top stories…')
-
-      // Poll every 15s for up to 3 minutes until new briefings appear
-      let attempts = 0
-      pollRef.current = setInterval(async () => {
-        attempts++
-        try {
-          const { data: fresh } = await api.get('/news/briefings')
-          const today = new Date().toISOString().slice(0, 10)
-          if (fresh.generated_date === today && fresh.count > 0) {
-            setBriefings(fresh.briefings || [])
-            setStatus({ generated_at: fresh.generated_at, date: fresh.generated_date, count: fresh.count })
-            setRefreshing(false)
-            setRefreshMsg(null)
-            clearInterval(pollRef.current)
-          }
-        } catch { /* keep polling */ }
-        if (attempts >= 12) {   // 3 minutes max
-          setRefreshing(false)
-          setRefreshMsg('Taking longer than expected — check back in a few minutes.')
-          clearInterval(pollRef.current)
-        }
-      }, 15000)
-    } catch {
-      setRefreshing(false)
-      setRefreshMsg('Could not start refresh. Try again.')
-    }
-  }
 
   // Distinct categories present in the current briefings
   const availableCategories = ['all', ...new Set(briefings.map(b => b.category))]
@@ -397,38 +350,7 @@ function KipExplainsTab() {
             </p>
           )}
         </div>
-
-        {/* Refresh button */}
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '9px 16px', borderRadius: 10, cursor: refreshing ? 'not-allowed' : 'pointer',
-            background: refreshing ? 'var(--input-bg)' : 'var(--blue-dim)',
-            border: `1px solid ${refreshing ? 'var(--border)' : 'rgba(43,127,255,0.4)'}`,
-            fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
-            color: refreshing ? 'var(--muted)' : 'var(--blue-bright)',
-            flexShrink: 0, transition: 'all 0.2s ease',
-          }}
-        >
-          <RefreshCw size={13} style={{ animation: refreshing ? 'spinSlow 0.8s linear infinite' : 'none' }} />
-          {refreshing ? 'Analysing news…' : 'Refresh'}
-        </button>
       </div>
-
-      {/* Refresh in-progress message */}
-      {refreshMsg && (
-        <div style={{
-          display: 'flex', gap: 10, padding: '12px 16px', borderRadius: 12, marginBottom: 16,
-          background: 'rgba(43,127,255,0.08)', border: '1px solid rgba(43,127,255,0.25)',
-        }}>
-          <Zap size={14} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
-          <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
-            {refreshMsg}
-          </p>
-        </div>
-      )}
 
       {/* Sources banner */}
       <div style={{
@@ -489,7 +411,7 @@ function KipExplainsTab() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <BriefingsEmpty onRefresh={handleRefresh} refreshing={refreshing} />
+        <BriefingsEmpty />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
           {filtered.map(briefing => (
