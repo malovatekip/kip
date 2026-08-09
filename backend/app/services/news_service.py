@@ -140,6 +140,86 @@ def fetch_fuel_prices() -> Optional[Dict]:
     return None
 
 
+# ── Article images ─────────────────────────────────────────────────
+
+# Junk that shows up in <img> tags but is never the story photo
+_IMAGE_URL_BLOCKLIST = ("gravatar.", "emoji", "smilies", "spacer", "blank.", "1x1", "pixel", "avatar", "logo")
+
+
+def _clean_image_url(url: str) -> Optional[str]:
+    """Validate a candidate image URL; return it normalised or None."""
+    if not url:
+        return None
+    url = url.strip().replace("&amp;", "&")
+    if not url.lower().startswith(("http://", "https://")):
+        return None
+    lowered = url.lower()
+    if any(junk in lowered for junk in _IMAGE_URL_BLOCKLIST):
+        return None
+    return url[:1000]
+
+
+def _extract_item_image(item_xml: str) -> Optional[str]:
+    """Pull an image out of a single RSS <item> block, if the feed carries one.
+
+    WordPress feeds (all our Zambian sources) usually expose the featured
+    image via media:content / media:thumbnail / enclosure, or as the first
+    <img> inside the encoded content or description.
+    """
+    m = re.search(r'<media:(?:content|thumbnail)[^>]+url=["\']([^"\']+)["\']', item_xml, re.IGNORECASE)
+    if m:
+        img = _clean_image_url(m.group(1))
+        if img:
+            return img
+    m = re.search(r'<enclosure[^>]+type=["\']image/[^"\']*["\'][^>]*url=["\']([^"\']+)["\']', item_xml, re.IGNORECASE) \
+        or re.search(r'<enclosure[^>]+url=["\']([^"\']+)["\'][^>]*type=["\']image/', item_xml, re.IGNORECASE)
+    if m:
+        img = _clean_image_url(m.group(1))
+        if img:
+            return img
+    for m in re.finditer(r'<img[^>]+src=["\']([^"\']+)["\']', item_xml, re.IGNORECASE):
+        img = _clean_image_url(m.group(1))
+        if img:
+            return img
+    return None
+
+
+def fetch_article_image(article_url: str) -> Optional[str]:
+    """Fetch the article page and return its og:image (or twitter:image).
+
+    Used as a fallback when the RSS item itself carried no image. One HTTP
+    request per call — callers should only invoke this for articles that
+    still lack an image, and throttle politely.
+
+    Returns the image URL, "" if the page was fetched but has no usable
+    image (callers can persist that and stop retrying), or None if the
+    page couldn't be fetched at all (transient — worth retrying later).
+    """
+    html = _http_get(article_url, timeout=10)
+    if not html:
+        return None
+    # Only the <head> matters and it avoids matching body content
+    head = html[:60000]
+    for pattern in (
+        r'<meta[^>]+property=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)["\']',
+        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+        r'<meta[^>]+name=["\']twitter:image(?::src)?["\'][^>]+content=["\']([^"\']+)["\']',
+    ):
+        m = re.search(pattern, head, re.IGNORECASE)
+        if m:
+            img = _clean_image_url(m.group(1))
+            if img:
+                return img
+    # Some sources (e.g. Zambia Daily Mail) publish no og:image at all.
+    # All our sources are WordPress, where the story photo is served from
+    # wp-content/uploads — take the first such <img> that isn't blocklisted.
+    for m in re.finditer(r'<img[^>]+src=["\']([^"\']*wp-content/uploads[^"\']+)["\']', html, re.IGNORECASE):
+        img = _clean_image_url(m.group(1))
+        if img:
+            return img
+    return ""
+
+
 # ── RSS Parsing ────────────────────────────────────────────────────
 
 def _parse_rss(xml: str, source_name: str) -> List[Dict]:
@@ -187,6 +267,7 @@ def _parse_rss(xml: str, source_name: str) -> List[Dict]:
             "headline":     headline,
             "summary":      summary,
             "url":          url.strip(),
+            "image_url":    _extract_item_image(item),
             "source_name":  source_name,
             "published_at": published_at,
             "raw_text":     f"{headline} {summary}".lower(),

@@ -8,6 +8,9 @@ class NewsArticle(Base):
     headline    = Column(String(500), nullable=False)
     summary     = Column(Text, nullable=True)
     url         = Column(String(1000), unique=True, nullable=False)
+    # Lead image scraped from the RSS item or the article page's og:image.
+    # NULL = not attempted yet, "" = attempted but none found (don't retry).
+    image_url   = Column(String(1000), nullable=True)
     source_name = Column(String(100), nullable=False)
     category    = Column(String(60), default="general_economy")
     published_at = Column(DateTime, nullable=True)

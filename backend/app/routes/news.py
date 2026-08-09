@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -10,7 +11,7 @@ from app.security import get_current_user
 from app.models.user import User
 from app.services.news_service import (
     scrape_news, fetch_usd_zmw, fetch_fuel_prices,
-    generate_alerts_for_user
+    generate_alerts_for_user, fetch_article_image
 )
 
 router = APIRouter()
@@ -106,6 +107,7 @@ def get_articles(
                 "headline":     a.headline,
                 "summary":      a.summary,
                 "url":          a.url,
+                "image_url":    a.image_url or None,
                 "source_name":  a.source_name,
                 "category":     a.category,
                 "published_at": a.published_at.isoformat() if a.published_at else None,
@@ -126,20 +128,37 @@ def refresh_articles(
     return {"status": "refresh started"}
 
 
+# Cap per refresh on article-page fetches for images (one HTTP request each)
+MAX_IMAGE_PAGE_FETCHES = 30
+
+
 def _run_news_refresh(db: Session):
     """Background task: scrape news, save new articles, generate alerts."""
     articles = scrape_news()
     new_count = 0
+    page_fetches = 0
 
     for a in articles:
         # Skip duplicates by URL
         exists = db.query(NewsArticle).filter(NewsArticle.url == a["url"]).first()
         if exists:
             continue
+
+        # Image: the RSS item usually carries one; otherwise scrape the
+        # article page. "" marks "page checked, no image — don't retry";
+        # NULL marks "not fetched yet / fetch failed" and is retried by
+        # the backfill pass on later refreshes.
+        image_url = a.get("image_url")
+        if not image_url and page_fetches < MAX_IMAGE_PAGE_FETCHES:
+            image_url = fetch_article_image(a["url"])
+            page_fetches += 1
+            time.sleep(0.3)  # polite delay between page fetches
+
         db.add(NewsArticle(
             headline=a["headline"],
             summary=a.get("summary", ""),
             url=a["url"],
+            image_url=image_url,
             source_name=a["source_name"],
             category=a["category"],
             published_at=a.get("published_at"),
@@ -148,11 +167,24 @@ def _run_news_refresh(db: Session):
 
     db.commit()
 
+    # Backfill images for articles whose fetch hasn't succeeded yet —
+    # both pre-image-support rows and ones whose page fetch failed
+    # transiently (image_url IS NULL; "" means checked-and-none, skip)
+    backfill = db.query(NewsArticle)\
+        .filter(NewsArticle.is_active == True, NewsArticle.image_url == None)\
+        .order_by(NewsArticle.fetched_at.desc())\
+        .limit(max(0, MAX_IMAGE_PAGE_FETCHES - page_fetches)).all()
+    for article in backfill:
+        article.image_url = fetch_article_image(article.url)
+        time.sleep(0.3)
+    if backfill:
+        db.commit()
+
     # Generate alerts for all users with business ideas
     if new_count > 0:
         _generate_alerts_for_all_users(db, articles)
 
-    print(f"[News] Refresh complete: {new_count} new articles")
+    print(f"[News] Refresh complete: {new_count} new articles, {len(backfill)} images backfilled")
 
 
 def _generate_alerts_for_all_users(db: Session, new_articles: list):

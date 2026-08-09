@@ -550,35 +550,56 @@ function AlertCard({ alert, onDismiss }) {
 function ArticleCard({ article }) {
   const cat   = CAT_BY_KEY[article.category]
   const color = cat?.color || 'var(--blue-bright)'
+  // Hide the thumbnail slot entirely if the image fails to load (dead link,
+  // hotlink-blocked source, etc.) so the card falls back to text-only.
+  const [imgOk, setImgOk] = useState(true)
+  const showImage = article.image_url && imgOk
+
   return (
     <a href={article.url} target="_blank" rel="noopener noreferrer"
-       className="kip-card animate-slide-up" style={{ display: 'block', padding: 16, textDecoration: 'none' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{article.source_name}</span>
-          <span style={{
-            fontSize: 10, fontFamily: 'Syne', fontWeight: 700,
-            padding: '2px 9px', borderRadius: 20,
-            background: `${color}18`, color, border: `1px solid ${color}35`,
+       className="kip-card animate-slide-up" style={{ display: 'flex', gap: 14, padding: 16, textDecoration: 'none' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{article.source_name}</span>
+            <span style={{
+              fontSize: 10, fontFamily: 'Syne', fontWeight: 700,
+              padding: '2px 9px', borderRadius: 20,
+              background: `${color}18`, color, border: `1px solid ${color}35`,
+            }}>
+              {cat?.label || article.category}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(article.published_at || article.fetched_at)}</span>
+            <ExternalLink size={13} style={{ color: 'var(--faint)' }} />
+          </div>
+        </div>
+        <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)', lineHeight: 1.4, margin: '0 0 6px' }}>
+          {article.headline}
+        </h3>
+        {article.summary && (
+          <p style={{
+            fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: 0,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>
-            {cat?.label || article.category}
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(article.published_at || article.fetched_at)}</span>
-          <ExternalLink size={13} style={{ color: 'var(--faint)' }} />
-        </div>
+            {article.summary}
+          </p>
+        )}
       </div>
-      <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)', lineHeight: 1.4, margin: '0 0 6px' }}>
-        {article.headline}
-      </h3>
-      {article.summary && (
-        <p style={{
-          fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: 0,
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-        }}>
-          {article.summary}
-        </p>
+      {showImage && (
+        <img
+          src={article.image_url}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setImgOk(false)}
+          style={{
+            width: 108, minHeight: 82, alignSelf: 'stretch', maxHeight: 130,
+            objectFit: 'cover', borderRadius: 12, flexShrink: 0,
+            border: '1px solid var(--border)',
+          }}
+        />
       )}
     </a>
   )

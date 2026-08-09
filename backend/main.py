@@ -89,8 +89,22 @@ def _migrate_user_verification_columns():
             conn.execute(text(stmt))
         conn.commit()
 
+def _migrate_news_columns():
+    """Add columns to an existing `news_articles` table created before they existed."""
+    from sqlalchemy import text, inspect
+    inspector = inspect(engine)
+    if "news_articles" not in inspector.get_table_names():
+        return
+    existing = {col["name"] for col in inspector.get_columns("news_articles")}
+    if "image_url" in existing:
+        return
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE news_articles ADD COLUMN image_url VARCHAR(1000)"))
+        conn.commit()
+
 try:
     _migrate_user_verification_columns()
+    _migrate_news_columns()
 except Exception:
     pass
 
