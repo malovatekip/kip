@@ -11,6 +11,9 @@ import LandingPage           from './pages/LandingPage'
 import LoginPage             from './pages/LoginPage'
 import RegisterPage          from './pages/RegisterPage'
 import VerifyEmailPage       from './pages/VerifyEmailPage'
+import ForgotPasswordPage    from './pages/ForgotPasswordPage'
+import ResetPasswordPage     from './pages/ResetPasswordPage'
+import SettingsPage          from './pages/SettingsPage'
 import DashboardPage         from './pages/DashboardPage'
 import ChatPage              from './pages/ChatPage'
 import NewsPage              from './pages/NewsPage'
@@ -72,6 +75,8 @@ function AppRoutes() {
         <Route path="/login"         element={<LoginPage />} />
         <Route path="/register"      element={<RegisterPage />} />
         <Route path="/verify-email"  element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password"  element={<ResetPasswordPage />} />
         <Route path="/pricing" element={<PricingPage />} />
 
 
@@ -97,6 +102,7 @@ function AppRoutes() {
         <Route path="/market" element={<Protected><MarketIntelligencePage /></Protected>} />
         <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
         <Route path="/bizsim" element={<Protected><BizSimPage /></Protected>} />
+        <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
 
         {/* ── NEW: Startup guidance — protected, business registration roadmap ── */}
         <Route path="/startup"            element={<Protected><StartupPage /></Protected>} />

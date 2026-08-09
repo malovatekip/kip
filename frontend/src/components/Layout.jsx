@@ -8,7 +8,7 @@ import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
   FileText, Globe, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
-  BarChart2, BookOpen, Gamepad2, Rocket
+  BarChart2, BookOpen, Gamepad2, Rocket, Settings
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
@@ -29,6 +29,7 @@ const NAV = [
   { to: '/market', icon: BarChart2, label: 'Market Intel' },
   { to: '/survey',     icon: Globe,           label: 'Survey'      },
   { to: '/enterprise', icon: Crown,           label: 'Enterprise', premium: true },
+  { to: '/settings',   icon: Settings,        label: 'Settings'    },
 ]
 
 export default function Layout({ children }) {

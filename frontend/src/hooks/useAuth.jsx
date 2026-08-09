@@ -25,8 +25,20 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
-    localStorage.removeItem('kip_token')
+    // Capture the token before clearing storage — the axios interceptor
+    // reads from localStorage on every request, so once we clear it the
+    // interceptor can no longer attach it itself.
+    const token = localStorage.getItem('kip_token')
+
+    ;['kip_token', 'token', 'access_token', 'kip_user'].forEach(k => localStorage.removeItem(k))
     setUser(null)
+
+    if (token) {
+      // Best-effort server-side revocation so the token can't be replayed
+      // after logout, even if a copy of it leaked. Don't block the UI on
+      // this — the user is signed out locally regardless of the outcome.
+      api.post('/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+    }
   }
 
   return (

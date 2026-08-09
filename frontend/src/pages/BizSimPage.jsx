@@ -213,7 +213,7 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
         <div style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted, marginBottom: 10 }}>
           MARKETING SPEND
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="bizsim-mkt-buttons">
           {[
             { v: 0,   l: 'None',   sub: 'Word of mouth' },
             { v: 50,  l: 'K50',    sub: '+20% customers' },
@@ -221,7 +221,7 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
             { v: 300, l: 'K300',   sub: '+65% customers' },
           ].map(({ v, l, sub }) => (
             <button key={v} onClick={() => setMkt(v)} style={{
-              flex: 1, padding: '8px 4px', borderRadius: 10, cursor: 'pointer',
+              padding: '8px 4px', borderRadius: 10, cursor: 'pointer',
               background: mkt === v ? `${C.purple}25` : '#0F2040',
               border: `1px solid ${mkt === v ? C.purple : C.border}`,
               color: mkt === v ? C.purple : C.muted,
@@ -974,8 +974,47 @@ export default function BizSimPage() {
         @keyframes pulse { 0%,100% { opacity:0.5; transform:scale(1); } 50% { opacity:1; transform:scale(1.08); } }
         @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         * { box-sizing: border-box; }
-        input[type=range] { -webkit-appearance: none; height: 6px; background: #1E3A5F; border-radius: 3px; outline: none; }
+        input[type=range] { -webkit-appearance: none; height: 6px; background: #1E3A5F; border-radius: 3px; outline: none; width: 100%; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 2px solid #0A1628; }
+
+        /* ── Mobile layout ──────────────────────────────────────────────
+           Below 860px (phones and small tablets) the Play tab's two-up
+           grid (decisions | stats+chart) collapses to a single stacked
+           column instead of squeezing both into unusably narrow halves. */
+        .bizsim-game-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        @media (min-width: 860px) {
+          .bizsim-game-grid {
+            display: grid;
+            grid-template-columns: minmax(0,1.1fr) minmax(0,0.9fr);
+            align-items: start;
+          }
+        }
+        .bizsim-topbar {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 10px;
+        }
+        .bizsim-topbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-left: auto;
+        }
+        .bizsim-mkt-buttons {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .bizsim-mkt-buttons > button { flex: 1 1 76px; min-width: 76px; }
+        @media (max-width: 480px) {
+          .bizsim-topbar { justify-content: flex-start; }
+          .bizsim-topbar-info { min-width: 0; }
+        }
       `}</style>
 
       {screen === 'loading' && (
@@ -989,15 +1028,19 @@ export default function BizSimPage() {
       {['game','event_card','day_canvas','result','coaching','phase_unlock'].includes(screen) && session && (
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
 
-          {/* Top bar */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          {/* Top bar — wraps onto multiple lines on narrow screens instead
+              of squeezing the biz name, health pills, and restart button
+              into an overflowing single row. */}
+          <div className="bizsim-topbar" style={{
             padding: '14px 0', borderBottom: `1px solid ${C.border}`, marginBottom: 16,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ fontSize: 24 }}>{bizMeta?.emoji}</div>
-              <div>
-                <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, color: C.white }}>
+            <div className="bizsim-topbar-info" style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{bizMeta?.emoji}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontFamily: 'Syne', fontWeight: 800, fontSize: 15, color: C.white,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60vw',
+                }}>
                   {session.biz_name}
                 </div>
                 <div style={{ fontSize: 11, color: accentCol, fontFamily: 'Syne', fontWeight: 600 }}>
@@ -1023,17 +1066,24 @@ export default function BizSimPage() {
               ))}
             </div>
 
-            <button onClick={handleRestart} style={{
-              padding: '6px 12px', borderRadius: 9, cursor: 'pointer',
-              background: 'transparent', border: `1px solid ${C.border}`,
-              color: C.muted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 5,
-            }}>
-              <RefreshCw size={12} /> Restart
-            </button>
+            <div className="bizsim-topbar-actions">
+              <button onClick={handleRestart} style={{
+                padding: '6px 12px', borderRadius: 9, cursor: 'pointer',
+                background: 'transparent', border: `1px solid ${C.border}`,
+                color: C.muted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 5,
+                whiteSpace: 'nowrap',
+              }}>
+                <RefreshCw size={12} /> Restart
+              </button>
+            </div>
           </div>
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 16, background: C.card, borderRadius: 12, padding: 4 }}>
+          {/* Tabs — horizontally scrollable so 4 tabs never overflow/clip
+              on narrow phones instead of getting crushed by flex:1. */}
+          <div style={{
+            display: 'flex', gap: 4, marginBottom: 16, background: C.card, borderRadius: 12, padding: 4,
+            overflowX: 'auto',
+          }}>
             {[
               { k: 'game',        l: 'Play',        icon: Zap       },
               { k: 'stats',       l: 'Statements',  icon: BarChart2 },
@@ -1041,7 +1091,7 @@ export default function BizSimPage() {
               { k: 'missions',    l: 'Missions',    icon: Target    },
             ].map(({ k, l, icon: Icon }) => (
               <button key={k} onClick={() => setTab(k)} style={{
-                flex: 1, padding: '9px 8px', borderRadius: 9, cursor: 'pointer',
+                flex: '1 1 82px', minWidth: 82, padding: '9px 8px', borderRadius: 9, cursor: 'pointer',
                 background: tab === k ? accentCol : 'transparent',
                 border: 'none', color: tab === k ? '#fff' : C.muted,
                 fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
@@ -1055,7 +1105,7 @@ export default function BizSimPage() {
 
           {/* ── PLAY TAB ── */}
           {tab === 'game' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,0.9fr)', gap: 16, alignItems: 'start' }}>
+            <div className="bizsim-game-grid">
 
               {/* Left: decisions or results */}
               <div style={{ animation: 'slideUp 0.3s ease' }}>

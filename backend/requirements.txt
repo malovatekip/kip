@@ -12,6 +12,9 @@ sqlalchemy==2.0.36
 PyJWT>=2.9.0
 bcrypt>=4.2.0
 
+# Rate limiting (login/register brute-force & spam protection)
+slowapi>=0.1.9
+
 # AI
 anthropic>=0.40.0
 

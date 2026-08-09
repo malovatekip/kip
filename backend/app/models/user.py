@@ -15,6 +15,16 @@ class User(Base):
     is_verified   = Column(Boolean, default=False)
     verification_token         = Column(String(255), unique=True, index=True, nullable=True)
     verification_token_expires = Column(DateTime, nullable=True)
+    # Brute-force protection: count consecutive failed logins, lock the
+    # account out temporarily once the threshold is hit. Reset on success.
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until          = Column(DateTime, nullable=True)
+    # Forgot-password flow: single-use token emailed to the user.
+    reset_token         = Column(String(255), unique=True, index=True, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
+    # Tokens issued (iat) before this moment are rejected — set on password
+    # reset so every pre-existing session is signed out at once.
+    sessions_revoked_at = Column(DateTime, nullable=True)
     created_at    = Column(DateTime, default=datetime.utcnow)
     updated_at    = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

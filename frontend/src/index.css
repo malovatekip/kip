@@ -9,25 +9,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Dark Mode Tokens (default) ───────────────────── */
+/* ─── Dark Mode Tokens (default) ─────────────────────
+   Major: Cyber Teal #03313A (base/surfaces). Secondary: #8FFFE0 (accent,
+   replaces the old neon teal in the --teal-* slots since that's the role
+   it already played — glows, badges, highlights, chat-bubble edge). */
 :root, [data-theme="dark"] {
-  --base:        #080B10;
-  --surface:     #0C1018;
-  --card:        #101520;
-  --card-hover:  #141B28;
+  --base:        #03313A;
+  --surface:     #054048;
+  --card:        #0A4E58;
+  --card-hover:  #0E5A67;
   --border:      rgba(255,255,255,0.08);
   --border-h:    rgba(255,255,255,0.16);
 
-  --blue:        #2B7FFF;
-  --blue-bright: #5BA3FF;
+  /* The accent slots — --blue is the app-wide "primary accent" role, so in
+     dark mode it carries the secondary colour #8FFFE0 (mint), not a blue.
+     Buttons/bubbles filled with it need dark text — see the dark-mode
+     contrast overrides near .kip-btn-primary. */
+  --blue:        #8FFFE0;
+  --blue-bright: #B9FFEA;
   --copper:      #C2410C;     /* Rich copper */
   --copper-light:#F59E0B;
-  --blue-dim:    rgba(43,127,255,0.18);
-  --blue-mid:    #1A5FCC;
+  --blue-dim:    rgba(143,255,224,0.16);
+  --blue-mid:    #4FD9B8;
 
-  --teal:        #00F0C8;
-  --teal-dim:    rgba(0,240,200,0.14);
-  --teal-dark:   #00C4A4;
+  --teal:        #8FFFE0;
+  --teal-dim:    rgba(143,255,224,0.14);
+  --teal-dark:   #5FE0BE;
 
   --gold:        #E8973E;
   --gold-bright: #FFB84D;
@@ -43,42 +50,46 @@
   --violet:      #A855F7;
   --violet-dim:  rgba(168,85,247,0.14);
 
-  --text:        #EEF4FF;
-  --muted:       #8BA8CC;
-  --faint:       #3D5470;
+  /* Neutrals tinted toward the cyber-teal base — cool *teal* grays, not
+     the old navy-blue grays, so text sits naturally in this atmosphere. */
+  --text:        #ECFAF6;
+  --muted:       #9CC8C2;
+  --faint:       #3A6B65;
 
-  --glow-blue:   0 0 30px rgba(43,127,255,0.4),  0 0 80px rgba(43,127,255,0.15);
-  --glow-teal:   0 0 30px rgba(0,240,200,0.4),   0 0 80px rgba(0,240,200,0.15);
-  --glow-gold:   0 0 30px rgba(232,151,62,0.4),  0 0 80px rgba(232,151,62,0.15);
+  --glow-blue:   0 0 30px rgba(143,255,224,0.35), 0 0 80px rgba(143,255,224,0.12);
+  --glow-teal:   0 0 30px rgba(143,255,224,0.4),  0 0 80px rgba(143,255,224,0.15);
+  --glow-gold:   0 0 30px rgba(232,151,62,0.4),   0 0 80px rgba(232,151,62,0.15);
 
   /* Chat bubbles */
   --bubble-kip-bg:     rgba(255,255,255,0.07);
   --bubble-kip-border: rgba(255,255,255,0.1);
 
   /* Nav */
-  --nav-active-bg:     linear-gradient(135deg, rgba(43,127,255,0.28), rgba(0,240,200,0.08));
-  --nav-active-border: rgba(43,127,255,0.35);
+  --nav-active-bg:     linear-gradient(135deg, rgba(143,255,224,0.22), rgba(143,255,224,0.06));
+  --nav-active-border: rgba(143,255,224,0.35);
   --nav-hover-bg:      rgba(255,255,255,0.06);
 
-  --sidebar-bg: linear-gradient(180deg,rgba(11,22,40,0.97),rgba(6,12,22,0.99));
-  --header-bg:  rgba(8,11,16,0.85);
+  --sidebar-bg: linear-gradient(180deg, rgba(5,53,61,0.97), rgba(2,26,30,0.99));
+  --header-bg:  rgba(3,49,58,0.85);
   --input-bg:   rgba(255,255,255,0.04);
   --input-border: rgba(255,255,255,0.1);
 }
 
-/* ─── Light Mode Tokens ─────────────────────────────── */
+/* ─── Light Mode Tokens ───────────────────────────────
+   Major: Cream Soda #FFF0C9 (base/surfaces). Secondary: Blue Berry
+   #243B8F (accent, replaces the old blue in the --blue-* slots). */
 [data-theme="light"] {
-  --base:        #F0F4FC;
-  --surface:     #FFFFFF;
-  --card:        #FFFFFF;
-  --card-hover:  #F5F8FF;
+  --base:        #FFF0C9;
+  --surface:     #FFFBF0;
+  --card:        #FFFBF0;
+  --card-hover:  #FFF6DE;
   --border:      rgba(0,0,0,0.09);
   --border-h:    rgba(0,0,0,0.18);
 
-  --blue:        #1A6EF0;
-  --blue-bright: #1A6EF0;
-  --blue-dim:    rgba(26,110,240,0.1);
-  --blue-mid:    #1255C0;
+  --blue:        #243B8F;
+  --blue-bright: #34509E;
+  --blue-dim:    rgba(36,59,143,0.1);
+  --blue-mid:    #172B6B;
 
   --teal:        #00A88C;
   --teal-dim:    rgba(0,168,140,0.1);
@@ -98,23 +109,25 @@
   --violet:      #8B3FD9;
   --violet-dim:  rgba(139,63,217,0.1);
 
-  --text:        #0D1B2E;
-  --muted:       #4A6080;
-  --faint:       #A0B4CC;
+  /* Ink tinted toward Blue Berry so text and accent feel like one family
+     on the warm cream base (instead of the old cool navy-gray). */
+  --text:        #1D2440;
+  --muted:       #545C7E;
+  --faint:       #A2A7C4;
 
-  --glow-blue:   0 2px 16px rgba(26,110,240,0.2);
+  --glow-blue:   0 2px 16px rgba(36,59,143,0.22);
   --glow-teal:   0 2px 16px rgba(0,168,140,0.2);
   --glow-gold:   0 2px 16px rgba(200,118,42,0.2);
 
-  --bubble-kip-bg:     #F0F6FF;
-  --bubble-kip-border: rgba(26,110,240,0.15);
+  --bubble-kip-bg:     #EEF0FA;
+  --bubble-kip-border: rgba(36,59,143,0.15);
 
-  --nav-active-bg:     linear-gradient(135deg, rgba(26,110,240,0.12), rgba(0,168,140,0.05));
-  --nav-active-border: rgba(26,110,240,0.3);
+  --nav-active-bg:     linear-gradient(135deg, rgba(36,59,143,0.12), rgba(0,168,140,0.05));
+  --nav-active-border: rgba(36,59,143,0.3);
   --nav-hover-bg:      rgba(0,0,0,0.04);
 
-  --sidebar-bg: linear-gradient(180deg,#FFFFFF,#F8FAFF);
-  --header-bg:  rgba(255,255,255,0.92);
+  --sidebar-bg: linear-gradient(180deg,#FFFBF0,#FFF3D8);
+  --header-bg:  rgba(255,248,232,0.92);
   --input-bg:   rgba(0,0,0,0.03);
   --input-border: rgba(0,0,0,0.12);
 }
@@ -139,6 +152,14 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 4px; }
 
+/* Text selection in the accent colour — Blue Berry on cream in light mode,
+   mint on deep teal in dark mode (both resolve via the same two tokens). */
+::selection { background: var(--blue); color: var(--base); }
+
+/* Visible keyboard-focus ring in the accent colour. :focus-visible only
+   fires for keyboard navigation, so mouse clicks stay clean. */
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
 /* ─── Mesh background ───────────────────────────────── */
 .mesh-bg {
   position: fixed; inset: 0; z-index: 0;
@@ -151,8 +172,8 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   content: '';
   position: absolute; inset: -50%;
   background:
-    radial-gradient(ellipse 65% 55% at 12% 20%, rgba(43,127,255,0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 88% 12%, rgba(0,240,200,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 55% at 12% 20%, rgba(36,59,143,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 88% 12%, rgba(143,255,224,0.16) 0%, transparent 55%),
     radial-gradient(ellipse 60% 45% at 55% 88%, rgba(232,151,62,0.12) 0%, transparent 55%),
     radial-gradient(ellipse 35% 40% at 30% 70%, rgba(168,85,247,0.10) 0%, transparent 50%);
   animation: meshDrift 20s ease-in-out infinite alternate;
@@ -182,25 +203,26 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   backdrop-filter: blur(24px);
 }
 .kip-card:hover {
-  border-color: rgba(43,127,255,0.3);
-  box-shadow: 0 4px 24px rgba(43,127,255,0.12);
+  border-color: var(--nav-active-border);
+  box-shadow: 0 4px 24px var(--blue-dim);
   transform: translateY(-1px);
 }
 [data-theme="light"] .kip-card {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  /* Warm shadow — cool blue-black shadows look like gray smudges on cream */
+  box-shadow: 0 1px 4px rgba(94,72,22,0.08), 0 4px 16px rgba(94,72,22,0.06);
 }
 [data-theme="light"] .kip-card:hover {
-  box-shadow: 0 4px 20px rgba(26,110,240,0.15);
+  box-shadow: 0 4px 20px rgba(36,59,143,0.15);
 }
 
 .kip-card-glow {
   position: relative;
   background: var(--card);
   border-radius: 16px;
-  border: 1px solid rgba(43,127,255,0.25);
+  border: 1px solid var(--nav-active-border);
 }
 [data-theme="light"] .kip-card-glow {
-  box-shadow: 0 4px 24px rgba(26,110,240,0.12);
+  box-shadow: 0 4px 24px rgba(36,59,143,0.12);
 }
 
 /* ─── Glass panel ───────────────────────────────────── */
@@ -210,7 +232,7 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   border-radius: 24px;
 }
 [data-theme="dark"] .glass-panel {
-  background: rgba(8,11,16,0.75);
+  background: rgba(2,26,31,0.75);   /* deep cyber-teal glass, not old navy-black */
   backdrop-filter: blur(40px);
 }
 
@@ -229,11 +251,20 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 .kip-btn-primary {
   background: linear-gradient(135deg, var(--blue), var(--blue-mid));
   color: #fff;
-  box-shadow: 0 4px 16px rgba(43,127,255,0.35);
+  box-shadow: var(--glow-blue);
 }
 .kip-btn-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 24px rgba(43,127,255,0.5);
+  box-shadow: var(--glow-blue), 0 6px 24px var(--blue-dim);
   transform: translateY(-1px);
+}
+/* Dark mode's accent is light mint (#8FFFE0) — flip filled elements to
+   dark text; white-on-mint is unreadable. Descendants included because
+   several pages hardcode inline white on button/bubble children. */
+[data-theme="dark"] .kip-btn-primary,
+[data-theme="dark"] .kip-btn-primary *,
+[data-theme="dark"] .bubble-user,
+[data-theme="dark"] .bubble-user * {
+  color: #03313A;
 }
 
 .kip-btn-teal {
@@ -241,6 +272,9 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   color: #fff;
   box-shadow: 0 4px 16px rgba(0,200,170,0.3);
 }
+/* Dark mode's --teal is now a light mint (#8FFFE0) — white text on it is
+   unreadable, so swap to the dark base colour for contrast instead. */
+[data-theme="dark"] .kip-btn-teal { color: #03313A; }
 
 .kip-btn-copper {
   background: linear-gradient(135deg, var(--gold), #AA5E18);
@@ -305,8 +339,8 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   letter-spacing: 0.05em; padding: 3px 10px;
   border-radius: 20px; text-transform: uppercase; display: inline-block;
 }
-.kip-badge-blue   { background: var(--blue-dim);   color: var(--blue-bright); border: 1px solid rgba(43,127,255,0.3); }
-.kip-badge-teal   { background: var(--teal-dim);   color: var(--teal);        border: 1px solid rgba(0,240,200,0.3); }
+.kip-badge-blue   { background: var(--blue-dim);   color: var(--blue-bright); border: 1px solid var(--nav-active-border); }
+.kip-badge-teal   { background: var(--teal-dim);   color: var(--teal-dark);   border: 1px solid var(--teal-dim); }
 .kip-badge-gold   { background: var(--gold-dim);   color: var(--gold-bright); border: 1px solid rgba(232,151,62,0.3); }
 .kip-badge-green  { background: var(--green-dim);  color: var(--green);       border: 1px solid rgba(26,224,110,0.3); }
 
@@ -340,7 +374,7 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 }
 .chip:hover {
   background: var(--blue-dim);
-  border-color: rgba(43,127,255,0.4);
+  border-color: var(--nav-active-border);
   color: var(--text);
   transform: translateY(-2px);
 }
@@ -420,7 +454,7 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   transition: all 0.2s ease; flex-shrink: 0;
 }
 .theme-toggle:hover {
-  background: var(--blue-dim); border-color: rgba(43,127,255,0.3);
+  background: var(--blue-dim); border-color: var(--nav-active-border);
   color: var(--blue-bright);
 }
 
@@ -433,7 +467,7 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 @keyframes spinSlow  { to{transform:rotate(360deg)} }
 @keyframes ripple    { from{transform:scale(.8);opacity:1} to{transform:scale(2.5);opacity:0} }
 @keyframes shimmer   { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
-@keyframes logoGlow  { 0%,100%{filter:drop-shadow(0 0 8px rgba(43,127,255,0.55))} 50%{filter:drop-shadow(0 0 22px rgba(0,240,200,0.75))} }
+@keyframes logoGlow  { 0%,100%{filter:drop-shadow(0 0 8px rgba(36,59,143,0.5))} 50%{filter:drop-shadow(0 0 22px rgba(143,255,224,0.8))} }
 
 .animate-fade-in    { animation: fadeIn .35s ease-out both; }
 .animate-slide-up   { animation: slideUp .38s cubic-bezier(0.4,0,0.2,1) both; }

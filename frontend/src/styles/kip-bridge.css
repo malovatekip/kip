@@ -14,27 +14,34 @@
  */
 
 :root {
+  /* NOTE: these overlap 1:1 with tokens defined later in index.css's own
+     :root/[data-theme] blocks, which win the cascade (imports resolve
+     before the rest of index.css's rules, so equal-specificity rules
+     declared after this import always take precedence). Kept in sync
+     anyway so this file doesn't mislead the next person editing it. */
+
   /* ── Backgrounds ──────────────────────────────────────────────────────── */
-  --base:           #F7F8FC;      /* was: dark navy. Now: bright off-white */
-  --card:           #FFFFFF;      /* was: #111E35. Now: pure white card     */
-  --sidebar-bg:     #FFFFFF;      /* was: dark. Now: clean white sidebar    */
-  --input-bg:       #F1F3F9;      /* was: dark input. Now: light grey       */
-  --nav-active-bg:  rgba(26, 108, 240, 0.08);  /* light blue tint on active */
-  --nav-active-border: rgba(26, 108, 240, 0.20);
+  /* Major colour: Cream Soda #FFF0C9 */
+  --base:           #FFF0C9;
+  --card:           #FFFBF0;
+  --sidebar-bg:     #FFFBF0;
+  --input-bg:       #FFF6E0;
+  --nav-active-bg:  rgba(36, 59, 143, 0.08);  /* light Blue Berry tint on active */
+  --nav-active-border: rgba(36, 59, 143, 0.20);
 
   /* ── Text ─────────────────────────────────────────────────────────────── */
-  --text:           #0C1421;      /* was: #F1F5F9 (white). Now: near-black  */
-  --muted:          #6B7A99;      /* was: #64748B (light grey on dark).     */
-  --faint:          #9DAACC;      /* very subtle text                       */
+  --text:           #0D1B2E;
+  --muted:          #4A6080;
+  --faint:          #A0B4CC;      /* very subtle text                       */
 
   /* ── Borders ──────────────────────────────────────────────────────────── */
-  --border:         #E2E8F2;      /* was: dark blue-grey. Now: light grey   */
+  --border:         #EEDFB0;      /* warm, tuned to Cream Soda              */
 
-  /* ── Brand colours — these stay the same ─────────────────────────────── */
-  --blue:           #1A6CF0;
-  --blue-bright:    #1A6CF0;
-  --blue-mid:       #4B8DE3;
-  --blue-dim:       rgba(26, 108, 240, 0.10);
+  /* ── Brand colours — secondary colour: Blue Berry #243B8F ─────────────── */
+  --blue:           #243B8F;
+  --blue-bright:    #34509E;
+  --blue-mid:       #172B6B;
+  --blue-dim:       rgba(36, 59, 143, 0.10);
   --teal:           #0D9488;
   --teal-dim:       rgba(13, 148, 136, 0.10);
   --gold:           #C8763A;
@@ -58,17 +65,18 @@
 
 /* ── Dark mode — when user explicitly toggles dark ───────────────────── */
 [data-theme="dark"] {
-  --base:           #0C1221;
-  --card:           #162032;
-  --sidebar-bg:     #111927;
-  --input-bg:       #1C2A3E;
-  --nav-active-bg:  rgba(26, 108, 240, 0.15);
-  --nav-active-border: rgba(26, 108, 240, 0.30);
+  /* Major colour: Cyber Teal #03313A. Secondary colour: #8FFFE0 */
+  --base:           #03313A;
+  --card:           #0A4E58;
+  --sidebar-bg:     #054048;
+  --input-bg:       #0E5A65;
+  --nav-active-bg:  rgba(143, 255, 224, 0.15);
+  --nav-active-border: rgba(143, 255, 224, 0.30);
 
   --text:           #EEF2FF;
   --muted:          #A8B8D8;
   --faint:          #465570;
-  --border:         #1E3050;
+  --border:         #0F5C55;
 }
 
 /* ── Ensure body background is always correct ────────────────────────── */

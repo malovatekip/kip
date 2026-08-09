@@ -12,6 +12,12 @@ from app.models import business_dashboard
 from app.models import business_idea
 from app.models import enhanced_logs
 from app.models import startup_chat as startup_chat_models
+from app.models import token_blocklist
+
+from app.rate_limit import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 try:
     from app.models import enterprise_models
@@ -66,6 +72,16 @@ def _migrate_user_verification_columns():
         statements.append("ALTER TABLE users ADD COLUMN verification_token VARCHAR(255)")
     if "verification_token_expires" not in existing:
         statements.append("ALTER TABLE users ADD COLUMN verification_token_expires TIMESTAMP")
+    if "failed_login_attempts" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0")
+    if "locked_until" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN locked_until TIMESTAMP")
+    if "reset_token" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255)")
+    if "reset_token_expires" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP")
+    if "sessions_revoked_at" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN sessions_revoked_at TIMESTAMP")
     if not statements:
         return
     with engine.connect() as conn:
@@ -79,6 +95,11 @@ except Exception:
     pass
 
 app = FastAPI(title="Kwacha Intelligence Platform — KIP API", version="4.0.0")
+
+# Rate limiting (login/register brute-force & spam protection — see routes/auth.py)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 FRONTEND_URLS = [
     "http://localhost:3000",

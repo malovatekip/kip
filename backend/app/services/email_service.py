@@ -104,3 +104,40 @@ def send_verification_email(to_email: str, full_name: str, token: str) -> bool:
     """
 
     return _send_email(to_email, "Verify your KIP account", text_body, html_body, embed_logo=True)
+
+
+def send_password_reset_email(to_email: str, full_name: str, token: str) -> bool:
+    reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
+    first_name = (full_name or "there").split(" ")[0]
+
+    text_body = (
+        f"Hi {first_name},\n\n"
+        f"We received a request to reset your KIP password. You can choose a new one here:\n{reset_link}\n\n"
+        f"This link expires in 1 hour and can only be used once.\n\n"
+        f"If you didn't request this, you can ignore this email — your password will not change."
+    )
+
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+      <div style="text-align:center; margin-bottom: 20px;">
+        <img src="cid:{LOGO_CID}" alt="KIP" width="56" height="56" style="border-radius:14px;display:inline-block;">
+      </div>
+      <h2 style="color:#0f766e;">Reset your password</h2>
+      <p>Hi {first_name}, we received a request to reset your KIP password. Click below to choose a new one.</p>
+      <p style="margin: 24px 0;">
+        <a href="{reset_link}"
+           style="background:#0f766e;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
+          Reset Password
+        </a>
+      </p>
+      <p style="font-size:13px;color:#555;">Or copy this link into your browser:<br>
+        <a href="{reset_link}">{reset_link}</a>
+      </p>
+      <p style="color:#888;font-size:12px;">
+        This link expires in 1 hour and can only be used once. If you didn't request a password reset,
+        you can ignore this email — your password will not change.
+      </p>
+    </div>
+    """
+
+    return _send_email(to_email, "Reset your KIP password", text_body, html_body, embed_logo=True)

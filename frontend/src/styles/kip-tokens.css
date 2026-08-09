@@ -20,29 +20,30 @@
 :root {
 
   /* ── Base backgrounds ──────────────────────────────────────── */
-  --bg-base:        #F7F8FC;   /* Page background — cool off-white */
-  --bg-subtle:      #F1F3F9;   /* Section backgrounds, sidebars */
-  --surface-1:      #FFFFFF;   /* Cards, modals, dropdowns */
-  --surface-2:      #F7F8FC;   /* Nested cards, input backgrounds */
-  --surface-3:      #EEF1F8;   /* Hovered surfaces, active states */
+  /* Major colour: Cream Soda #FFF0C9 */
+  --bg-base:        #FFF0C9;   /* Page background — Cream Soda */
+  --bg-subtle:      #FFEAB8;   /* Section backgrounds, sidebars */
+  --surface-1:      #FFFBF0;   /* Cards, modals, dropdowns */
+  --surface-2:      #FFF6E0;   /* Nested cards, input backgrounds */
+  --surface-3:      #FFF1D2;   /* Hovered surfaces, active states */
 
   /* Glass surface — used over the living gradient background */
-  --surface-glass:  rgba(255, 255, 255, 0.72);
-  --surface-glass-border: rgba(255, 255, 255, 0.60);
+  --surface-glass:  rgba(255, 248, 232, 0.72);
+  --surface-glass-border: rgba(255, 232, 179, 0.60);
   --glass-blur:     16px;
 
   /* ── Brand colours ─────────────────────────────────────────── */
-  /* Blue — Intelligence */
-  --blue-50:        #EEF4FE;
-  --blue-100:       #D6E6FD;
-  --blue-200:       #AECDF9;
-  --blue-300:       #76ACEF;
-  --blue-400:       #4B8DE3;
-  --blue-500:       #1A6CF0;   /* Primary brand blue */
-  --blue-600:       #1559CC;
-  --blue-700:       #1047A8;
-  --blue-dim:       rgba(26, 108, 240, 0.10);
-  --blue-glow:      rgba(26, 108, 240, 0.25);
+  /* Blue — Intelligence. Secondary colour: Blue Berry #243B8F */
+  --blue-50:        #EDEFF9;
+  --blue-100:       #CFD5EF;
+  --blue-200:       #A3AEDD;
+  --blue-300:       #7482C8;
+  --blue-400:       #4A5BAD;
+  --blue-500:       #243B8F;   /* Primary brand blue — Blue Berry */
+  --blue-600:       #1D3075;
+  --blue-700:       #16255C;
+  --blue-dim:       rgba(36, 59, 143, 0.10);
+  --blue-glow:      rgba(36, 59, 143, 0.25);
 
   /* Gold — Opportunity */
   --gold-50:        #FDF6EE;
@@ -79,21 +80,23 @@
   --purple-dim:     rgba(124, 58, 237, 0.10);
 
   /* ── Text ──────────────────────────────────────────────────── */
-  --text-primary:   #0C1421;   /* Near-black, blue-tinted */
-  --text-secondary: #3D4E6A;   /* Secondary copy */
-  --text-muted:     #6B7A99;   /* Timestamps, metadata */
-  --text-faint:     #9DAACC;   /* Placeholders, disabled */
+  /* Berry-tinted ink family — leans toward Blue Berry #243B8F so text
+     and accent read as one palette on the warm Cream Soda base. */
+  --text-primary:   #1D2440;   /* Deep berry ink */
+  --text-secondary: #454E75;   /* Secondary copy */
+  --text-muted:     #6E7495;   /* Timestamps, metadata */
+  --text-faint:     #A3A7C2;   /* Placeholders, disabled */
   --text-inverse:   #FFFFFF;   /* Text on dark backgrounds */
-  --text-blue:      #1A6CF0;
+  --text-blue:      #243B8F;
   --text-gold:      #C8763A;
   --text-green:     #16A34A;
   --text-red:       #DC2626;
 
   /* ── Borders ───────────────────────────────────────────────── */
-  --border:         #E2E8F2;   /* Standard border */
-  --border-light:   #EEF1F8;   /* Subtle separator */
-  --border-strong:  #C8D0E0;   /* Emphasized border */
-  --border-blue:    rgba(26, 108, 240, 0.30);
+  --border:         #EEDFB0;   /* Standard border — warm, tuned to Cream Soda */
+  --border-light:   #F5EBC9;   /* Subtle separator */
+  --border-strong:  #D9C48A;   /* Emphasized border */
+  --border-blue:    rgba(36, 59, 143, 0.30);
   --border-gold:    rgba(200, 118, 58, 0.30);
 
   /* ── Spacing ───────────────────────────────────────────────── */
@@ -146,15 +149,18 @@
   --leading-relaxed:1.75;
 
   /* ── Shadows ───────────────────────────────────────────────── */
-  --shadow-xs:  0 1px 2px rgba(12, 20, 33, 0.04);
-  --shadow-sm:  0 2px 8px rgba(12, 20, 33, 0.06), 0 1px 2px rgba(12, 20, 33, 0.04);
-  --shadow-md:  0 4px 16px rgba(12, 20, 33, 0.08), 0 2px 4px rgba(12, 20, 33, 0.04);
-  --shadow-lg:  0 8px 32px rgba(12, 20, 33, 0.10), 0 4px 8px rgba(12, 20, 33, 0.05);
-  --shadow-xl:  0 16px 48px rgba(12, 20, 33, 0.12), 0 8px 16px rgba(12, 20, 33, 0.06);
-  --shadow-2xl: 0 24px 64px rgba(12, 20, 33, 0.14), 0 12px 24px rgba(12, 20, 33, 0.07);
+  /* Warm amber-brown shadows — a cool blue-black shadow on a warm cream
+     surface reads as a dirty gray smudge; warm shadows make cream feel
+     sunlit instead. (Dark mode overrides these with plain black.) */
+  --shadow-xs:  0 1px 2px rgba(94, 72, 22, 0.05);
+  --shadow-sm:  0 2px 8px rgba(94, 72, 22, 0.07), 0 1px 2px rgba(94, 72, 22, 0.05);
+  --shadow-md:  0 4px 16px rgba(94, 72, 22, 0.09), 0 2px 4px rgba(94, 72, 22, 0.05);
+  --shadow-lg:  0 8px 32px rgba(94, 72, 22, 0.11), 0 4px 8px rgba(94, 72, 22, 0.06);
+  --shadow-xl:  0 16px 48px rgba(94, 72, 22, 0.13), 0 8px 16px rgba(94, 72, 22, 0.07);
+  --shadow-2xl: 0 24px 64px rgba(94, 72, 22, 0.15), 0 12px 24px rgba(94, 72, 22, 0.08);
 
   /* Coloured glows for hover states */
-  --shadow-blue:   0 8px 32px rgba(26, 108, 240, 0.20);
+  --shadow-blue:   0 8px 32px rgba(36, 59, 143, 0.20);
   --shadow-gold:   0 8px 32px rgba(200, 118, 58, 0.22);
   --shadow-green:  0 8px 32px rgba(22, 163, 74, 0.20);
   --shadow-red:    0 8px 24px rgba(220, 38, 38, 0.18);
@@ -179,31 +185,51 @@
    DARK MODE
    ============================================================ */
 [data-theme="dark"] {
-  --bg-base:        #0C1221;
-  --bg-subtle:      #111927;
-  --surface-1:      #162032;
-  --surface-2:      #1C2A3E;
-  --surface-3:      #223248;
+  /* Major colour: Cyber Teal #03313A */
+  --bg-base:        #03313A;
+  --bg-subtle:      #054048;
+  --surface-1:      #0A4E58;
+  --surface-2:      #0E5A65;
+  --surface-3:      #126673;
 
-  --surface-glass:  rgba(22, 32, 50, 0.80);
-  --surface-glass-border: rgba(255, 255, 255, 0.08);
+  --surface-glass:  rgba(10, 78, 88, 0.80);
+  --surface-glass-border: rgba(143, 255, 224, 0.10);
 
-  --text-primary:   #EEF2FF;
-  --text-secondary: #A8B8D8;
-  --text-muted:     #6B7FA8;
-  --text-faint:     #465570;
-  --text-inverse:   #0C1421;
+  /* Teal-tinted neutrals — sit naturally in the cyber-teal atmosphere
+     (the old values were navy-tinted and read slightly purple here). */
+  --text-primary:   #ECFAF6;
+  --text-secondary: #A9CFC9;
+  --text-muted:     #6F9C96;
+  --text-faint:     #3F6B66;
+  --text-inverse:   #03313A;   /* dark text for elements filled with the light mint accent below */
 
-  --border:         #1E3050;
-  --border-light:   #172440;
-  --border-strong:  #2A4070;
+  --border:         #0F5C55;
+  --border-light:   #0A4A44;
+  --border-strong:  #157A6E;
 
   --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.20);
   --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.28);
   --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.35);
   --shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.40);
 
-  /* Brand colours stay the same — they're identity, not mood */
+  /* Secondary colour: #8FFFE0. Unlike the rest of this file, the brand
+     ramp DOES change per mode here — Blue Berry is a light-mode-only
+     choice, so dark mode gets its own accent ramp instead of inheriting
+     Blue Berry into a context it wasn't designed for. Note the ramp is
+     "inverted" vs. the light one: 50/100 are the darkest steps (used as
+     subtle fills) and 500 is the brightest (the accent itself), because
+     #8FFFE0 is a light colour rather than a mid-tone. */
+  --blue-50:    #0A4A44;
+  --blue-100:   #145A50;
+  --blue-200:   #1F6E60;
+  --blue-300:   #2E8874;
+  --blue-400:   #63C9A8;
+  --blue-500:   #8FFFE0;
+  --blue-600:   #4FD9B8;
+  --blue-700:   #B8FFE9;
+  --blue-dim:   rgba(143, 255, 224, 0.14);
+  --blue-glow:  rgba(143, 255, 224, 0.35);
+  --text-blue:  #8FFFE0;
 }
 
 
