@@ -27,6 +27,8 @@ const C = {
   white:   '#FFFFFF',
   offwhite:'#F7F8FC',
   navy:    '#0C1421',
+  border:  'rgba(12,20,33,0.12)',
+  muted:   '#6B7690',
 }
 
 // ── Financial Literacy ─────────────────────────────────────────────────────

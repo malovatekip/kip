@@ -50,7 +50,7 @@ from app.routes import i18n_routes
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from app.models.models_briefing import EconomicBriefing
-from app.services.briefing_service import run_daily_briefing
+from app.services.briefing_service import run_daily_briefing, backfill_briefing_images
 
 
 
@@ -90,16 +90,22 @@ def _migrate_user_verification_columns():
         conn.commit()
 
 def _migrate_news_columns():
-    """Add columns to an existing `news_articles` table created before they existed."""
+    """Add image columns to existing news/briefing tables created before they existed."""
     from sqlalchemy import text, inspect
     inspector = inspect(engine)
-    if "news_articles" not in inspector.get_table_names():
-        return
-    existing = {col["name"] for col in inspector.get_columns("news_articles")}
-    if "image_url" in existing:
+    tables = inspector.get_table_names()
+    statements = []
+    for table in ("news_articles", "economic_briefings"):
+        if table not in tables:
+            continue
+        existing = {col["name"] for col in inspector.get_columns(table)}
+        if "image_url" not in existing:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN image_url VARCHAR(1000)")
+    if not statements:
         return
     with engine.connect() as conn:
-        conn.execute(text("ALTER TABLE news_articles ADD COLUMN image_url VARCHAR(1000)"))
+        for stmt in statements:
+            conn.execute(text(stmt))
         conn.commit()
 
 try:
@@ -166,6 +172,17 @@ def _run_briefing_job():
         db.close()
 
 
+def _run_briefing_image_backfill():
+    """Fill in images for briefings stored before image support existed."""
+    db = SessionLocal()
+    try:
+        backfill_briefing_images(db)
+    except Exception:
+        pass
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 async def start_briefing_scheduler():
     db = SessionLocal()
@@ -178,6 +195,10 @@ async def start_briefing_scheduler():
         # Bootstrap so the page isn't empty until the first scheduled run;
         # offloaded to a thread so it doesn't block server startup.
         asyncio.get_event_loop().run_in_executor(None, _run_briefing_job)
+    else:
+        # Existing briefings may predate image support — scrape their
+        # source pages for images without waiting for the next research run.
+        asyncio.get_event_loop().run_in_executor(None, _run_briefing_image_backfill)
 
     _briefing_scheduler.add_job(
         _run_briefing_job,

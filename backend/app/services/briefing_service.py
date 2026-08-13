@@ -36,6 +36,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db   # adjust to your actual import
 from app.models.models_briefing import EconomicBriefing   # model defined below
+from app.services.news_service import fetch_article_image
 
 log = logging.getLogger(__name__)
 
@@ -223,6 +224,13 @@ def store_briefings(briefings: list[dict], db: Session) -> int:
     stored = 0
     for item in briefings:
         try:
+            # Scrape the lead image from the original announcement page.
+            # Returns None on fetch failure (retried by backfill later) or
+            # "" if the page has no usable image — the frontend then falls
+            # back to its category-icon header.
+            source_url = (item.get("source_url") or "").strip()
+            image_url = fetch_article_image(source_url) if source_url.startswith("http") else ""
+
             briefing = EconomicBriefing(
                 title            = item.get("title", "")[:200],
                 source           = item.get("source", "")[:200],
@@ -236,6 +244,7 @@ def store_briefings(briefings: list[dict], db: Session) -> int:
                 impact_business  = item.get("impact_business", ""),
                 kip_take         = item.get("kip_take", ""),
                 image_search_term= item.get("image_search_term", "Zambia economy")[:100],
+                image_url        = image_url,
                 date_published   = item.get("date_published", today_str)[:20],
                 generated_date   = today_str,
                 generated_at     = datetime.now(timezone.utc),
@@ -249,6 +258,41 @@ def store_briefings(briefings: list[dict], db: Session) -> int:
     db.commit()
     log.info("[KIP Briefing] Stored %d briefings for %s", stored, today_str)
     return stored
+
+
+def backfill_briefing_images(db: Session) -> int:
+    """Fetch images for already-stored briefings that never had one scraped.
+
+    Briefings only regenerate every few days, so without this the currently
+    served set would stay imageless until the next scheduled research run.
+    Only touches the most recent day's rows (what /news/briefings serves)
+    with image_url IS NULL — at most a handful of page fetches, and rows
+    marked "" (checked, no image) are never retried.
+    """
+    latest = db.query(EconomicBriefing)\
+        .order_by(EconomicBriefing.generated_at.desc()).first()
+    if not latest:
+        return 0
+
+    rows = db.query(EconomicBriefing)\
+        .filter(
+            EconomicBriefing.generated_date == latest.generated_date,
+            EconomicBriefing.image_url == None,
+        ).all()
+
+    filled = 0
+    for briefing in rows:
+        source_url = (briefing.source_url or "").strip()
+        if not source_url.startswith("http"):
+            briefing.image_url = ""
+            continue
+        briefing.image_url = fetch_article_image(source_url)
+        if briefing.image_url:
+            filled += 1
+    if rows:
+        db.commit()
+        log.info("[KIP Briefing] Image backfill: %d/%d briefings got images", filled, len(rows))
+    return filled
 
 
 _generation_running = False

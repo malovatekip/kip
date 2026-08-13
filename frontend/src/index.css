@@ -199,7 +199,10 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
 }
 [data-theme="dark"] .kip-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+  /* Solid --card colour as the base layer (clearly lighter than --base),
+     with a faint glass sheen on top — previously this was pure translucent
+     white over the page background, which made cards blend into it. */
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025)), var(--card);
   backdrop-filter: blur(24px);
 }
 .kip-card:hover {

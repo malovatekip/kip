@@ -53,6 +53,9 @@ class EconomicBriefing(Base):
     impact_business   = Column(Text,        nullable=True)
     kip_take          = Column(Text,        nullable=True)
     image_search_term = Column(String(100), nullable=True, default="Zambia economy")
+    # Lead image scraped from the source_url page (og:image etc.).
+    # NULL = not attempted yet, "" = attempted but none found (don't retry).
+    image_url         = Column(String(1000), nullable=True)
     date_published    = Column(String(20),  nullable=True)
     generated_date    = Column(String(20),  nullable=False)   # YYYY-MM-DD
     generated_at      = Column(DateTime,    nullable=False, default=datetime.utcnow)
@@ -76,6 +79,7 @@ class EconomicBriefing(Base):
             "impact_business":   self.impact_business,
             "kip_take":          self.kip_take,
             "image_search_term": self.image_search_term,
+            "image_url":         self.image_url or None,
             "date_published":    self.date_published,
             "generated_date":    self.generated_date,
             "generated_at":      self.generated_at.isoformat() if self.generated_at else None,

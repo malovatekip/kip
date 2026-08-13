@@ -24,15 +24,34 @@ const CATEGORY_META = {
 }
 
 // ─── BRIEFING CARD HEADER ───────────────────────────────────────────────────
-// Category-colored icon + gradient — no external image fetch, so it always
-// renders correctly and is always on-topic. (Previously fetched a photo from
-// source.unsplash.com, which Unsplash shut down in 2023; a keyless
-// alternative — loremflickr.com — was tried but returns unrelated/random
-// stock photos, which is worse for a briefing about specific Zambian news.)
-function BriefingImage({ category, title }) {
+// Prefers the real photo scraped from the briefing's source page (backend
+// image_url). Falls back to the category-colored icon tile when the source
+// had no image or it fails to load — never a random stock photo. (Keyless
+// stock-photo services were tried before and returned unrelated images,
+// which is worse than no image for a briefing about specific Zambian news.)
+function BriefingImage({ imageUrl, category, title }) {
   const meta  = CATEGORY_META[category] || CATEGORY_META.fiscal_policy
   const Icon  = meta.icon
   const color = meta.color
+  const [imgOk, setImgOk] = useState(true)
+
+  if (imageUrl && imgOk) {
+    return (
+      <img
+        src={imageUrl}
+        alt={title}
+        title={title}
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        onError={() => setImgOk(false)}
+        style={{
+          width: '100%', height: 200, objectFit: 'cover',
+          borderRadius: '12px 12px 0 0', display: 'block',
+          borderBottom: `1px solid ${color}30`,
+        }}
+      />
+    )
+  }
 
   return (
     <div title={title} style={{
@@ -72,7 +91,7 @@ function BriefingCard({ briefing }) {
 
       {/* Image */}
       <BriefingImage
-        searchTerm={briefing.image_search_term}
+        imageUrl={briefing.image_url}
         category={briefing.category}
         title={briefing.title}
       />

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
+import { EmptyStateIllustration } from '../components/KipIllustrations'
 import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
 
@@ -158,6 +159,33 @@ function BusinessSelector({ plans, selected, onSelect }) {
   )
 }
 
+/* ── News row (with thumbnail) ────────────────────────── */
+function NewsRow({ item }) {
+  const [imgOk, setImgOk] = useState(true)
+  const showImage = item.image_url && imgOk
+  return (
+    <a href={item.url || item.link} target="_blank" rel="noopener noreferrer"
+       style={{ display: 'flex', gap: 10, alignItems: 'flex-start', textDecoration: 'none' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5, fontWeight: 500, marginBottom: 2 }}>
+          {item.headline || item.title}
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--faint)' }}>{item.source_name || item.source || 'KIP News'}</div>
+      </div>
+      {showImage && (
+        <img
+          src={item.image_url}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setImgOk(false)}
+          style={{ width: 52, height: 52, borderRadius: 9, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--border)' }}
+        />
+      )}
+    </a>
+  )
+}
+
 /* ── Day labels ──────────────────────────────────────── */
 const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
@@ -179,6 +207,7 @@ export default function DashboardPage() {
   const [ideas,    setIdeas]    = useState([])
   const [loading,  setLoading]  = useState(true)
   const [logLoad,  setLogLoad]  = useState(false)
+  const [coachingOpen, setCoachingOpen] = useState(false)
 
   const firstName = user?.full_name?.split(' ')[0] || 'there'
   const hour = new Date().getHours()
@@ -277,8 +306,10 @@ export default function DashboardPage() {
 
         {/* ── No business yet ── */}
         {plans.length === 0 && (
-          <div className="kip-card" style={{ padding: '40px 24px', textAlign: 'center', marginBottom: 20 }}>
-            <Lightbulb size={44} style={{ color: 'var(--faint)', margin: '0 auto 14px', display: 'block' }} className="animate-float" />
+          <div className="kip-card" style={{ padding: '32px 24px', textAlign: 'center', marginBottom: 20 }}>
+            <div className="animate-float" style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+              <EmptyStateIllustration width={180} height={144} />
+            </div>
             <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
               No businesses started yet
             </h2>
@@ -325,8 +356,10 @@ export default function DashboardPage() {
                 {[0,1,2,3].map(i => <div key={i} className="shimmer-load" style={{ height: 120, borderRadius: 16 }} />)}
               </div>
             ) : logs.length === 0 ? (
-              <div className="kip-card" style={{ padding: '30px 24px', textAlign: 'center', marginBottom: 16 }}>
-                <ClipboardList size={36} style={{ color: 'var(--faint)', margin: '0 auto 12px', display: 'block' }} />
+              <div className="kip-card" style={{ padding: '24px 24px', textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+                  <EmptyStateIllustration width={150} height={120} />
+                </div>
                 <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', marginBottom: 6 }}>No logs yet for {selected.business_name}</h3>
                 <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Log your first day to see revenue trends, profit charts, and customer data here.</p>
                 <Link to={`/business/${selected.id}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
@@ -383,15 +416,37 @@ export default function DashboardPage() {
                 {/* ── Recent log + coaching ── */}
                 {logs[0] && (
                   <div className="kip-card" style={{ padding: '16px 18px', marginBottom: 16 }}>
-                    <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <Zap size={14} style={{ color: 'var(--gold-bright)' }} />
-                      Latest KIP Coaching
-                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 4 }}>
-                        {logs[0].created_at ? new Date(logs[0].created_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short' }) : ''}
-                      </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <div style={{
+                        width: 30, height: 30, borderRadius: 10, flexShrink: 0,
+                        background: 'linear-gradient(135deg, var(--blue), var(--teal))',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <Zap size={14} color="#fff" />
+                      </div>
+                      <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
+                        Latest KIP Coaching
+                        <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 6 }}>
+                          {logs[0].created_at ? new Date(logs[0].created_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short' }) : ''}
+                        </span>
+                      </div>
                     </div>
                     {logs[0].coaching ? (
-                      <KipMarkdown content={logs[0].coaching} />
+                      <div style={{ position: 'relative' }}>
+                        <div style={{
+                          maxHeight: coachingOpen ? 'none' : 110, overflow: 'hidden',
+                          maskImage: coachingOpen ? 'none' : 'linear-gradient(180deg, #000 65%, transparent 100%)',
+                          WebkitMaskImage: coachingOpen ? 'none' : 'linear-gradient(180deg, #000 65%, transparent 100%)',
+                        }}>
+                          <KipMarkdown content={logs[0].coaching} />
+                        </div>
+                        <button onClick={() => setCoachingOpen(o => !o)} style={{
+                          background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4,
+                          fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: 'var(--blue-bright)',
+                        }}>
+                          {coachingOpen ? 'Show less' : 'Read full coaching'}
+                        </button>
+                      </div>
                     ) : (
                       <p style={{ fontSize: 13, color: 'var(--muted)' }}>No coaching yet for the latest log.</p>
                     )}
@@ -418,7 +473,13 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {ideas.slice(0, 3).map(idea => (
                   <div key={idea.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
-                    <Lightbulb size={13} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+                    <div style={{
+                      width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+                      background: idea.accepted ? 'var(--green-dim, rgba(26,224,110,0.14))' : 'var(--gold-dim)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Lightbulb size={13} style={{ color: idea.accepted ? 'var(--green)' : 'var(--gold)' }} />
+                    </div>
                     <span style={{ fontSize: 12, color: 'var(--text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {idea.idea_name}
                     </span>
@@ -438,14 +499,9 @@ export default function DashboardPage() {
                 <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Economic News</span>
                 <Link to="/news" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>See all</Link>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {news.slice(0, 3).map((item, i) => (
-                  <a key={i} href={item.url || item.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                    <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5, fontWeight: 500, marginBottom: 2 }}>
-                      {item.title}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--faint)' }}>{item.source || 'KIP News'}</div>
-                  </a>
+                  <NewsRow key={item.id ?? i} item={item} />
                 ))}
               </div>
             </div>

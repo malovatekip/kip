@@ -3,7 +3,7 @@ KIP News Service — Sprint 3
 Handles: live rate fetching, news scraping, categorisation, KIP alert generation.
 """
 
-import os, re, json, time, hashlib
+import os, re, json, ssl, time, hashlib
 import urllib.request, urllib.error, urllib.parse
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional, Tuple
@@ -81,11 +81,26 @@ BUSINESS_ALERT_MAP = {
 
 # ── Rate fetching ─────────────────────────────────────────────────
 
-def _http_get(url: str, timeout: int = 10) -> Optional[str]:
+def _http_get(url: str, timeout: int = 10, allow_insecure_ssl: bool = False) -> Optional[str]:
+    req = urllib.request.Request(url, headers={"User-Agent": "KIP-ZambiaIntelligence/1.0"})
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "KIP-ZambiaIntelligence/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.read().decode("utf-8", errors="ignore")
+    except urllib.error.URLError as e:
+        # Several Zambian gov sites (e.g. agriculture.gov.zm) serve broken
+        # certificate chains. For low-stakes fetches where the caller opts
+        # in (image scraping — worst case is a wrong image URL), retry
+        # without verification rather than losing the content entirely.
+        if allow_insecure_ssl and isinstance(getattr(e, "reason", None), ssl.SSLCertVerificationError):
+            try:
+                ctx = ssl._create_unverified_context()
+                with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+                    return r.read().decode("utf-8", errors="ignore")
+            except Exception as e2:
+                print(f"[News] HTTP error {url}: {e2}")
+                return None
+        print(f"[News] HTTP error {url}: {e}")
+        return None
     except Exception as e:
         print(f"[News] HTTP error {url}: {e}")
         return None
@@ -143,7 +158,10 @@ def fetch_fuel_prices() -> Optional[Dict]:
 # ── Article images ─────────────────────────────────────────────────
 
 # Junk that shows up in <img> tags but is never the story photo
-_IMAGE_URL_BLOCKLIST = ("gravatar.", "emoji", "smilies", "spacer", "blank.", "1x1", "pixel", "avatar", "logo")
+_IMAGE_URL_BLOCKLIST = (
+    "gravatar.", "emoji", "smilies", "spacer", "blank.", "1x1", "pixel",
+    "avatar", "logo", "favicon", "removebg",
+)
 
 
 def _clean_image_url(url: str) -> Optional[str]:
@@ -195,7 +213,7 @@ def fetch_article_image(article_url: str) -> Optional[str]:
     image (callers can persist that and stop retrying), or None if the
     page couldn't be fetched at all (transient — worth retrying later).
     """
-    html = _http_get(article_url, timeout=10)
+    html = _http_get(article_url, timeout=10, allow_insecure_ssl=True)
     if not html:
         return None
     # Only the <head> matters and it avoids matching body content

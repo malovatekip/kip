@@ -21,6 +21,7 @@ import {
   DollarSign, Clock, MapPin, MessageSquare,
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import { BusinessIllustration } from '../components/KipIllustrations'
 import {
   STARTUP_TYPES,
   BUSINESS_STRUCTURES,
@@ -694,25 +695,36 @@ export default function StartupPage() {
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '24px 16px 60px', position: 'relative', zIndex: 1 }}>
 
         {/* ── PAGE HEADER ── */}
-        <div style={{ marginBottom: 28 }}>
-          {/* Eyebrow */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 7,
-            padding: '4px 14px', borderRadius: 20, marginBottom: 12,
-            background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.3)',
-          }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)' }} className="animate-pulse-soft" />
-            <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: 'var(--blue-bright)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Business Development
-            </span>
-          </div>
+        {/* Show the header illustration only when there's room beside the text */}
+        <style>{`
+          @media (min-width: 760px) {
+            [data-startup-hero-figure] { display: flex !important; }
+          }
+        `}</style>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 380px', minWidth: 0 }}>
+            {/* Eyebrow */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '4px 14px', borderRadius: 20, marginBottom: 12,
+              background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.3)',
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)' }} className="animate-pulse-soft" />
+              <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: 'var(--blue-bright)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Business Development
+              </span>
+            </div>
 
-          <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--text)', marginBottom: 10, lineHeight: 1.15 }}>
-            Start Your Business in Zambia
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 620 }}>
-            Step-by-step compliance guidance for every startup type. KIP walks you through every registration body — PACRA, ZRA, NAPSA, NHIMA, WCFCB, and sector-specific licences — so nothing gets missed.
-          </p>
+            <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--text)', marginBottom: 10, lineHeight: 1.15 }}>
+              Start Your Business in Zambia
+            </h1>
+            <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 620 }}>
+              Step-by-step compliance guidance for every startup type. KIP walks you through every registration body — PACRA, ZRA, NAPSA, NHIMA, WCFCB, and sector-specific licences — so nothing gets missed.
+            </p>
+          </div>
+          <div className="kip-card" style={{ padding: 12, flexShrink: 0, display: 'none' }} data-startup-hero-figure>
+            <BusinessIllustration width={220} height={165} />
+          </div>
         </div>
 
         {/* ── PROGRESS INDICATOR ── */}
