@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import { BusinessIllustration } from '../components/KipIllustrations'
+import { useT } from '../context/TranslationContext'
 import {
   STARTUP_TYPES,
   BUSINESS_STRUCTURES,
@@ -31,13 +32,7 @@ import {
 } from '../data/startupData'
 
 // ─── SECTION TABS ─────────────────────────────────────────────────────────────
-
-const TABS = [
-  { key: 'choose_type',   label: 'Choose Type',       icon: Building2  },
-  { key: 'structure',     label: 'Business Structure', icon: BookOpen   },
-  { key: 'roadmap',       label: 'Registration Steps', icon: CheckCircle },
-  { key: 'compliance',    label: 'Stay Compliant',     icon: Calendar   },
-]
+// NOTE: labels are resolved inside the component via useT() so TABS is built there.
 
 // ─── STARTUP TYPE CARD ────────────────────────────────────────────────────────
 
@@ -88,6 +83,7 @@ function StartupTypeCard({ type, selected, onClick }) {
 // ─── BUSINESS STRUCTURE CARD ──────────────────────────────────────────────────
 
 function StructureCard({ structure, selected, onClick }) {
+  const { t } = useT()
   return (
     <button
       onClick={() => onClick(structure)}
@@ -126,16 +122,16 @@ function StructureCard({ structure, selected, onClick }) {
       </div>
 
       <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }}>
-        <strong style={{ color: 'var(--text)' }}>Best for:</strong> {structure.best_for}
+        <strong style={{ color: 'var(--text)' }}>{t('startup.best_for_label')}</strong> {structure.best_for}
       </div>
 
       {/* Key stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
-          { label: 'Reg. Fee',  value: structure.registration_fee },
-          { label: 'Timeline',  value: structure.time             },
-          { label: 'Liability', value: structure.liability        },
-          { label: 'Members',   value: structure.shareholders     },
+          { label: t('startup.stat_reg_fee'),  value: structure.registration_fee },
+          { label: t('startup.stat_timeline'),  value: structure.time             },
+          { label: t('startup.stat_liability'), value: structure.liability        },
+          { label: t('startup.stat_members'),   value: structure.shareholders     },
         ].map(({ label, value }) => (
           <div key={label} style={{
             padding: '7px 10px', borderRadius: 9,
@@ -156,7 +152,7 @@ function StructureCard({ structure, selected, onClick }) {
         <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
             <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--green)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Advantages
+              {t('startup.advantages_label')}
             </div>
             {structure.pros.map((p, i) => (
               <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5 }}>
@@ -167,7 +163,7 @@ function StructureCard({ structure, selected, onClick }) {
           </div>
           <div>
             <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--red)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Considerations
+              {t('startup.considerations_label')}
             </div>
             {structure.cons.map((c, i) => (
               <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5 }}>
@@ -185,6 +181,7 @@ function StructureCard({ structure, selected, onClick }) {
 // ─── REGISTRATION STEP CARD ───────────────────────────────────────────────────
 
 function StepCard({ step, index }) {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(index === 0)
   const authority = AUTHORITIES[step.authority] || {}
   const accentColor = authority.color || 'var(--blue-bright)'
@@ -235,7 +232,7 @@ function StepCard({ step, index }) {
                 background: 'var(--gold-dim)', color: 'var(--gold)',
                 border: '1px solid rgba(232,151,62,0.3)',
               }}>
-                OPTIONAL
+                {t('startup.optional_badge')}
               </span>
             )}
           </div>
@@ -288,7 +285,7 @@ function StepCard({ step, index }) {
               <CheckCircle size={14} style={{ color: accentColor, flexShrink: 0, marginTop: 1 }} />
               <div>
                 <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: accentColor, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  What you receive
+                  {t('startup.what_you_receive_label')}
                 </div>
                 <span style={{ fontSize: 12.5, color: 'var(--text)' }}>{step.what_you_get}</span>
               </div>
@@ -301,7 +298,7 @@ function StepCard({ step, index }) {
             {step.requirements && step.requirements.length > 0 && (
               <div>
                 <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                  Documents Required
+                  {t('startup.documents_required_label')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {step.requirements.map((req, i) => (
@@ -318,7 +315,7 @@ function StepCard({ step, index }) {
             {step.costs && step.costs.length > 0 && (
               <div>
                 <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                  Costs (ZMW)
+                  {t('startup.costs_label')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {step.costs.filter(c => c.item).map((cost, i) => (
@@ -342,7 +339,7 @@ function StepCard({ step, index }) {
           {step.tax_categories && (
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                Tax Categories — Choose the Right One
+                {t('startup.tax_categories_label')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {step.tax_categories.map((cat, i) => (
@@ -355,10 +352,10 @@ function StepCard({ step, index }) {
                       <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 12, color: 'var(--gold-bright)' }}>{cat.rate}</span>
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>
-                      <strong>When:</strong> {cat.threshold}
+                      <strong>{t('startup.when_label')}</strong> {cat.threshold}
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>
-                      <strong>Filing:</strong> {cat.filing}
+                      <strong>{t('startup.filing_label')}</strong> {cat.filing}
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--faint)', fontStyle: 'italic' }}>{cat.notes}</div>
                   </div>
@@ -371,7 +368,7 @@ function StepCard({ step, index }) {
           {step.recommended_banks && (
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                Recommended Banks for SMEs
+                {t('startup.recommended_banks_label')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                 {step.recommended_banks.map((bank, i) => (
@@ -394,7 +391,7 @@ function StepCard({ step, index }) {
           {step.incentives && (
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                Available Incentives
+                {t('startup.available_incentives_label')}
               </div>
               {step.incentives.map((inc, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
@@ -413,7 +410,7 @@ function StepCard({ step, index }) {
               borderLeft: '3px solid var(--gold)', borderRadius: '0 10px 10px 0',
             }}>
               <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--gold)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                KIP Tips
+                {t('startup.kip_tips_label')}
               </div>
               {step.tips.map((tip, i) => (
                 <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5 }}>
@@ -437,7 +434,7 @@ function StepCard({ step, index }) {
                 }}
               >
                 <FileText size={12} />
-                View {step.forms.length} Required Form{step.forms.length > 1 ? 's' : ''}
+                {t('startup.view_required_forms', { count: step.forms.length })}
               </Link>
             )}
             {step.portal && (
@@ -453,7 +450,7 @@ function StepCard({ step, index }) {
                 }}
               >
                 <ExternalLink size={12} />
-                Visit {authority.name || 'Official'} Portal
+                {t('startup.visit_portal', { authority: authority.name || t('startup.official_fallback') })}
               </a>
             )}
             {/* ── Ask KIP button — opens StartupChatPage pre-seeded with this step ── */}
@@ -482,7 +479,7 @@ function StepCard({ step, index }) {
               }}
             >
               <MessageSquare size={12} />
-              Ask KIP
+              {t('startup.ask_kip_button')}
             </Link>
           </div>
 
@@ -504,21 +501,22 @@ function StepCard({ step, index }) {
 // ─── COMPLIANCE CALENDAR SECTION ─────────────────────────────────────────────
 
 function ComplianceCalendarSection() {
+  const { t } = useT()
   const { monthly, quarterly, annual } = COMPLIANCE_CALENDAR
   const sections = [
-    { key: 'monthly',   label: 'Monthly',   color: 'var(--blue-bright)', items: monthly   },
-    { key: 'quarterly', label: 'Quarterly',  color: 'var(--teal)',        items: quarterly },
-    { key: 'annual',    label: 'Annual',     color: 'var(--gold)',        items: annual    },
+    { key: 'monthly',   label: t('startup.monthly_label'),   color: 'var(--blue-bright)', items: monthly   },
+    { key: 'quarterly', label: t('startup.quarterly_label'),  color: 'var(--teal)',        items: quarterly },
+    { key: 'annual',    label: t('startup.annual_label'),     color: 'var(--gold)',        items: annual    },
   ]
 
   return (
     <div>
       <div style={{ marginBottom: 18 }}>
         <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: 'var(--text)', marginBottom: 6 }}>
-          Ongoing Compliance Calendar
+          {t('startup.compliance_calendar_title')}
         </h2>
         <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
-          Registration is just the beginning. Every business in Zambia has recurring obligations. Missing these attracts fines and penalties. Use this calendar to plan your compliance year.
+          {t('startup.compliance_calendar_desc')}
         </p>
       </div>
 
@@ -537,7 +535,7 @@ function ComplianceCalendarSection() {
                 <Calendar size={15} style={{ color }} />
               </div>
               <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, color }}>
-                {label} Obligations
+                {label} {t('startup.obligations_suffix')}
               </span>
             </div>
 
@@ -554,7 +552,7 @@ function ComplianceCalendarSection() {
                   {/* Deadline */}
                   <div>
                     <div style={{ fontSize: 10, color: 'var(--faint)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                      Deadline
+                      {t('startup.deadline_label')}
                     </div>
                     <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color }}>
                       {item.deadline}
@@ -593,10 +591,10 @@ function ComplianceCalendarSection() {
         <AlertTriangle size={15} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 1 }} />
         <div>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--red)', marginBottom: 4 }}>
-            Penalties for Non-Compliance
+            {t('startup.penalties_title')}
           </div>
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.65, margin: 0 }}>
-            ZRA levies a <strong style={{ color: 'var(--text)' }}>penalty of K500–K10,000</strong> for late filing plus interest on unpaid amounts. NAPSA charges a <strong style={{ color: 'var(--text)' }}>20% penalty</strong> on late contributions. Trading without a licence risks fines and forced closure by the council. File returns on time — even if you cannot pay the full amount.
+            {t('startup.compliance_penalty_intro')}<strong style={{ color: 'var(--text)' }}>{t('startup.compliance_penalty_zra_bold')}</strong>{t('startup.compliance_penalty_middle')}<strong style={{ color: 'var(--text)' }}>{t('startup.compliance_penalty_napsa_bold')}</strong>{t('startup.compliance_penalty_outro')}
           </p>
         </div>
       </div>
@@ -661,6 +659,13 @@ function ProgressBar({ current, tabs }) {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function StartupPage() {
+  const { t } = useT()
+  const TABS = [
+    { key: 'choose_type',   label: t('startup.tab_choose_type'), icon: Building2  },
+    { key: 'structure',     label: t('startup.tab_structure'),   icon: BookOpen   },
+    { key: 'roadmap',       label: t('startup.tab_roadmap'),     icon: CheckCircle },
+    { key: 'compliance',    label: t('startup.tab_compliance'),  icon: Calendar   },
+  ]
   const [activeTab,        setActiveTab]        = useState('choose_type')
   const [selectedType,     setSelectedType]     = useState(null)
   const [selectedStructure,setSelectedStructure]= useState(null)
@@ -675,10 +680,10 @@ export default function StartupPage() {
     : []
 
   // Filtered startup types
-  const filteredTypes = STARTUP_TYPES.filter(t =>
-    t.label.toLowerCase().includes(typeSearch.toLowerCase()) ||
-    t.description.toLowerCase().includes(typeSearch.toLowerCase()) ||
-    t.examples.some(e => e.toLowerCase().includes(typeSearch.toLowerCase()))
+  const filteredTypes = STARTUP_TYPES.filter(st =>
+    st.label.toLowerCase().includes(typeSearch.toLowerCase()) ||
+    st.description.toLowerCase().includes(typeSearch.toLowerCase()) ||
+    st.examples.some(e => e.toLowerCase().includes(typeSearch.toLowerCase()))
   )
 
   const handleTypeSelect = (type) => {
@@ -711,15 +716,15 @@ export default function StartupPage() {
             }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)' }} className="animate-pulse-soft" />
               <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: 'var(--blue-bright)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Business Development
+                {t('startup.eyebrow_business_development')}
               </span>
             </div>
 
             <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--text)', marginBottom: 10, lineHeight: 1.15 }}>
-              Start Your Business in Zambia
+              {t('startup.hero_title')}
             </h1>
             <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 620 }}>
-              Step-by-step compliance guidance for every startup type. KIP walks you through every registration body — PACRA, ZRA, NAPSA, NHIMA, WCFCB, and sector-specific licences — so nothing gets missed.
+              {t('startup.hero_desc')}
             </p>
           </div>
           <div className="kip-card" style={{ padding: 12, flexShrink: 0, display: 'none' }} data-startup-hero-figure>
@@ -765,10 +770,10 @@ export default function StartupPage() {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 18, flexWrap: 'wrap' }}>
               <div>
                 <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: 'var(--text)', marginBottom: 5 }}>
-                  What kind of startup are you building?
+                  {t('startup.choose_type_title')}
                 </h2>
                 <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-                  Select your startup type to get a tailored registration roadmap.
+                  {t('startup.choose_type_desc')}
                 </p>
               </div>
               {/* Search */}
@@ -777,7 +782,7 @@ export default function StartupPage() {
                 <input
                   value={typeSearch}
                   onChange={e => setTypeSearch(e.target.value)}
-                  placeholder="Search startup types…"
+                  placeholder={t('startup.search_placeholder')}
                   className="kip-input"
                   style={{ paddingLeft: 34, fontSize: 13 }}
                 />
@@ -796,7 +801,7 @@ export default function StartupPage() {
               ))}
               {filteredTypes.length === 0 && (
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 0', color: 'var(--faint)', fontSize: 13 }}>
-                  No startup types match "{typeSearch}"
+                  {t('startup.no_types_match', { query: typeSearch })}
                 </div>
               )}
             </div>
@@ -809,17 +814,17 @@ export default function StartupPage() {
                 border: `1px solid ${selectedType.color}30`,
               }}>
                 <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 14 }}>
-                  Tell KIP more about your startup
+                  {t('startup.tell_kip_more')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {/* Employees toggle */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                     <div>
                       <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}>
-                        Will you hire employees?
+                        {t('startup.hire_employees_question')}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                        Adds NAPSA, NHIMA, and WCFCB registration steps
+                        {t('startup.hire_employees_desc')}
                       </div>
                     </div>
                     <button onClick={() => setHasEmployees(v => !v)} style={{
@@ -837,10 +842,10 @@ export default function StartupPage() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                     <div>
                       <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}>
-                        Seeking investment incentives (ZDA)?
+                        {t('startup.seeking_incentives_question')}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                        For businesses investing K250,000+ or in priority sectors
+                        {t('startup.seeking_incentives_desc')}
                       </div>
                     </div>
                     <button onClick={() => setSeeksIncentives(v => !v)} style={{
@@ -866,7 +871,7 @@ export default function StartupPage() {
                 className="kip-btn kip-btn-primary"
                 style={{ fontSize: 14, padding: '12px 24px', opacity: !selectedType ? 0.5 : 1 }}
               >
-                Next — Choose Structure <ArrowRight size={15} />
+                {t('startup.next_choose_structure')} <ArrowRight size={15} />
               </button>
               {selectedType && (
                 <button
@@ -874,14 +879,14 @@ export default function StartupPage() {
                   className="kip-btn kip-btn-ghost"
                   style={{ fontSize: 14, padding: '12px 24px' }}
                 >
-                  Skip to Registration Steps
+                  {t('startup.skip_to_roadmap')}
                 </button>
               )}
             </div>
 
             {!selectedType && (
               <p style={{ fontSize: 12, color: 'var(--faint)', marginTop: 10 }}>
-                Select a startup type above to continue.
+                {t('startup.select_type_prompt')}
               </p>
             )}
           </div>
@@ -894,10 +899,10 @@ export default function StartupPage() {
           <div>
             <div style={{ marginBottom: 18 }}>
               <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: 'var(--text)', marginBottom: 5 }}>
-                Choose Your Business Structure
+                {t('startup.structure_title')}
               </h2>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 600 }}>
-                The structure you choose determines your liability, how you pay tax, how you raise money, and your ongoing compliance obligations. Take time to choose carefully — changing structure later involves legal work.
+                {t('startup.structure_desc')}
               </p>
             </div>
 
@@ -909,7 +914,7 @@ export default function StartupPage() {
             }}>
               <Info size={14} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
               <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.65, margin: 0 }}>
-                <strong style={{ color: 'var(--text)' }}>Most small businesses in Zambia</strong> start as a <strong style={{ color: 'var(--blue-bright)' }}>Business Name</strong> (fastest, cheapest) or a <strong style={{ color: 'var(--blue-bright)' }}>Private Limited Company</strong> (better for growth, investment, and credibility). NGOs and associations use the Registrar of Societies instead of PACRA.
+                <strong style={{ color: 'var(--text)' }}>{t('startup.structure_info_bold1')}</strong>{t('startup.structure_info_mid1')}<strong style={{ color: 'var(--blue-bright)' }}>{t('startup.structure_info_bold2')}</strong>{t('startup.structure_info_mid2')}<strong style={{ color: 'var(--blue-bright)' }}>{t('startup.structure_info_bold3')}</strong>{t('startup.structure_info_outro')}
               </p>
             </div>
 
@@ -931,7 +936,7 @@ export default function StartupPage() {
                 className="kip-btn kip-btn-ghost"
                 style={{ fontSize: 14, padding: '12px 24px' }}
               >
-                ← Back
+                ← {t('common.back')}
               </button>
               <button
                 onClick={() => setActiveTab('roadmap')}
@@ -939,7 +944,7 @@ export default function StartupPage() {
                 className="kip-btn kip-btn-primary"
                 style={{ fontSize: 14, padding: '12px 24px', opacity: !selectedStructure ? 0.5 : 1 }}
               >
-                Next — Registration Steps <ArrowRight size={15} />
+                {t('startup.next_registration_steps')} <ArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -953,7 +958,7 @@ export default function StartupPage() {
             {/* Header */}
             <div style={{ marginBottom: 18 }}>
               <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: 'var(--text)', marginBottom: 5 }}>
-                Your Registration Roadmap
+                {t('startup.roadmap_title')}
                 {selectedType && (
                   <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--muted)', marginLeft: 10 }}>
                     — {selectedType.emoji} {selectedType.label}
@@ -962,8 +967,8 @@ export default function StartupPage() {
               </h2>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
                 {selectedType
-                  ? `${roadmap.length} steps to fully register your ${selectedType.label.toLowerCase()} startup. Click each step to expand.`
-                  : 'Complete the universal registration steps — then customise by selecting your startup type in Step 1.'
+                  ? t('startup.roadmap_desc_with_type', { count: roadmap.length, type: selectedType.label.toLowerCase() })
+                  : t('startup.roadmap_desc_no_type')
                 }
               </p>
             </div>
@@ -973,25 +978,25 @@ export default function StartupPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginBottom: 20 }}>
                 {[
                   {
-                    label: 'Total Steps',
+                    label: t('startup.stat_total_steps'),
                     value: roadmap.length,
                     color: 'var(--blue-bright)',
                     icon: CheckCircle,
                   },
                   {
-                    label: 'Mandatory',
+                    label: t('startup.stat_mandatory'),
                     value: roadmap.filter(s => s.mandatory !== false).length,
                     color: 'var(--red)',
                     icon: AlertTriangle,
                   },
                   {
-                    label: 'Optional',
+                    label: t('startup.stat_optional'),
                     value: roadmap.filter(s => s.mandatory === false).length,
                     color: 'var(--gold)',
                     icon: Info,
                   },
                   {
-                    label: 'Est. Total Cost',
+                    label: t('startup.stat_est_total_cost'),
                     value: 'K1,000+',
                     color: 'var(--green)',
                     icon: DollarSign,
@@ -1015,11 +1020,11 @@ export default function StartupPage() {
               }}>
                 <Info size={15} style={{ color: 'var(--gold)', flexShrink: 0, marginTop: 1 }} />
                 <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
-                  Showing the <strong style={{ color: 'var(--text)' }}>4 universal registration steps</strong> that apply to all Zambian businesses.{' '}
+                  {t('startup.universal_steps_intro')}<strong style={{ color: 'var(--text)' }}>{t('startup.universal_steps_bold')}</strong>{t('startup.universal_steps_mid')}{' '}
                   <button onClick={() => setActiveTab('choose_type')} style={{ background: 'none', border: 'none', color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 13, padding: 0 }}>
-                    Select a startup type
+                    {t('startup.select_startup_type_button')}
                   </button>{' '}
-                  to see the complete tailored roadmap.
+                  {t('startup.universal_steps_outro')}
                 </div>
               </div>
             )}
@@ -1045,10 +1050,10 @@ export default function StartupPage() {
                 </div>
                 <div>
                   <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 2 }}>
-                    All Official Forms in One Place
+                    {t('startup.all_forms_title')}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                    PACRA, ZRA, NAPSA, NHIMA, WCFCB, NCC and more — searchable and ready to access.
+                    {t('startup.all_forms_desc')}
                   </div>
                 </div>
               </div>
@@ -1057,16 +1062,16 @@ export default function StartupPage() {
                 className="kip-btn kip-btn-primary"
                 style={{ fontSize: 13, padding: '9px 18px', flexShrink: 0 }}
               >
-                <FileText size={14} /> View All Forms
+                <FileText size={14} /> {t('startup.view_all_forms_button')}
               </Link>
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setActiveTab('structure')} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '10px 20px' }}>
-                ← Back
+                ← {t('common.back')}
               </button>
               <button onClick={() => setActiveTab('compliance')} className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '10px 20px' }}>
-                Next — Compliance Calendar <ArrowRight size={14} />
+                {t('startup.next_compliance_calendar')} <ArrowRight size={14} />
               </button>
             </div>
           </div>
@@ -1080,13 +1085,13 @@ export default function StartupPage() {
             <ComplianceCalendarSection />
             <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button onClick={() => setActiveTab('roadmap')} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '10px 20px' }}>
-                ← Registration Steps
+                ← {t('startup.back_to_registration_steps')}
               </button>
               <Link to="/chat" className="kip-btn kip-btn-teal" style={{ fontSize: 13, padding: '10px 20px' }}>
-                <Zap size={14} /> Ask KIP a Startup Question
+                <Zap size={14} /> {t('startup.ask_kip_question_link')}
               </Link>
               <Link to="/templates?filter=startup" className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '10px 20px' }}>
-                <FileText size={14} /> View All Forms
+                <FileText size={14} /> {t('startup.view_all_forms_button')}
               </Link>
             </div>
           </div>

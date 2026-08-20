@@ -1,0 +1,90 @@
+name: Android Build
+
+# Builds the KIP Android app in the cloud — no local Android Studio needed.
+# - Every run produces an installable debug APK (sideload to test).
+# - If keystore secrets are configured, it also produces a signed release AAB
+#   ready to upload to Play Console.
+#
+# One-time setup for signed release builds: run the separate
+# "Generate Android Keystore" workflow first (see generate-android-keystore.yml)
+# and follow the instructions in its summary — it creates the four
+# ANDROID_KEYSTORE_* secrets this workflow reads below.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/android-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        working-directory: frontend/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kip-debug-apk
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+
+      # ── Release signing (only runs once ANDROID_KEYSTORE_* secrets exist —
+      #    see generate-android-keystore.yml for the one-time setup) ──────
+      - name: Write keystore.properties from secrets
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        working-directory: frontend/android
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+          cat > keystore.properties <<EOF
+          storeFile=release.keystore
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Build signed release AAB
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        working-directory: frontend/android
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Upload release AAB
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kip-release-aab
+          path: frontend/android/app/build/outputs/bundle/release/app-release.aab

@@ -4,35 +4,37 @@ import api from '../../lib/api'
 import toast from 'react-hot-toast'
 import { C } from './theme'
 import GameAudio from './GameAudio'
+import { useT } from '../../context/TranslationContext'
 
 const fmt = n => `K${(n || 0).toLocaleString('en-ZM', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 
-function debtSummary(biz) {
+function debtSummary(biz, t) {
   switch (biz.debt_type) {
     case 'compounding_loan':
-      return `${fmt(biz.debt_original)} owed to ${biz.debt_lender}, compounding at ${biz.debt_rate}% p.a. Due by Day ${biz.debt_due_day}.`
+      return t('bizsim.debt_compounding', { amount: fmt(biz.debt_original), lender: biz.debt_lender, rate: biz.debt_rate, day: biz.debt_due_day })
     case 'installment_loan':
-      return `${fmt(biz.debt_original)} owed to ${biz.debt_lender} in installments. Full repayment due by Day ${biz.debt_due_day}.`
+      return t('bizsim.debt_installment', { amount: fmt(biz.debt_original), lender: biz.debt_lender, day: biz.debt_due_day })
     case 'profit_target':
-      return `${fmt(biz.debt_original)} in cumulative profit owed to ${biz.debt_lender} by Day ${biz.debt_due_day} — not a cash debt, a promise.`
+      return t('bizsim.debt_profit_target', { amount: fmt(biz.debt_original), lender: biz.debt_lender, day: biz.debt_due_day })
     case 'inventory_credit':
-      return `${fmt(biz.debt_original)} of inventory credit owed back to ${biz.debt_lender} by Day ${biz.debt_due_day}.`
+      return t('bizsim.debt_inventory_credit', { amount: fmt(biz.debt_original), lender: biz.debt_lender, day: biz.debt_due_day })
     case 'rent_recurring':
-      return `${fmt(biz.debt_original)} owed to ${biz.debt_lender} in recurring rent/fee payments, first due mid-way through the run.`
+      return t('bizsim.debt_rent_recurring', { amount: fmt(biz.debt_original), lender: biz.debt_lender })
     default:
-      return `${fmt(biz.debt_original)} owed to ${biz.debt_lender} by Day ${biz.debt_due_day}.`
+      return t('bizsim.debt_default', { amount: fmt(biz.debt_original), lender: biz.debt_lender, day: biz.debt_due_day })
   }
 }
 
-const PERSONALITY_LABEL = {
-  aggressive: 'Aggressive — always undercuts you',
-  premium:    'Premium — charges more, banks on trust',
-  consistent: 'Consistent — steady, methodical pricing',
-  reactive:   'Reactive — mirrors your price moves',
+const PERSONALITY_LABEL_KEYS = {
+  aggressive: 'bizsim.personality_aggressive',
+  premium:    'bizsim.personality_premium',
+  consistent: 'bizsim.personality_consistent',
+  reactive:   'bizsim.personality_reactive',
 }
 
 // ── Story reveal ─────────────────────────────────────────────────────────────
 function StoryReveal({ biz, onBack, onConfirm, starting }) {
+  const { t } = useT()
   const [bizName, setBizName] = useState('')
 
   return (
@@ -42,7 +44,7 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
         color: C.muted, fontSize: 12, fontFamily: 'Syne', fontWeight: 600, cursor: 'pointer',
         padding: '8px 0 16px', marginLeft: -2,
       }}>
-        <ChevronLeft size={14} /> Back to businesses
+        <ChevronLeft size={14} /> {t('bizsim.back_to_businesses')}
       </button>
 
       {/* Business header */}
@@ -60,7 +62,7 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
         padding: '18px 20px', marginBottom: 14,
       }}>
         <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: C.muted, letterSpacing: '0.1em', marginBottom: 10 }}>
-          YOUR STORY
+          {t('bizsim.your_story_header')}
         </div>
         <p style={{ fontSize: 14, color: C.white, lineHeight: 1.75, margin: 0 }}>{biz.story}</p>
       </div>
@@ -73,9 +75,9 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
         <AlertTriangle size={20} style={{ color: C.purple, flexShrink: 0, marginTop: 2 }} />
         <div>
           <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: C.purple, letterSpacing: '0.08em', marginBottom: 4 }}>
-            THE DEBT
+            {t('bizsim.debt_header')}
           </div>
-          <div style={{ fontSize: 13, color: C.white, lineHeight: 1.6 }}>{debtSummary(biz)}</div>
+          <div style={{ fontSize: 13, color: C.white, lineHeight: 1.6 }}>{debtSummary(biz, t)}</div>
         </div>
       </div>
 
@@ -87,7 +89,7 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           <Swords size={16} style={{ color: C.red }} />
           <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: C.red, letterSpacing: '0.08em' }}>
-            YOUR RIVAL
+            {t('bizsim.your_rival_header')}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -96,7 +98,7 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
             fontSize: 10, padding: '2px 8px', borderRadius: 12, background: `${C.red}20`,
             color: C.red, fontFamily: 'Syne', fontWeight: 700,
           }}>
-            {PERSONALITY_LABEL[biz.rival_personality] || biz.rival_personality}
+            {(PERSONALITY_LABEL_KEYS[biz.rival_personality] && t(PERSONALITY_LABEL_KEYS[biz.rival_personality])) || biz.rival_personality}
           </span>
         </div>
         <div style={{
@@ -111,11 +113,11 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
       {/* Name input */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: C.muted, letterSpacing: '0.1em', marginBottom: 10 }}>
-          NAME YOUR BUSINESS
+          {t('bizsim.name_your_business')}
         </div>
         <input
           value={bizName} onChange={e => setBizName(e.target.value)}
-          placeholder={`e.g. Chanda's ${biz.name}`}
+          placeholder={t('bizsim.name_placeholder_dynamic', { biz: biz.name })}
           style={{
             width: '100%', padding: '12px 16px', borderRadius: 12,
             background: C.card, border: `1px solid ${biz.colour}50`,
@@ -139,8 +141,8 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
         }}>
         {starting
-          ? <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> Opening for business…</>
-          : <>Open for Business <ChevronRight size={18} /></>
+          ? <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> {t('bizsim.opening_for_business')}</>
+          : <>{t('bizsim.open_business')} <ChevronRight size={18} /></>
         }
       </button>
     </div>
@@ -149,6 +151,7 @@ function StoryReveal({ biz, onBack, onConfirm, starting }) {
 
 // ── Story-driven setup: pick a business, reveal its story/debt/rival, name it ──
 export default function StorySetup({ onStart }) {
+  const { t } = useT()
   const [businesses, setBusinesses] = useState([])
   const [step,        setStep]      = useState('pick') // 'pick' | 'reveal'
   const [selected,    setSelected]  = useState(null)
@@ -166,7 +169,7 @@ export default function StorySetup({ onStart }) {
   }
 
   const handleConfirm = async (bizName) => {
-    if (!bizName) { toast.error('Name your business.'); return }
+    if (!bizName) { toast.error(t('bizsim.name_business_error')); return }
     GameAudio.init()
     setStarting(true)
     try {
@@ -197,27 +200,26 @@ export default function StorySetup({ onStart }) {
           background: `${C.teal}15`, border: `1px solid ${C.teal}30`,
           padding: '4px 14px', borderRadius: 20, marginBottom: 14,
         }}>
-          KIP BUSINESS SIMULATOR
+          {t('bizsim.title').toUpperCase()}
         </div>
         <h1 style={{
           fontFamily: 'Syne', fontWeight: 800, fontSize: 'clamp(22px,5vw,36px)',
           color: C.white, lineHeight: 1.15, marginBottom: 10,
         }}>
-          Run a real Zambian business.<br />
+          {t('bizsim.hero_line1')}<br />
           <span style={{ background: `linear-gradient(135deg, ${C.gold}, ${C.teal})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Feel every decision.
+            {t('bizsim.hero_line2')}
           </span>
         </h1>
         <p style={{ fontSize: 14, color: C.muted, maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-          Set prices, manage cash flow, negotiate with suppliers, and survive market shocks.
-          Get live AI coaching from KIP. Real economics. Real consequences.
+          {t('bizsim.hero_desc')}
         </p>
       </div>
 
       {/* Business selector */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: C.muted, letterSpacing: '0.1em', marginBottom: 12 }}>
-          CHOOSE YOUR BUSINESS
+          {t('bizsim.choose_business').toUpperCase()}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
           {businesses.map(biz => (
@@ -235,10 +237,10 @@ export default function StorySetup({ onStart }) {
                 {biz.mechanic}
               </div>
               <div style={{ marginTop: 8, fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: C.white }}>
-                {fmt(biz.capital)} <span style={{ fontSize: 10, fontWeight: 400, color: C.muted }}>starting capital</span>
+                {fmt(biz.capital)} <span style={{ fontSize: 10, fontWeight: 400, color: C.muted }}>{t('bizsim.starting_capital')}</span>
               </div>
               <div style={{ marginTop: 6, fontSize: 10, color: C.red }}>
-                vs. {biz.rival_name} · owes {fmt(biz.debt_original)}
+                {t('bizsim.vs_rival', { rival: biz.rival_name, amount: fmt(biz.debt_original) })}
               </div>
             </button>
           ))}

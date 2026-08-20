@@ -9,14 +9,16 @@ import Layout from '../components/Layout'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { STARTUP_FORMS, AUTHORITIES } from '../data/startupData'
+import { useT } from '../context/TranslationContext'
 
-/* Tab definitions — short label for mobile */
+/* Tab definitions — short label for mobile. `label`/`short` are English
+   fallbacks; `labelKey`/`shortKey` are the i18n keys used for display. */
 const TABS = [
-  { key: 'all',            label: 'All',          short: 'All',      icon: BookOpen   },
-  { key: 'forms',          label: 'Forms',         short: 'Forms',    icon: FileText   },
-  { key: 'letters',        label: 'Letters',       short: 'Letters',  icon: Mail       },
-  { key: 'business_plans', label: 'Business Plans',short: 'Plans',    icon: BarChart2  },
-  { key: 'startup',        label: 'Startup & Registration', short: 'Startup', icon: Rocket },
+  { key: 'all',            label: 'All',          short: 'All',      labelKey: 'templates.tab_all',            shortKey: 'templates.tab_all_short',            icon: BookOpen   },
+  { key: 'forms',          label: 'Forms',         short: 'Forms',    labelKey: 'templates.tab_forms',          shortKey: 'templates.tab_forms_short',          icon: FileText   },
+  { key: 'letters',        label: 'Letters',       short: 'Letters',  labelKey: 'templates.tab_letters',        shortKey: 'templates.tab_letters_short',        icon: Mail       },
+  { key: 'business_plans', label: 'Business Plans',short: 'Plans',    labelKey: 'templates.tab_business_plans', shortKey: 'templates.tab_business_plans_short', icon: BarChart2  },
+  { key: 'startup',        label: 'Startup & Registration', short: 'Startup', labelKey: 'templates.tab_startup', shortKey: 'templates.tab_startup_short', icon: Rocket },
 ]
 
 const COLOR_MAP = {
@@ -35,6 +37,7 @@ function getColors(color) {
 
 /* ── Letter modal (existing AI letter generation ) ──────────────── */
 function LetterModal({ template, plans, onClose }) {
+  const { t } = useT()
   const [planId,    setPlanId]    = useState(plans[0]?.id || '')
   const [recipient, setRecipient] = useState('')
   const [amount,    setAmount]    = useState('')
@@ -53,13 +56,13 @@ function LetterModal({ template, plans, onClose }) {
         notes:       notes    || null,
       })
       setLetter(data.letter_text)
-    } catch { toast.error('Letter generation failed.') }
+    } catch { toast.error(t('templates.letter_generation_failed')) }
     finally  { setLoading(false) }
   }
 
   const copy = () => {
     navigator.clipboard.writeText(letter)
-    toast.success('Copied!')
+    toast.success(t('templates.copied'))
   }
 
   return (
@@ -82,29 +85,29 @@ function LetterModal({ template, plans, onClose }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {plans.length > 0 && (
                 <div>
-                  <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>For which business?</label>
+                  <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('templates.for_which_business')}</label>
                   <select value={planId} onChange={e => setPlanId(e.target.value)} className="kip-input" style={{ fontSize: 13 }}>
-                    <option value="">General</option>
+                    <option value="">{t('templates.general_option')}</option>
                     {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               )}
               <div>
-                <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>Addressed to</label>
-                <input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder='e.g. "The Loans Officer, Zanaco"' className="kip-input" style={{ fontSize: 13 }} />
+                <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('templates.addressed_to')}</label>
+                <input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder={t('templates.addressed_to_placeholder')} className="kip-input" style={{ fontSize: 13 }} />
               </div>
               {template.prompt_type === 'loan_request_letter' && (
                 <div>
-                  <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>Amount requested</label>
-                  <input value={amount} onChange={e => setAmount(e.target.value)} placeholder='e.g. "K50,000"' className="kip-input" style={{ fontSize: 13 }} />
+                  <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('templates.amount_requested')}</label>
+                  <input value={amount} onChange={e => setAmount(e.target.value)} placeholder={t('templates.amount_requested_placeholder')} className="kip-input" style={{ fontSize: 13 }} />
                 </div>
               )}
               <div>
-                <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>Additional context <span style={{ color: 'var(--faint)' }}>(optional)</span></label>
-                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder='Any specific points to include...' className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
+                <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('templates.additional_context')} <span style={{ color: 'var(--faint)' }}>({t('templates.optional')})</span></label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder={t('templates.additional_context_placeholder')} className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
               </div>
               <button onClick={generate} disabled={loading} className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '13px 0', fontSize: 14 }}>
-                {loading ? <><Loader2 size={16} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> Generating…</> : <><Sparkles size={15} /> Generate Letter</>}
+                {loading ? <><Loader2 size={16} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> {t('templates.generating')}</> : <><Sparkles size={15} /> {t('templates.generate_letter')}</>}
               </button>
             </div>
           ) : (
@@ -113,8 +116,8 @@ function LetterModal({ template, plans, onClose }) {
                 {letter}
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={copy} className="kip-btn kip-btn-primary" style={{ flex: 1, fontSize: 13 }}>Copy to Clipboard</button>
-                <button onClick={() => setLetter(null)} className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>Regenerate</button>
+                <button onClick={copy} className="kip-btn kip-btn-primary" style={{ flex: 1, fontSize: 13 }}>{t('templates.copy_to_clipboard')}</button>
+                <button onClick={() => setLetter(null)} className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>{t('templates.regenerate')}</button>
               </div>
             </div>
           )}
@@ -126,6 +129,7 @@ function LetterModal({ template, plans, onClose }) {
 
 /* ── NEW: Government / Startup form detail modal ─────────────────────────── */
 function GovFormModal({ form, onClose }) {
+  const { t } = useT()
   const authority = AUTHORITIES[form.authority] || {}
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,12,24,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
@@ -154,14 +158,14 @@ function GovFormModal({ form, onClose }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
           <div style={{ marginBottom: 18 }}>
             <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-              Purpose
+              {t('templates.purpose')}
             </div>
             <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>{form.purpose}</p>
           </div>
 
           <div style={{ marginBottom: 18 }}>
             <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-              Required For
+              {t('templates.required_for')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {form.required_for.map((r, i) => (
@@ -178,7 +182,7 @@ function GovFormModal({ form, onClose }) {
             background: 'var(--input-bg)', border: '1px solid var(--border)',
           }}>
             <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-              Issuing Authority
+              {t('templates.issuing_authority')}
             </div>
             <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: form.color, marginBottom: 4 }}>
               {authority.full_name || form.institution}
@@ -195,7 +199,7 @@ function GovFormModal({ form, onClose }) {
           {form.how_to_get && form.how_to_get.length > 0 && (
             <div style={{ marginBottom: 18 }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                How to Obtain
+                {t('templates.how_to_obtain')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {form.how_to_get.map((h, i) => (
@@ -212,7 +216,7 @@ function GovFormModal({ form, onClose }) {
           {form.key_clauses && form.key_clauses.length > 0 && (
             <div style={{ marginBottom: 18 }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                Key Clauses to Include
+                {t('templates.key_clauses')}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 {form.key_clauses.map((clause, i) => (
@@ -234,8 +238,8 @@ function GovFormModal({ form, onClose }) {
           }}>
             <Rocket size={14} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
             <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
-              See this form in context within KIP's{' '}
-              <a href="/startup" style={{ color: 'var(--blue-bright)', fontWeight: 600 }}>Startup Registration Roadmap</a>.
+              {t('templates.see_form_in_context')}{' '}
+              <a href="/startup" style={{ color: 'var(--blue-bright)', fontWeight: 600 }}>{t('templates.startup_registration_roadmap')}</a>.
             </p>
           </div>
         </div>
@@ -243,10 +247,10 @@ function GovFormModal({ form, onClose }) {
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
           <a href={form.url} target="_blank" rel="noopener noreferrer"
             className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '12px 0', fontSize: 14, textDecoration: 'none' }}>
-            <ExternalLink size={15} /> Visit {form.institution} to Access This Form
+            <ExternalLink size={15} /> {t('templates.visit_to_access_form', { institution: form.institution })}
           </a>
           <p style={{ fontSize: 10.5, color: 'var(--faint)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>
-            KIP links to official government sources — forms are not hosted here as they may change.
+            {t('templates.gov_link_disclaimer')}
           </p>
         </div>
       </div>
@@ -256,6 +260,7 @@ function GovFormModal({ form, onClose }) {
 
 /* ── NEW: Government / Startup form card ─────────────────────────────────── */
 function GovFormCard({ form, onOpen }) {
+  const { t } = useT()
   const colors = getColors(form.color)
   return (
     <div className="kip-card" style={{
@@ -275,7 +280,7 @@ function GovFormCard({ form, onOpen }) {
           </span>
         </div>
         <span style={{ fontSize: 9, fontFamily: 'Syne', fontWeight: 800, color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.25)', borderRadius: 20, padding: '2px 7px', flexShrink: 0 }}>
-          GOV
+          {t('templates.gov_badge')}
         </span>
       </div>
 
@@ -298,7 +303,7 @@ function GovFormCard({ form, onOpen }) {
           fontFamily: 'Syne', fontWeight: 600, fontSize: 12,
           color: form.color, background: colors.bg, border: `1px solid ${colors.border}`,
         }}>
-          <FileText size={12} /> View Form Details
+          <FileText size={12} /> {t('templates.view_form_details')}
         </button>
       </div>
     </div>
@@ -307,6 +312,7 @@ function GovFormCard({ form, onOpen }) {
 
 /* ── Template card (existing AI letters / business plans) ──────── */
 function TemplateCard({ template, plans, onGeneratePlan, generating }) {
+  const { t } = useT()
   const [showModal, setShowModal] = useState(false)
   const [planId,    setPlanId]    = useState(plans[0]?.id || '')
   const colors = getColors(template.color)
@@ -340,7 +346,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
           </div>
           {(isGen || isPlan) && (
             <span style={{ fontSize: 9, fontFamily: 'Syne', fontWeight: 800, color: 'var(--teal)', background: 'var(--teal-dim)', border: '1px solid rgba(0,240,200,0.25)', borderRadius: 20, padding: '2px 7px', flexShrink: 0 }}>
-              AI
+              {t('templates.ai_badge')}
             </span>
           )}
         </div>
@@ -359,7 +365,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
 
         {isPlan && plans.length > 0 && (
           <div>
-            <label style={{ display: 'block', fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 5 }}>Select business</label>
+            <label style={{ display: 'block', fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 5 }}>{t('templates.select_business')}</label>
             <select value={planId} onChange={e => setPlanId(e.target.value)} className="kip-input" style={{ fontSize: 12, padding: '8px 12px' }}>
               {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -374,7 +380,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
               fontFamily: 'Syne', fontWeight: 600, fontSize: 12,
               color: template.color, background: colors.bg, border: `1px solid ${colors.border}`,
             }}>
-              <ExternalLink size={12} /> Access Form
+              <ExternalLink size={12} /> {t('templates.access_form')}
             </a>
           )}
 
@@ -385,13 +391,13 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
               fontFamily: 'Syne', fontWeight: 600, fontSize: 12,
               color: template.color, background: colors.bg, border: `1px solid ${colors.border}`,
             }}>
-              <Sparkles size={12} /> Generate Letter
+              <Sparkles size={12} /> {t('templates.generate_letter')}
             </button>
           )}
 
           {isPlan && (
             plans.length === 0 ? (
-              <p style={{ fontSize: 11, color: 'var(--faint)', textAlign: 'center', margin: 0 }}>Start a business first</p>
+              <p style={{ fontSize: 11, color: 'var(--faint)', textAlign: 'center', margin: 0 }}>{t('templates.start_business_first')}</p>
             ) : (
               <button onClick={() => onGeneratePlan(parseInt(planId), template.id)} disabled={generating === template.id}
                 style={{
@@ -402,8 +408,8 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
                   border: 'none', opacity: generating && generating !== template.id ? 0.5 : 1,
                 }}>
                 {generating === template.id
-                  ? <><Loader2 size={12} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> Generating…</>
-                  : <><Download size={12} /> Download PDF</>
+                  ? <><Loader2 size={12} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> {t('templates.generating')}</>
+                  : <><Download size={12} /> {t('templates.download_pdf')}</>
                 }
               </button>
             )
@@ -416,6 +422,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
 
 /* ── Main page ─────────────────────────────────────── */
 export default function TemplatesPage() {
+  const { t } = useT()
   const [searchParams]      = useSearchParams()
   const initialFilter       = searchParams.get('filter')
   const [activeTab,  setActiveTab]  = useState(initialFilter === 'startup' ? 'startup' : 'all')
@@ -429,7 +436,7 @@ export default function TemplatesPage() {
   useEffect(() => {
     api.get('/templates/list')
       .then(r => { setTemplates(r.data.templates || []); setPlans(r.data.user_plans || []) })
-      .catch(() => toast.error('Could not load templates.'))
+      .catch(() => toast.error(t('templates.load_failed')))
       .finally(() => setLoading(false))
   }, [])
 
@@ -456,7 +463,7 @@ export default function TemplatesPage() {
     : filteredByTab
 
   const handleGeneratePlan = async (planId, templateId) => {
-    if (!planId) { toast.error('Select a business first.'); return }
+    if (!planId) { toast.error(t('templates.select_business_first')); return }
     setGenerating(templateId)
     try {
       const token = localStorage.getItem('kip_token') || localStorage.getItem('token') || localStorage.getItem('access_token')
@@ -471,8 +478,8 @@ export default function TemplatesPage() {
       const a    = document.createElement('a')
       a.href = url; a.download = 'KIP_BusinessPlan.pdf'; a.click()
       URL.revokeObjectURL(url)
-      toast.success('Business plan PDF downloaded!')
-    } catch { toast.error('PDF generation failed.') }
+      toast.success(t('templates.pdf_downloaded'))
+    } catch { toast.error(t('templates.pdf_generation_failed')) }
     finally { setGenerating(null) }
   }
 
@@ -486,10 +493,10 @@ export default function TemplatesPage() {
 
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 5 }}>
-            Templates & Documents
+            {t('templates.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-            Government forms, AI letters, business plans, and startup registration documents
+            {t('templates.subtitle')}
           </p>
         </div>
 
@@ -498,7 +505,7 @@ export default function TemplatesPage() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder='Search forms by name — e.g. "PACRA Form 2", "NAPSA", "loan letter"…'
+            placeholder={t('templates.search_placeholder')}
             className="kip-input"
             style={{ paddingLeft: 38, fontSize: 13 }}
           />
@@ -532,8 +539,8 @@ export default function TemplatesPage() {
                 marginBottom: -1,
               }}>
                 <Icon size={14} />
-                <span className="tab-label-full">{tab.label}</span>
-                <span className="tab-label-short" style={{ display: 'none' }}>{tab.short}</span>
+                <span className="tab-label-full">{t(tab.labelKey)}</span>
+                <span className="tab-label-short" style={{ display: 'none' }}>{t(tab.shortKey)}</span>
               </button>
             )
           })}
@@ -555,14 +562,14 @@ export default function TemplatesPage() {
             <Rocket size={18} style={{ color: 'var(--blue-bright)', flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 200 }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-                Official registration forms from PACRA, ZRA, NAPSA, NHIMA, WCFCB, NCC and ZDA
+                {t('templates.official_forms_banner')}
               </div>
               <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                See these forms in the context of a full registration roadmap on the Startup page.
+                {t('templates.official_forms_desc')}
               </div>
             </div>
             <a href="/startup" className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '8px 16px', flexShrink: 0, textDecoration: 'none' }}>
-              Go to Startup Guide
+              {t('templates.go_to_startup_guide')}
             </a>
           </div>
         )}
@@ -575,7 +582,7 @@ export default function TemplatesPage() {
           <div className="kip-card" style={{ padding: '50px 24px', textAlign: 'center' }}>
             <Search size={32} style={{ color: 'var(--faint)', margin: '0 auto 12px', display: 'block' }} />
             <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>
-              No documents found{query ? ` for "${query}"` : ''}.
+              {query ? t('templates.no_documents_found_query', { query }) : t('templates.no_documents_found')}
             </p>
           </div>
         ) : (
@@ -590,7 +597,7 @@ export default function TemplatesPage() {
 
         {!loading && plans.length === 0 && (activeTab === 'business_plans' || activeTab === 'all') && (
           <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(245,166,35,0.07)', border: '1px solid rgba(245,166,35,0.22)', fontSize: 13, color: 'var(--gold)' }}>
-            💡 Accept a business idea and click <strong>Start Business</strong> to unlock plan generation.
+            💡 {t('templates.accept_idea_hint_prefix')} <strong>{t('templates.accept_idea_hint_strong')}</strong> {t('templates.accept_idea_hint_suffix')}
           </div>
         )}
 

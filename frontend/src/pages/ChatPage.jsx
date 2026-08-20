@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Send, Plus, MessageSquare, Trash2, Zap } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
+import { useT } from '../context/TranslationContext'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 
 export default function ChatPage() {
+  const { t }    = useT()
   const { id }   = useParams()
   const navigate = useNavigate()
 
@@ -33,7 +35,7 @@ export default function ChatPage() {
     setLoadingMsgs(true)
     api.get(`/chat/conversations/${id}`)
       .then(r => { setActiveConv(r.data); setMessages(r.data.messages || []) })
-      .catch(() => toast.error('Could not load conversation.'))
+      .catch(() => toast.error(t('chat.error_load_conversation')))
       .finally(() => setLoadingMsgs(false))
   }, [id])
 
@@ -64,13 +66,13 @@ export default function ChatPage() {
 
   const deleteConv = async (e, convId) => {
     e.stopPropagation()
-    if (!confirm('Delete this conversation?')) return
+    if (!confirm(t('chat.confirm_delete_conversation'))) return
     try {
       await api.delete(`/chat/conversations/${convId}`)
       setConversations(prev => prev.filter(c => c.id !== convId))
       if (parseInt(id) === convId) { navigate('/chat'); setMessages([]) }
-      toast.success('Deleted.')
-    } catch { toast.error('Could not delete.') }
+      toast.success(t('chat.deleted'))
+    } catch { toast.error(t('chat.error_delete')) }
   }
 // ask
   const send = async () => {
@@ -99,10 +101,10 @@ export default function ChatPage() {
         ...prev.filter(m => !m._temp),
         { id: Date.now() + 1, role: 'assistant', content: data.reply },
       ])
-      if (data.idea_saved) toast.success('Business idea saved!', { icon: '💡', duration: 4000 })
+      if (data.idea_saved) toast.success(t('chat.idea_saved'), { icon: '💡', duration: 4000 })
     } catch {
       setMessages(prev => prev.filter(m => !m._temp))
-      toast.error('Send failed.')
+      toast.error(t('chat.send_failed'))
     } finally {
       setSending(false)
       setTimeout(() => inputRef.current?.focus(), 50)
@@ -110,10 +112,10 @@ export default function ChatPage() {
   }
 
   const SUGGESTIONS = [
-    "I have K5,000. What business can I start in Lusaka?",
-    "Show me how to calculate the Price Elasticity of Demand?",
-    "Best business for K50,000 with no skills in Ndola?",
-    "What is driving inflation in Zambia?",
+    t('chat.suggestion_1'),
+    t('chat.suggestion_2'),
+    t('chat.suggestion_3'),
+    t('chat.suggestion_4'),
   ]
 
   /* ── Conversation list ─────────────────────── */
@@ -130,9 +132,9 @@ export default function ChatPage() {
       overflow: 'hidden',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
-        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: '#fff' }}>Conversations</span>
+        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: '#fff' }}>{t('chat.conversations_heading')}</span>
         <button onClick={startNew} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 10px', borderRadius: 8, background: 'rgba(43,127,255,0.15)', border: '1px solid rgba(43,127,255,0.3)', color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 12 }}>
-          <Plus size={13} /> New
+          <Plus size={13} /> {t('chat.new_button')}
         </button>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
@@ -143,7 +145,7 @@ export default function ChatPage() {
         ) : conversations.length === 0 ? (
           <div style={{ padding: '24px 12px', textAlign: 'center' }}>
             <MessageSquare size={26} style={{ color: 'var(--faint)', margin: '0 auto 8px', display: 'block' }} />
-            <p style={{ fontSize: 12, color: 'var(--faint)', margin: 0 }}>No conversations yet</p>
+            <p style={{ fontSize: 12, color: 'var(--faint)', margin: 0 }}>{t('chat.no_conversations')}</p>
           </div>
         ) : conversations.map(conv => {
           const active = conv.id === parseInt(id)
@@ -158,7 +160,7 @@ export default function ChatPage() {
             }}>
               <MessageSquare size={13} style={{ color: active ? 'var(--blue-bright)' : 'var(--faint)', flexShrink: 0 }} />
               <span style={{ flex: 1, fontSize: 12.5, color: active ? '#fff' : 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: active ? 600 : 400 }}>
-                {conv.title || 'New conversation'}
+                {conv.title || t('chat.new_chat')}
               </span>
               <button onClick={e => deleteConv(e, conv.id)} style={{ background: 'none', border: 'none', color: 'var(--faint)', cursor: 'pointer', padding: 2, flexShrink: 0 }}>
                 <Trash2 size={11} />
@@ -187,7 +189,7 @@ export default function ChatPage() {
               <ConvList mobile />
               <div style={{ padding: '10px 14px' }}>
                 <button onClick={() => setShowConvList(false)} style={{ width: '100%', padding: '12px 0', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 600, fontSize: 14 }}>
-                  Close
+                  {t('common.close')}
                 </button>
               </div>
             </div>
@@ -202,15 +204,15 @@ export default function ChatPage() {
             <button onClick={() => setShowConvList(true)} className="kip-mobile-only"
               style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--muted)', cursor: 'pointer', fontSize: 12, fontFamily: 'Syne', fontWeight: 600 }}>
               <MessageSquare size={13} />
-              {conversations.length > 0 ? conversations.length : 'History'}
+              {conversations.length > 0 ? conversations.length : t('chat.history_label')}
             </button>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h1 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
-                {activeConv?.title || 'New Conversation'}
+                {activeConv?.title || t('chat.new_chat')}
               </h1>
             </div>
             <button onClick={startNew} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 10px', borderRadius: 8, background: 'rgba(43,127,255,0.12)', border: '1px solid rgba(43,127,255,0.25)', color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
-              <Plus size={13} /> New
+              <Plus size={13} /> {t('chat.new_button')}
             </button>
           </div>
 
@@ -226,8 +228,8 @@ export default function ChatPage() {
                   <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: 'var(--glow-blue)' }}>
                     <Zap size={24} color="#fff" />
                   </div>
-                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>Chat with KIP</h2>
-                  <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>Tell me your capital, location, and skills — I'll find the right business for you.</p>
+                  <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 6 }}>{t('chat.chat_with_kip')}</h2>
+                  <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>{t('chat.empty_state_desc')}</p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {SUGGESTIONS.map((s, i) => (
@@ -278,7 +280,7 @@ export default function ChatPage() {
                         {[0,1,2].map(i => (
                           <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ${i*0.2}s ease-in-out infinite` }} />
                         ))}
-                        <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>KIP is thinking…</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>{t('chat.thinking')}</span>
                       </div>
                     </div>
                   </div>
@@ -296,7 +298,7 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                placeholder="Ask Kip"
+                placeholder={t('chat.input_placeholder')}
                 rows={1}
                 className="kip-input"
                 style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}

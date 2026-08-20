@@ -1,0 +1,11 @@
+{
+  "appId": "com.kipzambia.app",
+  "appName": "KIP",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0B0F19"
+  }
+}

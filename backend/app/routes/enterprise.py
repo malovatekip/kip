@@ -22,20 +22,11 @@ from app.models.business_dashboard import BusinessLaunchPlan, DailyBusinessLog
 
 router = APIRouter()
 
-PREMIUM_TIERS = {'premium', 'enterprise', 'pro'}
-
-
 def _require_premium(user: User):
-    tier = (user.plan_tier or 'free').lower()
-    if tier not in PREMIUM_TIERS:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "error": "premium_required",
-                "message": "Multi-branch enterprise accounts require a Premium subscription. "
-                           "Upgrade your plan to unlock this feature.",
-            }
-        )
+    """KIP is free right now — multi-branch enterprise is open to everyone.
+    Kept as a no-op call site so re-introducing a paid tier later is a
+    one-line change here instead of touching every call site again."""
+    pass
 
 
 def _ensure_tables(db: Session):

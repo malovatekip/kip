@@ -10,6 +10,7 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import { EmptyStateIllustration } from '../components/KipIllustrations'
 import { useAuth } from '../hooks/useAuth'
+import { useT } from '../context/TranslationContext'
 import api from '../lib/api'
 
 /* ── Tiny sparkline ──────────────────────────────────── */
@@ -95,6 +96,7 @@ function StatCard({ label, value, sub, trend, color, icon: Icon, spark, children
 
 /* ── Business selector ───────────────────────────────── */
 function BusinessSelector({ plans, selected, onSelect }) {
+  const { t } = useT()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -117,7 +119,7 @@ function BusinessSelector({ plans, selected, onSelect }) {
       }}>
         <BarChart2 size={16} />
         <span style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {selected?.business_name || 'Select Business'}
+          {selected?.business_name || t('dashboard.select_business')}
         </span>
         <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
       </button>
@@ -151,7 +153,7 @@ function BusinessSelector({ plans, selected, onSelect }) {
             borderRadius: 9, textDecoration: 'none', fontSize: 12,
             color: 'var(--muted)', fontFamily: 'Plus Jakarta Sans',
           }}>
-            <Plus size={13} /> Start a new business
+            <Plus size={13} /> {t('dashboard.start_new_business')}
           </Link>
         </div>
       )}
@@ -161,6 +163,7 @@ function BusinessSelector({ plans, selected, onSelect }) {
 
 /* ── News row (with thumbnail) ────────────────────────── */
 function NewsRow({ item }) {
+  const { t } = useT()
   const [imgOk, setImgOk] = useState(true)
   const showImage = item.image_url && imgOk
   return (
@@ -170,7 +173,7 @@ function NewsRow({ item }) {
         <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5, fontWeight: 500, marginBottom: 2 }}>
           {item.headline || item.title}
         </div>
-        <div style={{ fontSize: 10, color: 'var(--faint)' }}>{item.source_name || item.source || 'KIP News'}</div>
+        <div style={{ fontSize: 10, color: 'var(--faint)' }}>{item.source_name || item.source || t('dashboard.kip_news_source')}</div>
       </div>
       {showImage && (
         <img
@@ -187,17 +190,18 @@ function NewsRow({ item }) {
 }
 
 /* ── Day labels ──────────────────────────────────────── */
-const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+const DAY_KEYS = ['dashboard.day_mon','dashboard.day_tue','dashboard.day_wed','dashboard.day_thu','dashboard.day_fri','dashboard.day_sat','dashboard.day_sun']
 
-function getDayLabel(dateStr) {
-  if (!dateStr) return ''
+function getDayIndex(dateStr) {
+  if (!dateStr) return null
   try {
-    return DAY_SHORT[new Date(dateStr).getDay() || 6]
-  } catch { return '' }
+    return new Date(dateStr).getDay() || 6
+  } catch { return null }
 }
 
 /* ── Main ────────────────────────────────────────────── */
 export default function DashboardPage() {
+  const { t }      = useT()
   const { user }   = useAuth()
   const navigate   = useNavigate()
   const [plans,    setPlans]    = useState([])
@@ -209,9 +213,10 @@ export default function DashboardPage() {
   const [logLoad,  setLogLoad]  = useState(false)
   const [coachingOpen, setCoachingOpen] = useState(false)
 
-  const firstName = user?.full_name?.split(' ')[0] || 'there'
+  const firstName = user?.full_name?.split(' ')[0] || t('dashboard.greeting_fallback_name')
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const greetingKey = hour < 12 ? 'dashboard.greeting_morning' : hour < 17 ? 'dashboard.greeting_afternoon' : 'dashboard.greeting_evening'
+  const greeting = t(greetingKey)
 
   // Load all plans + news + ideas on mount
   useEffect(() => {
@@ -264,7 +269,10 @@ export default function DashboardPage() {
   const revData   = last7.map(l => l.revenue  || 0)
   const profData  = last7.map(l => (l.revenue || 0) - (l.expenses || 0))
   const custData  = last7.map(l => l.customers || 0)
-  const dayLabels = last7.map(l => getDayLabel(l.created_at))
+  const dayLabels = last7.map(l => {
+    const idx = getDayIndex(l.created_at)
+    return idx === null ? '' : t(DAY_KEYS[idx])
+  })
 
   // Peak day
   const peakIdx  = revData.indexOf(Math.max(...revData))
@@ -311,17 +319,17 @@ export default function DashboardPage() {
               <EmptyStateIllustration width={180} height={144} />
             </div>
             <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
-              No businesses started yet
+              {t('dashboard.no_businesses_title')}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
-              Ask KIP for a business idea, accept it, then click Start Business to see your dashboard here.
+              {t('dashboard.no_businesses_desc')}
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
-                <Zap size={15} /> Ask KIP for an Idea
+                <Zap size={15} /> {t('dashboard.ask_kip_idea')}
               </Link>
               <Link to="/ideas" className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>
-                My Ideas
+                {t('dashboard.my_ideas')}
               </Link>
             </div>
           </div>
@@ -334,19 +342,19 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="kip-badge kip-badge-green">{selected.status?.toUpperCase() || 'ACTIVE'}</span>
+                  <span className="kip-badge kip-badge-green">{selected.status?.toUpperCase() || t('dashboard.status_active').toUpperCase()}</span>
                   <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)' }}>{selected.business_name}</span>
                 </div>
                 <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>
-                  {daysLogged} day{daysLogged !== 1 ? 's' : ''} logged · Last 7 days shown
+                  {daysLogged} {daysLogged !== 1 ? t('dashboard.days_plural') : t('dashboard.day_singular')} {t('dashboard.logged_summary_suffix')}
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <Link to={`/business/${selected.id}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 12, padding: '8px 14px' }}>
-                  <ClipboardList size={14} /> Log Today
+                  <ClipboardList size={14} /> {t('dashboard.log_today_short')}
                 </Link>
                 <Link to={`/business/${selected.id}`} className="kip-btn kip-btn-ghost" style={{ fontSize: 12, padding: '8px 14px' }}>
-                  Full Dashboard <ArrowRight size={13} />
+                  {t('dashboard.full_dashboard')} <ArrowRight size={13} />
                 </Link>
               </div>
             </div>
@@ -360,10 +368,10 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
                   <EmptyStateIllustration width={150} height={120} />
                 </div>
-                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', marginBottom: 6 }}>No logs yet for {selected.business_name}</h3>
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Log your first day to see revenue trends, profit charts, and customer data here.</p>
+                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', marginBottom: 6 }}>{t('dashboard.no_logs_title', { name: selected.business_name })}</h3>
+                <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{t('dashboard.no_logs_desc')}</p>
                 <Link to={`/business/${selected.id}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
-                  <ClipboardList size={14} /> Log Day 1
+                  <ClipboardList size={14} /> {t('dashboard.log_day_one')}
                 </Link>
               </div>
             ) : (
@@ -371,27 +379,27 @@ export default function DashboardPage() {
                 {/* ── Stat cards ── */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: 12, marginBottom: 16 }}>
 
-                  <StatCard label="Revenue (7 days)" value={`K${totalRev7.toLocaleString()}`}
+                  <StatCard label={t('dashboard.revenue_7days')} value={`K${totalRev7.toLocaleString()}`}
                     trend={revTrend} color="var(--green)" icon={DollarSign}
-                    sub={`K${(totalRev7/Math.max(last7.length,1)).toFixed(0)}/day avg`}
+                    sub={`K${(totalRev7/Math.max(last7.length,1)).toFixed(0)}${t('dashboard.per_day_avg')}`}
                     spark={<Sparkline data={revData} color="var(--green)" height={40} />}
                   />
 
-                  <StatCard label="Net Profit (7 days)" value={`K${totalProfit7.toLocaleString()}`}
+                  <StatCard label={t('dashboard.net_profit_7days')} value={`K${totalProfit7.toLocaleString()}`}
                     trend={revTrend} color={totalProfit7 >= 0 ? 'var(--gold-bright)' : 'var(--red)'} icon={TrendingUp}
-                    sub={`${margin}% margin`}
+                    sub={`${margin}${t('dashboard.margin_suffix')}`}
                     spark={<Sparkline data={profData} color={totalProfit7 >= 0 ? 'var(--gold)' : 'var(--red)'} height={40} />}
                   />
 
-                  <StatCard label="Customers (7 days)" value={totalCust7.toLocaleString()}
+                  <StatCard label={t('dashboard.customers_7days')} value={totalCust7.toLocaleString()}
                     trend={custTrend} color="var(--teal)" icon={Users}
-                    sub={`${(totalCust7/Math.max(last7.length,1)).toFixed(1)}/day avg`}
+                    sub={`${(totalCust7/Math.max(last7.length,1)).toFixed(1)}${t('dashboard.per_day_avg')}`}
                     spark={<Sparkline data={custData} color="var(--teal)" height={40} />}
                   />
 
-                  <StatCard label="Peak Day" value={peakDay}
+                  <StatCard label={t('dashboard.peak_day')} value={peakDay}
                     color="var(--blue-bright)" icon={Calendar}
-                    sub={`K${peakRev.toLocaleString()} best single day`}
+                    sub={`K${peakRev.toLocaleString()} ${t('dashboard.best_single_day')}`}
                   />
 
                 </div>
@@ -400,13 +408,13 @@ export default function DashboardPage() {
                 <div className="kip-card" style={{ padding: '18px 20px', marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                     <div>
-                      <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>Daily Revenue — Last 7 Days</div>
-                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>K per day</div>
+                      <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{t('dashboard.daily_revenue_chart_title')}</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{t('dashboard.k_per_day')}</div>
                     </div>
                     {revTrend !== 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, fontFamily: 'Syne', color: revTrend > 0 ? 'var(--green)' : 'var(--red)' }}>
                         {revTrend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                        {Math.abs(revTrend).toFixed(1)}% vs prev week
+                        {Math.abs(revTrend).toFixed(1)}% {t('dashboard.vs_prev_week')}
                       </div>
                     )}
                   </div>
@@ -425,7 +433,7 @@ export default function DashboardPage() {
                         <Zap size={14} color="#fff" />
                       </div>
                       <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-                        Latest KIP Coaching
+                        {t('dashboard.latest_coaching')}
                         <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400, marginLeft: 6 }}>
                           {logs[0].created_at ? new Date(logs[0].created_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short' }) : ''}
                         </span>
@@ -444,11 +452,11 @@ export default function DashboardPage() {
                           background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4,
                           fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: 'var(--blue-bright)',
                         }}>
-                          {coachingOpen ? 'Show less' : 'Read full coaching'}
+                          {coachingOpen ? t('dashboard.show_less') : t('dashboard.read_full_coaching')}
                         </button>
                       </div>
                     ) : (
-                      <p style={{ fontSize: 13, color: 'var(--muted)' }}>No coaching yet for the latest log.</p>
+                      <p style={{ fontSize: 13, color: 'var(--muted)' }}>{t('dashboard.no_coaching_latest')}</p>
                     )}
                   </div>
                 )}
@@ -467,8 +475,8 @@ export default function DashboardPage() {
           {ideas.length > 0 && (
             <div className="kip-card" style={{ padding: '16px 18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Recent Ideas</span>
-                <Link to="/ideas" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>View all</Link>
+                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{t('dashboard.recent_ideas')}</span>
+                <Link to="/ideas" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>{t('common.view_all')}</Link>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {ideas.slice(0, 3).map(idea => (
@@ -484,7 +492,7 @@ export default function DashboardPage() {
                       {idea.idea_name}
                     </span>
                     <span style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 600, color: idea.accepted ? 'var(--green)' : 'var(--muted)' }}>
-                      {idea.accepted ? 'Active' : 'Pending'}
+                      {idea.accepted ? t('dashboard.status_active') : t('dashboard.status_pending')}
                     </span>
                   </div>
                 ))}
@@ -496,8 +504,8 @@ export default function DashboardPage() {
           {news.length > 0 && (
             <div className="kip-card" style={{ padding: '16px 18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>Economic News</span>
-                <Link to="/news" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>See all</Link>
+                <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{t('dashboard.economic_news')}</span>
+                <Link to="/news" style={{ fontSize: 12, color: 'var(--blue-bright)', textDecoration: 'none', fontFamily: 'Syne', fontWeight: 600 }}>{t('dashboard.see_all')}</Link>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {news.slice(0, 3).map((item, i) => (
@@ -509,12 +517,12 @@ export default function DashboardPage() {
 
           {/* Quick actions */}
           <div className="kip-card" style={{ padding: '16px 18px' }}>
-            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 12 }}>Quick Actions</div>
+            <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 12 }}>{t('dashboard.quick_actions')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { to: '/chat',      label: 'Ask KIP for ideas',     icon: Zap,          color: 'var(--blue-bright)' },
-                { to: '/templates', label: 'Templates & documents',  icon: BarChart2,    color: 'var(--gold)'        },
-                { to: '/survey',    label: 'Submit area survey',     icon: MapPin,       color: 'var(--teal)'        },
+                { to: '/chat',      label: t('dashboard.action_ask_kip'),  icon: Zap,          color: 'var(--blue-bright)' },
+                { to: '/templates', label: t('dashboard.action_templates'), icon: BarChart2,    color: 'var(--gold)'        },
+                { to: '/survey',    label: t('dashboard.action_survey'),   icon: MapPin,       color: 'var(--teal)'        },
               ].map(({ to, label, icon: Icon, color }) => (
                 <Link key={to} to={to} style={{
                   display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',

@@ -10,43 +10,47 @@ import KipMarkdown from '../components/KipMarkdown'
 import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 /* ── Premium gate ────────────────────────────────────── */
 function PremiumGate() {
+  const { t } = useT()
+  const perks = [
+    'enterprise.perk_unlimited_branches',
+    'enterprise.perk_consolidated_dashboard',
+    'enterprise.perk_kip_analysis',
+    'enterprise.perk_manager_assignments',
+    'enterprise.perk_monthly_targets',
+    'enterprise.perk_email_notifications',
+  ]
   return (
     <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center', padding: '0 20px' }}>
       <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
         <Crown size={28} style={{ color: 'var(--gold)' }} />
       </div>
       <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 10 }}>
-        Enterprise Feature
+        {t('enterprise.premium_feature_title')}
       </h2>
       <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 24 }}>
-        Multi-branch enterprise accounts are available on the Premium plan. Manage multiple branches, track consolidated performance, and assign branch managers — all from one central dashboard.
+        {t('enterprise.premium_feature_desc')}
       </p>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, padding: '20px', marginBottom: 24, textAlign: 'left' }}>
-        <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--gold)', marginBottom: 12 }}>What you get with Premium:</div>
-        {[
-          'Unlimited branches under one enterprise',
-          'Consolidated revenue & profit dashboard',
-          'KIP analysis across all branches',
-          'Branch manager assignments',
-          'Set monthly targets per branch',
-          'Email notifications (coming soon)',
-        ].map(f => (
-          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--gold)', marginBottom: 12 }}>{t('enterprise.premium_perks_title')}</div>
+        {perks.map(key => (
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <CheckCircle size={13} style={{ color: 'var(--green)', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{f}</span>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{t(key)}</span>
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 13, color: 'var(--faint)' }}>Premium subscriptions launching 26th June 2026</div>
+      <div style={{ fontSize: 13, color: 'var(--faint)' }}>{t('enterprise.premium_launch_date')}</div>
     </div>
   )
 }
 
 /* ── Create enterprise modal ─────────────────────────── */
 function CreateEnterpriseModal({ onClose, onCreated }) {
+  const { t } = useT()
   const [form, setForm] = useState({ name: '', description: '', industry: '', headquarters: '' })
   const [loading, setLoading] = useState(false)
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -65,18 +69,18 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
 //   }
 
   const submit = async () => {
-    if (!form.name.trim()) { toast.error('Enter enterprise name.'); return }
+    if (!form.name.trim()) { toast.error(t('enterprise.enter_name_error')); return }
     setLoading(true)
     try {
       const { data } = await api.post('/enterprise/create', form)
-      toast.success('Enterprise created!')
+      toast.success(t('enterprise.created_success'))
       onCreated(data)
       onClose()
     } catch (err) {
       const errData = err.response?.data;
 
       // Safely drill down to find a string message
-      let errorMsg = 'Could not create enterprise.';
+      let errorMsg = t('enterprise.create_failed');
       if (errData?.detail?.message) {
         errorMsg = errData.detail.message;
       } else if (errData?.message) {
@@ -94,14 +98,14 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
       onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, width: '100%', maxWidth: 480, padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>Create Enterprise</h2>
+          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>{t('enterprise.create_enterprise_title')}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}><X size={19} /></button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { k: 'name',         l: 'Enterprise name *',   p: 'e.g. Maloba Holdings',            req: true  },
-            { k: 'industry',     l: 'Industry',            p: 'e.g. Retail, Hospitality, Food',  req: false },
-            { k: 'headquarters', l: 'Headquarters location',p: 'e.g. Lusaka CBD',                req: false },
+            { k: 'name',         l: t('enterprise.field_name'),          p: t('enterprise.field_name_placeholder'),         req: true  },
+            { k: 'industry',     l: t('enterprise.field_industry'),      p: t('enterprise.field_industry_placeholder'),     req: false },
+            { k: 'headquarters', l: t('enterprise.field_headquarters'),  p: t('enterprise.field_headquarters_placeholder'), req: false },
           ].map(({ k, l, p }) => (
             <div key={k}>
               <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{l}</label>
@@ -109,12 +113,12 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
             </div>
           ))}
           <div>
-            <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>Description</label>
+            <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('enterprise.field_description')}</label>
             <textarea value={form.description} onChange={e => set('description', e.target.value)}
-              placeholder="Brief description of the enterprise..." className="kip-input" rows={2} style={{ resize: 'none', fontSize: 13 }} />
+              placeholder={t('enterprise.field_description_placeholder')} className="kip-input" rows={2} style={{ resize: 'none', fontSize: 13 }} />
           </div>
           <button onClick={submit} disabled={loading} className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '12px 0', marginTop: 4 }}>
-            {loading ? <><Loader2 size={15} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> Creating…</> : <><Building2 size={15} /> Create Enterprise</>}
+            {loading ? <><Loader2 size={15} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> {t('enterprise.creating')}</> : <><Building2 size={15} /> {t('enterprise.create_enterprise_title')}</>}
           </button>
         </div>
       </div>
@@ -124,13 +128,14 @@ function CreateEnterpriseModal({ onClose, onCreated }) {
 
 /* ── Add branch modal ────────────────────────────────── */
 function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
+  const { t } = useT()
   const [form, setForm] = useState({ branch_name: '', location: '', specialty: '', manager_email: '', monthly_target: '' })
   const [loading, setLoading] = useState(false)
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const submit = async () => {
-    if (!form.branch_name.trim())  { toast.error('Enter branch name.'); return }
-    if (!form.manager_email.trim()){ toast.error('Enter manager email.'); return }
+    if (!form.branch_name.trim())  { toast.error(t('enterprise.enter_branch_name_error')); return }
+    if (!form.manager_email.trim()){ toast.error(t('enterprise.enter_manager_email_error')); return }
     setLoading(true)
     try {
       const { data } = await api.post('/enterprise/add-branch', {
@@ -147,7 +152,7 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
     } catch (err) {
       const errData = err.response?.data;
 
-      let errorMsg = 'Could not add branch.';
+      let errorMsg = t('enterprise.add_branch_failed');
       if (errData?.detail?.message) errorMsg = errData.detail.message;
       else if (errData?.message) errorMsg = errData.message;
       else if (typeof errData?.detail === 'string') errorMsg = errData.detail;
@@ -161,15 +166,15 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
       onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, width: '100%', maxWidth: 480, padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>Add Branch</h2>
+          <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>{t('enterprise.add_branch_title')}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}><X size={19} /></button>
         </div>
-        <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 18 }}>Adding a branch to <strong>{enterpriseName}</strong></p>
+        <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 18 }}>{t('enterprise.adding_branch_to')} <strong>{enterpriseName}</strong></p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { k: 'branch_name',   l: 'Branch name *',                    p: 'e.g. Kitwe Branch' },
-            { k: 'location',      l: 'Location',                         p: 'e.g. Riverside, Kitwe' },
-            { k: 'specialty',     l: 'Specialty / what this branch does', p: 'e.g. Electronics repair and accessories' },
+            { k: 'branch_name',   l: t('enterprise.field_branch_name'),  p: t('enterprise.field_branch_name_placeholder') },
+            { k: 'location',      l: t('enterprise.field_location'),     p: t('enterprise.field_location_placeholder') },
+            { k: 'specialty',     l: t('enterprise.field_specialty'),    p: t('enterprise.field_specialty_placeholder') },
           ].map(({ k, l, p }) => (
             <div key={k}>
               <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{l}</label>
@@ -178,14 +183,14 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
           ))}
           <div>
             <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>
-              Branch manager email *
-              <span style={{ color: 'var(--faint)', fontWeight: 400, marginLeft: 6 }}>must have a KIP account</span>
+              {t('enterprise.field_manager_email')}
+              <span style={{ color: 'var(--faint)', fontWeight: 400, marginLeft: 6 }}>{t('enterprise.field_manager_email_hint')}</span>
             </label>
             <input type="email" value={form.manager_email} onChange={e => set('manager_email', e.target.value)}
               placeholder="manager@example.com" className="kip-input" style={{ fontSize: 13 }} />
           </div>
           <div>
-            <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>Monthly revenue target (K)</label>
+            <label style={{ display: 'block', fontFamily: 'Syne', fontWeight: 600, fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('enterprise.field_monthly_target')}</label>
             <div style={{ position: 'relative' }}>
               <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--gold)', fontFamily: 'Syne', fontWeight: 700 }}>K</span>
               <input type="number" value={form.monthly_target} onChange={e => set('monthly_target', e.target.value)}
@@ -193,10 +198,10 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
             </div>
           </div>
           <div style={{ background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.2)', borderRadius: 10, padding: '10px 12px', fontSize: 12, color: 'var(--muted)' }}>
-            The branch manager will receive an in-app notification when they next log in to KIP.
+            {t('enterprise.manager_notification_note')}
           </div>
           <button onClick={submit} disabled={loading} className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '12px 0' }}>
-            {loading ? <><Loader2 size={15} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> Adding…</> : <><Plus size={15} /> Add Branch</>}
+            {loading ? <><Loader2 size={15} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> {t('enterprise.adding')}</> : <><Plus size={15} /> {t('enterprise.add_branch_title')}</>}
           </button>
         </div>
       </div>
@@ -206,6 +211,7 @@ function AddBranchModal({ enterpriseId, enterpriseName, onClose, onAdded }) {
 
 /* ── Branch card ─────────────────────────────────────── */
 function BranchCard({ branch, enterpriseId }) {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const profit  = branch.profit_7d || 0
   const revenue = branch.revenue_7d || 0
@@ -237,7 +243,7 @@ function BranchCard({ branch, enterpriseId }) {
             <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: profit >= 0 ? 'var(--green)' : 'var(--red)' }}>
               K{revenue.toLocaleString()}
             </div>
-            <div style={{ fontSize: 10, color: 'var(--muted)' }}>7-day revenue</div>
+            <div style={{ fontSize: 10, color: 'var(--muted)' }}>{t('enterprise.revenue_7d')}</div>
           </div>
           {expanded ? <ChevronUp size={16} style={{ color: 'var(--muted)' }} /> : <ChevronDown size={16} style={{ color: 'var(--muted)' }} />}
         </div>
@@ -247,10 +253,10 @@ function BranchCard({ branch, enterpriseId }) {
         <div style={{ padding: '0 18px 16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ paddingTop: 14, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(120px,1fr))', gap: 10, marginBottom: 14 }}>
             {[
-              { l: 'Revenue',   v: `K${revenue.toLocaleString()}`,              c: 'var(--green)'       },
-              { l: 'Profit',    v: `K${profit.toLocaleString()}`,               c: profit >= 0 ? 'var(--gold-bright)' : 'var(--red)' },
-              { l: 'Customers', v: (branch.customers_7d || 0).toLocaleString(), c: 'var(--teal)'        },
-              { l: 'Days logged',v: (branch.days_logged || 0).toString(),       c: 'var(--blue-bright)' },
+              { l: t('enterprise.stat_revenue'),    v: `K${revenue.toLocaleString()}`,              c: 'var(--green)'       },
+              { l: t('enterprise.stat_profit'),     v: `K${profit.toLocaleString()}`,               c: profit >= 0 ? 'var(--gold-bright)' : 'var(--red)' },
+              { l: t('enterprise.stat_customers'),  v: (branch.customers_7d || 0).toLocaleString(), c: 'var(--teal)'        },
+              { l: t('enterprise.stat_days_logged'),v: (branch.days_logged || 0).toString(),        c: 'var(--blue-bright)' },
             ].map(({ l, v, c }) => (
               <div key={l} style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px' }}>
                 <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 4 }}>{l}</div>
@@ -262,7 +268,7 @@ function BranchCard({ branch, enterpriseId }) {
           {pct && (
             <div style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                <span style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600 }}>Weekly target progress</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600 }}>{t('enterprise.weekly_target_progress')}</span>
                 <span style={{ fontSize: 11, color: 'var(--blue-bright)', fontFamily: 'Syne', fontWeight: 700 }}>{pct}%</span>
               </div>
               <div className="kip-progress">
@@ -279,7 +285,7 @@ function BranchCard({ branch, enterpriseId }) {
 
           {branch.plan_id && (
             <Link to={`/business/${branch.plan_id}`} className="kip-btn kip-btn-ghost" style={{ fontSize: 12, padding: '8px 14px', display: 'inline-flex' }}>
-              View Branch Dashboard <ArrowRight size={13} />
+              {t('enterprise.view_branch_dashboard')} <ArrowRight size={13} />
             </Link>
           )}
         </div>
@@ -290,6 +296,7 @@ function BranchCard({ branch, enterpriseId }) {
 
 /* ── Main Page ───────────────────────────────────────── */
 export default function EnterprisePage() {
+  const { t } = useT()
   const { user } = useAuth()
   const navigate = useNavigate()
   const [enterprises,    setEnterprises]    = useState([])
@@ -318,7 +325,7 @@ export default function EnterprisePage() {
     setAnalysis('')
     api.get(`/enterprise/enterprise/${selected.id}`)
       .then(r => setEnterpriseData(r.data))
-      .catch(() => toast.error('Could not load enterprise data.'))
+      .catch(() => toast.error(t('enterprise.load_data_failed')))
       .finally(() => setLoadingData(false))
   }, [selected?.id])
 
@@ -328,7 +335,7 @@ export default function EnterprisePage() {
     try {
       const { data } = await api.get(`/enterprise/enterprise/${selected.id}/kip-analysis`)
       setAnalysis(data.analysis)
-    } catch { toast.error('Analysis failed.') }
+    } catch { toast.error(t('enterprise.analysis_failed')) }
     finally { setLoadingAnalysis(false) }
   }
 
@@ -369,10 +376,10 @@ export default function EnterprisePage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <Crown size={16} style={{ color: 'var(--gold)' }} />
-              <span className="kip-badge kip-badge-gold">Enterprise</span>
+              <span className="kip-badge kip-badge-gold">{t('nav.enterprise')}</span>
             </div>
             <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 3 }}>
-              {selected?.name || 'Enterprise Dashboard'}
+              {selected?.name || t('enterprise.dashboard_title')}
             </h1>
             {selected?.headquarters && (
               <p style={{ fontSize: 12, color: 'var(--muted)' }}>
@@ -388,11 +395,11 @@ export default function EnterprisePage() {
               </select>
             )}
             <button onClick={() => setShowCreate(true)} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '8px 14px' }}>
-              <Plus size={14} /> New Enterprise
+              <Plus size={14} /> {t('enterprise.new_enterprise')}
             </button>
             {selected && (
               <button onClick={() => setShowAddBranch(true)} className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '8px 14px' }}>
-                <Plus size={14} /> Add Branch
+                <Plus size={14} /> {t('enterprise.add_branch_title')}
               </button>
             )}
           </div>
@@ -401,10 +408,10 @@ export default function EnterprisePage() {
         {enterprises.length === 0 && (
           <div className="kip-card" style={{ padding: '44px 24px', textAlign: 'center' }}>
             <Building2 size={44} style={{ color: 'var(--faint)', margin: '0 auto 14px', display: 'block' }} className="animate-float" />
-            <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>No enterprise yet</h2>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>Create your enterprise to start managing multiple branches from one central dashboard.</p>
+            <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>{t('enterprise.no_enterprise_title')}</h2>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>{t('enterprise.no_enterprise_desc')}</p>
             <button onClick={() => setShowCreate(true)} className="kip-btn kip-btn-primary" style={{ fontSize: 14 }}>
-              <Building2 size={15} /> Create Enterprise
+              <Building2 size={15} /> {t('enterprise.create_enterprise_title')}
             </button>
           </div>
         )}
@@ -414,10 +421,10 @@ export default function EnterprisePage() {
             {/* Consolidated stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: 12, marginBottom: 16 }}>
               {[
-                { l: 'Total Revenue (7d)',  v: `K${totalRevenue.toLocaleString()}`,   c: 'var(--green)'       },
-                { l: 'Total Profit (7d)',   v: `K${totalProfit.toLocaleString()}`,    c: totalProfit >= 0 ? 'var(--gold-bright)' : 'var(--red)' },
-                { l: 'Total Customers (7d)',v: totalCustomers.toLocaleString(),       c: 'var(--teal)'        },
-                { l: 'Active Branches',     v: branches.length.toString(),            c: 'var(--blue-bright)' },
+                { l: t('enterprise.stat_total_revenue'),   v: `K${totalRevenue.toLocaleString()}`,   c: 'var(--green)'       },
+                { l: t('enterprise.stat_total_profit'),    v: `K${totalProfit.toLocaleString()}`,    c: totalProfit >= 0 ? 'var(--gold-bright)' : 'var(--red)' },
+                { l: t('enterprise.stat_total_customers'), v: totalCustomers.toLocaleString(),       c: 'var(--teal)'        },
+                { l: t('enterprise.stat_active_branches'), v: branches.length.toString(),            c: 'var(--blue-bright)' },
               ].map(({ l, v, c }) => (
                 <div key={l} className="kip-card" style={{ padding: '14px 16px' }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 6 }}>{l}</div>
@@ -431,29 +438,29 @@ export default function EnterprisePage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: analysis ? 12 : 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Zap size={15} style={{ color: 'var(--gold-bright)' }} />
-                  <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>KIP Enterprise Analysis</span>
+                  <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{t('enterprise.kip_analysis_title')}</span>
                 </div>
                 <button onClick={runAnalysis} disabled={loadingAnalysis} className="kip-btn kip-btn-ghost" style={{ fontSize: 12, padding: '6px 12px' }}>
-                  {loadingAnalysis ? <><Loader2 size={12} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> Analysing…</> : <><Zap size={12} /> {analysis ? 'Refresh' : 'Analyse All Branches'}</>}
+                  {loadingAnalysis ? <><Loader2 size={12} style={{ animation: 'spinSlow 0.8s linear infinite' }} /> {t('enterprise.analysing')}</> : <><Zap size={12} /> {analysis ? t('common.refresh') : t('enterprise.analyse_all_branches')}</>}
                 </button>
               </div>
               {analysis && <KipMarkdown content={analysis} />}
               {!analysis && !loadingAnalysis && (
-                <p style={{ fontSize: 12, color: 'var(--faint)', marginTop: 8 }}>Click "Analyse All Branches" to get KIP's assessment of your enterprise performance.</p>
+                <p style={{ fontSize: 12, color: 'var(--faint)', marginTop: 8 }}>{t('enterprise.analysis_hint')}</p>
               )}
             </div>
 
             {/* Branches */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: 'var(--text)', marginBottom: 12 }}>
-                Branches ({branches.length})
+                {t('enterprise.branches_count', { count: branches.length })}
               </div>
               {branches.length === 0 ? (
                 <div className="kip-card" style={{ padding: '30px 24px', textAlign: 'center' }}>
                   <Plus size={32} style={{ color: 'var(--faint)', margin: '0 auto 10px', display: 'block' }} />
-                  <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14 }}>No branches yet. Add your first branch to get started.</p>
+                  <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14 }}>{t('enterprise.no_branches_desc')}</p>
                   <button onClick={() => setShowAddBranch(true)} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
-                    <Plus size={14} /> Add First Branch
+                    <Plus size={14} /> {t('enterprise.add_first_branch')}
                   </button>
                 </div>
               ) : (

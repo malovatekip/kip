@@ -1,7 +1,7 @@
 /**
  * LanguageToggle
  * ==============
- * Sidebar control to switch KIP between English, Bemba, and Nyanja.
+ * Sidebar control to switch KIP between English and Bemba.
  * Saves the preference to the user's account so it persists across devices.
  *
  * Place in Layout.jsx sidebar:
@@ -20,7 +20,6 @@ import toast from 'react-hot-toast'
 const LANGUAGES = [
   { code: 'en',  label: 'English',  native: 'English',   flag: '🇬🇧' },
   { code: 'bem', label: 'Bemba',    native: 'Icibemba',  flag: '🇿🇲' },
-  { code: 'ny',  label: 'Nyanja',   native: 'Chinyanja', flag: '🇿🇲' },
 ]
 
 export default function LanguageToggle({ compact = false }) {

@@ -1,0 +1,27 @@
+# Render blueprint for the KIP backend.
+# Deploy: Render dashboard → New + → Blueprint → point at this repo.
+# (Or: New + → Web Service → root dir `backend`, Render auto-detects the Dockerfile —
+#  this file just makes the same config reproducible/versioned.)
+#
+# Secrets (ANTHROPIC_API_KEY, SECRET_KEY, DATABASE_URL) are NOT set here —
+# add them in the Render dashboard under this service's Environment tab.
+services:
+  - type: web
+    name: kip-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      # Set these in the Render dashboard (Environment tab), not here:
+      - key: SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

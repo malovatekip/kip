@@ -7,9 +7,11 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 // ── Badge card ────────────────────────────────────────────────────────────────
 function BadgeCard({ badge }) {
+  const { t } = useT()
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
@@ -23,7 +25,7 @@ function BadgeCard({ badge }) {
           {badge.name}
         </div>
         <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-          Score: {badge.score}% · {new Date(badge.earned_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {t('learn.score')}: {badge.score}% · {new Date(badge.earned_at).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short', year: 'numeric' })}
         </div>
       </div>
     </div>
@@ -32,6 +34,7 @@ function BadgeCard({ badge }) {
 
 // ── Course card ────────────────────────────────────────────────────────────────
 function CourseCard({ course, onSelect }) {
+  const { t } = useT()
   const pct = course.progress_pct || 0
   return (
     <div onClick={() => onSelect(course)}
@@ -69,15 +72,15 @@ function CourseCard({ course, onSelect }) {
           {course.difficulty}
         </span>
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-          ~{course.estimated_mins} mins
+          ~{course.estimated_mins} {t('learn.mins_suffix')}
         </span>
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-          {course.lessons_completed}/{course.lesson_count} lessons
+          {course.lessons_completed}/{course.lesson_count} {t('learn.lessons_suffix')}
         </span>
         {course.assessment_score !== null && (
           <span style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700,
             color: course.assessment_score >= 70 ? 'var(--green)' : 'var(--gold)' }}>
-            Assessment: {course.assessment_score}%
+            {t('learn.assessment_label')}: {course.assessment_score}%
           </span>
         )}
       </div>
@@ -94,10 +97,10 @@ function CourseCard({ course, onSelect }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-          {pct === 0 ? 'Not started' : pct === 100 ? 'All lessons done' : `${pct}% through lessons`}
+          {pct === 0 ? t('learn.not_started') : pct === 100 ? t('learn.all_lessons_done') : t('learn.pct_through_lessons', { pct })}
         </span>
         <span style={{ fontSize: 11, color: 'var(--blue-bright)', fontFamily: 'Syne', fontWeight: 600 }}>
-          {course.badge_earned ? `${course.badge_icon} Badge earned` : pct === 0 ? 'Start →' : 'Continue →'}
+          {course.badge_earned ? `${course.badge_icon} ${t('learn.badge_earned')}` : pct === 0 ? `${t('common.start')} →` : `${t('learn.continue_course')} →`}
         </span>
       </div>
     </div>
@@ -106,19 +109,20 @@ function CourseCard({ course, onSelect }) {
 
 // ── Lesson view ────────────────────────────────────────────────────────────────
 function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onBack }) {
+  const { t } = useT()
   const [quizAnswer,  setQuizAnswer]  = useState(null)
   const [quizResult,  setQuizResult]  = useState(null)
   const [completing,  setCompleting]  = useState(false)
   const [expanded,    setExpanded]    = useState(true)
 
   const checkQuiz = () => {
-    if (quizAnswer === null) { toast.error('Select an answer first.'); return }
+    if (quizAnswer === null) { toast.error(t('learn.error_select_answer')); return }
     const correct = quizAnswer === lesson.quiz.correct
     setQuizResult({ correct, explanation: lesson.quiz.explanation })
   }
 
   const handleComplete = async () => {
-    if (lesson.quiz && !quizResult) { toast.error('Complete the quiz first.'); return }
+    if (lesson.quiz && !quizResult) { toast.error(t('learn.error_complete_quiz')); return }
     setCompleting(true)
     try {
       await api.post('/learn/complete-lesson', {
@@ -126,7 +130,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
         lesson_id: lesson.id,
       })
       onComplete()
-    } catch { toast.error('Could not save progress.') }
+    } catch { toast.error(t('learn.error_save_progress')) }
     finally   { setCompleting(false) }
   }
 
@@ -139,7 +143,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
         </button>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>
-            {course.title} · Lesson {lessonIndex + 1} of {totalLessons}
+            {course.title} · {t('learn.lesson_of', { index: lessonIndex + 1, total: totalLessons })}
           </div>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)' }}>
             {lesson.title}
@@ -166,7 +170,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
       {lesson.quiz && (
         <div style={{ border: `1px solid ${quizResult ? (quizResult.correct ? 'rgba(26,224,110,0.4)' : 'rgba(232,62,38,0.4)') : 'var(--border)'}`, borderRadius: 14, padding: '18px 20px', marginBottom: 14, background: 'var(--card)' }}>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 14 }}>
-            Quick Check
+            {t('learn.quick_check')}
           </div>
           <p style={{ fontSize: 13, color: 'var(--text)', marginBottom: 12, lineHeight: 1.6 }}>
             {lesson.quiz.question}
@@ -201,7 +205,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
           </div>
           {!quizResult && (
             <button onClick={checkQuiz} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '8px 16px' }}>
-              Check Answer
+              {t('learn.check_answer')}
             </button>
           )}
           {quizResult && (
@@ -210,7 +214,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
               border: `1px solid ${quizResult.correct ? 'rgba(26,224,110,0.3)' : 'rgba(232,151,62,0.3)'}` }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
                 color: quizResult.correct ? 'var(--green)' : 'var(--gold)', marginBottom: 4 }}>
-                {quizResult.correct ? '✓ Correct!' : '✗ Not quite'}
+                {quizResult.correct ? `✓ ${t('learn.correct')}` : `✗ ${t('learn.incorrect')}`}
               </div>
               <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
                 {quizResult.explanation}
@@ -224,7 +228,7 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
         style={{ width: '100%', padding: '13px 0', fontSize: 14 }}>
         {completing
           ? <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} />
-          : <>{lessonIndex + 1 === totalLessons ? 'Complete Lessons → Take Assessment' : 'Next Lesson'} <ChevronRight size={16} /></>
+          : <>{lessonIndex + 1 === totalLessons ? t('learn.complete_lessons_cta') : t('learn.next_lesson')} <ChevronRight size={16} /></>
         }
       </button>
     </div>
@@ -233,13 +237,14 @@ function LessonView({ course, lesson, lessonIndex, totalLessons, onComplete, onB
 
 // ── Assessment view ────────────────────────────────────────────────────────────
 function AssessmentView({ course, questions, onSubmit, onBack }) {
+  const { t } = useT()
   const [answers,    setAnswers]    = useState(Array(questions.length).fill(null))
   const [submitting, setSubmitting] = useState(false)
 
   const allAnswered = answers.every(a => a !== null)
 
   const handleSubmit = async () => {
-    if (!allAnswered) { toast.error(`Answer all ${questions.length} questions first.`); return }
+    if (!allAnswered) { toast.error(t('learn.error_answer_all', { count: questions.length })); return }
     setSubmitting(true)
     try {
       const { data } = await api.post('/learn/submit-assessment', {
@@ -247,7 +252,7 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
         answers,
       })
       onSubmit(data)
-    } catch { toast.error('Submission failed. Try again.') }
+    } catch { toast.error(t('learn.error_submission_failed')) }
     finally   { setSubmitting(false) }
   }
 
@@ -259,16 +264,16 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
         </button>
         <div>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)' }}>
-            Final Assessment
+            {t('learn.assessment_title')}
           </div>
           <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-            {course.title} · Score 70%+ to earn your badge
+            {course.title} · {t('learn.score_to_earn_badge')}
           </div>
         </div>
       </div>
 
       <div style={{ padding: '12px 16px', background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.25)', borderRadius: 12, marginBottom: 18, fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-        <strong style={{ color: 'var(--text)' }}>Assessment.</strong> Answer all {questions.length} questions honestly. You need <strong style={{ color: 'var(--blue-bright)' }}>70%</strong> to earn your badge.
+        <strong style={{ color: 'var(--text)' }}>{t('learn.assessment_note_prefix')}</strong> {t('learn.assessment_note_body', { count: questions.length })} <strong style={{ color: 'var(--blue-bright)' }}>70%</strong> {t('learn.assessment_note_suffix')}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18 }}>
@@ -308,14 +313,14 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
       </div>
 
       <div style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginBottom: 12 }}>
-        {answers.filter(a => a !== null).length}/{questions.length} answered
+        {answers.filter(a => a !== null).length}/{questions.length} {t('learn.questions_answered')}
       </div>
 
       <button onClick={handleSubmit} disabled={submitting || !allAnswered}
         className="kip-btn kip-btn-primary" style={{ width: '100%', padding: '13px 0', fontSize: 14, opacity: !allAnswered ? 0.6 : 1 }}>
         {submitting
           ? <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} />
-          : <><Zap size={15} /> Submit Assessment</>
+          : <><Zap size={15} /> {t('learn.submit_assessment')}</>
         }
       </button>
     </div>
@@ -324,6 +329,7 @@ function AssessmentView({ course, questions, onSubmit, onBack }) {
 
 // ── Result view ──────────────────────────────────────────────────────────────── design
 function ResultView({ result, course, onRetry, onBack }) {
+  const { t } = useT()
   const [showAll, setShowAll] = useState(false)
   return (
     <div>
@@ -343,11 +349,11 @@ function ResultView({ result, course, onRetry, onBack }) {
           {result.score}%
         </div>
         <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: 'var(--text)', marginBottom: 6 }}>
-          {result.passed ? `Badge Earned: ${result.badge_earned?.name}` : 'Not passed yet'}
+          {result.passed ? t('learn.badge_earned_colon', { name: result.badge_earned?.name }) : t('learn.not_passed_yet')}
         </div>
         <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>{result.message}</p>
         <div style={{ fontSize: 12, color: 'var(--faint)', marginTop: 8 }}>
-          {result.correct} of {result.total} correct · Need {Math.ceil(result.total * 0.7)} to pass
+          {t('learn.correct_of_total', { correct: result.correct, total: result.total, need: Math.ceil(result.total * 0.7) })}
         </div>
       </div>
 
@@ -356,7 +362,7 @@ function ResultView({ result, course, onRetry, onBack }) {
         style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none',
           fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', cursor: 'pointer', marginBottom: 12 }}>
         {showAll ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-        {showAll ? 'Hide' : 'Review'} answers
+        {showAll ? t('learn.hide_answers') : t('learn.review_answers')}
       </button>
 
       {showAll && (
@@ -375,8 +381,8 @@ function ResultView({ result, course, onRetry, onBack }) {
               </div>
               {!r.correct && (
                 <div style={{ fontSize: 12, color: 'var(--muted)', paddingLeft: 20 }}>
-                  Your answer: <span style={{ color: 'var(--red)' }}>{r.your_answer}</span>
-                  {' · '}Correct: <span style={{ color: 'var(--green)' }}>{r.correct_answer}</span>
+                  {t('learn.your_answer')}: <span style={{ color: 'var(--red)' }}>{r.your_answer}</span>
+                  {' · '}{t('learn.correct_short')}: <span style={{ color: 'var(--green)' }}>{r.correct_answer}</span>
                 </div>
               )}
               {r.explanation && (
@@ -392,11 +398,11 @@ function ResultView({ result, course, onRetry, onBack }) {
       <div style={{ display: 'flex', gap: 10 }}>
         {!result.passed && (
           <button onClick={onRetry} className="kip-btn kip-btn-primary" style={{ flex: 1, fontSize: 13 }}>
-            <RotateCcw size={14} /> Try Again
+            <RotateCcw size={14} /> {t('common.retry')}
           </button>
         )}
         <button onClick={onBack} className="kip-btn kip-btn-ghost" style={{ flex: 1, fontSize: 13 }}>
-          <BookOpen size={14} /> {result.passed ? 'Back to Courses' : 'Review Lessons'}
+          <BookOpen size={14} /> {result.passed ? t('learn.back_to_courses') : t('learn.review_lessons')}
         </button>
       </div>
     </div>
@@ -405,6 +411,7 @@ function ResultView({ result, course, onRetry, onBack }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function LearnPage() {
+  const { t } = useT()
   const [courses,      setCourses]      = useState([])
   const [badges,       setBadges]       = useState([])
   const [selected,     setSelected]     = useState(null)   // current course
@@ -443,7 +450,7 @@ export default function LearnPage() {
         setResult(null)
       })
       .catch(() => {
-        toast.error('Could not load course lessons.')
+        toast.error(t('learn.error_load_course'))
       })
       .finally(() => {
         setLoading(false)
@@ -560,10 +567,10 @@ export default function LearnPage() {
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(43,127,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <BookOpen size={18} style={{ color: 'var(--blue-bright)' }} />
                 </div>
-                <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', margin: 0 }}>KIP Learn</h1>
+                <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', margin: 0 }}>{t('learn.title')}</h1>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 600 }}>
-                Interactive courses built on the Bank of Zambia's FinScope 2025 framework. Learn financial literacy, financial health, and entrepreneurship — earn badges when you score 70%+.
+                {t('learn.page_desc')}
               </p>
             </div>
 
@@ -571,7 +578,7 @@ export default function LearnPage() {
             {badges.length > 0 && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                  Your Badges ({badges.length})
+                  {t('learn.your_badges')} ({badges.length})
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 10 }}>
                   {badges.map(b => <BadgeCard key={b.name} badge={b} />)}
@@ -601,7 +608,7 @@ export default function LearnPage() {
                 <ArrowLeft size={18} />
               </button>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--muted)' }}>KIP Learn</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)' }}>{t('learn.title')}</div>
                 <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)' }}>{selected.title}</div>
               </div>
             </div>
@@ -609,7 +616,7 @@ export default function LearnPage() {
             {/* Lesson list */}
             <div className="kip-card" style={{ padding: '18px 20px', marginBottom: 14 }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 14 }}>
-                Lessons
+                {t('learn.lessons_header')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {selected.lessons?.map((lesson, i) => {
@@ -638,7 +645,7 @@ export default function LearnPage() {
                           color: done ? 'var(--green)' : current ? 'var(--blue-bright)' : 'var(--faint)' }}>
                           {lesson.title}
                         </div>
-                        {lesson.quiz && <div style={{ fontSize: 10, color: 'var(--faint)' }}>Includes quiz</div>}
+                        {lesson.quiz && <div style={{ fontSize: 10, color: 'var(--faint)' }}>{t('learn.includes_quiz')}</div>}
                       </div>
                       {(done || current) && <ChevronRight size={14} style={{ color: 'var(--muted)', flexShrink: 0 }} />}
                     </button>
@@ -652,12 +659,12 @@ export default function LearnPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                 <div>
                   <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)', marginBottom: 3 }}>
-                    Final Assessment · {selected.badge_icon} {selected.badge_name} Badge
+                    {t('learn.assessment_title')} · {selected.badge_icon} {selected.badge_name} {t('learn.badge_word')}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)' }}>
                     {selected.assessment_score !== null
-                      ? `Last score: ${selected.assessment_score}% · ${selected.badge_earned ? 'Badge earned!' : 'Try again to pass'}`
-                      : `Score 70%+ to earn your badge · ${COURSE_ASSESSMENT_QS[selected.id]?.length || 0} questions`
+                      ? `${t('learn.last_score', { score: selected.assessment_score })} · ${selected.badge_earned ? t('learn.badge_earned_exclaim') : t('learn.try_again_to_pass')}`
+                      : `${t('learn.score_to_earn_badge')} · ${t('learn.questions_count_suffix', { count: COURSE_ASSESSMENT_QS[selected.id]?.length || 0 })}`
                     }
                   </div>
                 </div>
@@ -665,7 +672,7 @@ export default function LearnPage() {
                   onClick={() => setView('assessment')}
                   disabled={selected.lessons_completed < 1}
                   className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '9px 16px', opacity: selected.lessons_completed < 1 ? 0.5 : 1 }}>
-                  {selected.badge_earned ? <><RotateCcw size={13} /> Retake</> : <><Trophy size={13} /> Take Assessment</>}
+                  {selected.badge_earned ? <><RotateCcw size={13} /> {t('learn.retake')}</> : <><Trophy size={13} /> {t('learn.take_assessment')}</>}
                 </button>
               </div>
             </div>

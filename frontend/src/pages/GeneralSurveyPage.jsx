@@ -7,6 +7,7 @@ import {
 import Layout from '../components/Layout'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 function FL({ label, hint }) {
   return (
@@ -58,6 +59,7 @@ function Section({ title, icon: Icon, color, children }) {
 }
 
 export default function GeneralSurveyPage() {
+  const { t } = useT()
   const [saved,   setSaved]   = useState(false)
   const [saving,  setSaving]  = useState(false)
   const [prev,    setPrev]    = useState([])
@@ -81,7 +83,7 @@ export default function GeneralSurveyPage() {
   }, [])
 
   const handleSave = async () => {
-    if (!d.location.trim()) { toast.error('Please enter the location.'); return }
+    if (!d.location.trim()) { toast.error(t('general_survey.location_required')); return }
     setSaving(true)
     try {
       const payload = { ...d }
@@ -94,8 +96,8 @@ export default function GeneralSurveyPage() {
       }
       await api.post('/templates/general-survey', payload)
       setSaved(true)
-      toast.success('Survey saved! Thank you for improving KIP.')
-    } catch { toast.error('Save failed.') }
+      toast.success(t('general_survey.save_success'))
+    } catch { toast.error(t('general_survey.save_failed')) }
     finally { setSaving(false) }
   }
 
@@ -106,7 +108,7 @@ export default function GeneralSurveyPage() {
         {/* Header */}
         <div style={{ marginBottom: 22 }}>
           <Link to="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', textDecoration: 'none', marginBottom: 12 }}>
-            <ArrowLeft size={14} /> Templates
+            <ArrowLeft size={14} /> {t('nav.templates')}
           </Link>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(0,212,177,0.12)', border: '1px solid rgba(0,212,177,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -114,10 +116,10 @@ export default function GeneralSurveyPage() {
             </div>
             <div>
               <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 4 }}>
-                Community Market Intelligence
+                {t('general_survey.title')}
               </h1>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 520 }}>
-                Share what you know about your area. This intelligence improves KIP's business recommendations for all Zambian entrepreneurs — including you.
+                {t('general_survey.subtitle')}
               </p>
             </div>
           </div>
@@ -127,14 +129,14 @@ export default function GeneralSurveyPage() {
         <div style={{ display: 'flex', gap: 10, background: 'rgba(0,212,177,0.06)', border: '1px solid rgba(0,212,177,0.2)', borderRadius: 12, padding: '12px 16px', marginBottom: 24 }}>
           <Info size={15} style={{ color: 'var(--teal)', flexShrink: 0, marginTop: 1 }} />
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
-            You don't need to know every answer. Fill in what you know. Multiple users contribute to the same area — KIP aggregates the data to build a richer picture over time.
+            {t('general_survey.info_banner')}
           </p>
         </div>
 
         {/* Previous submissions */}
         {prev.length > 0 && (
           <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Your previous contributions:</p>
+            <p style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>{t('general_survey.previous_contributions')}</p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {prev.map(p => (
                 <button key={p.location} onClick={() => { setD(prev => ({ ...prev, ...p })); setSaved(false) }}
@@ -148,23 +150,23 @@ export default function GeneralSurveyPage() {
 
         {/* ── Location ── */}
         <div style={{ marginBottom: 20 }}>
-          <FL label="Location you're surveying" hint="be as specific as possible" />
+          <FL label={t('general_survey.location_label')} hint={t('general_survey.location_hint')} />
           <input value={d.location} onChange={e => set('location', e.target.value)}
-            placeholder='e.g. "Chawama, Lusaka" or "Riverside, Kitwe" or "Chipata CBD"'
+            placeholder={t('general_survey.location_placeholder')}
             className="kip-input" style={{ fontSize: 13 }} />
         </div>
 
         {/* 1. Business Count */}
-        <Section title="1. Business Landscape" icon={Building2} color="var(--blue-bright)">
+        <Section title={t('general_survey.section_business_landscape')} icon={Building2} color="var(--blue-bright)">
           <p style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 14 }}>
-            How many businesses of each type operate in this area? (rough estimate)
+            {t('general_survey.business_count_desc')}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             {[
-              { k: 'food_businesses_count', l: 'Food & restaurants', p: 'e.g. 15' },
-              { k: 'retail_count',          l: 'Retail / general shops', p: 'e.g. 30' },
-              { k: 'services_count',        l: 'Services (salons, repairs, etc.)', p: 'e.g. 20' },
-              { k: 'manufacturing_count',   l: 'Manufacturing / production', p: 'e.g. 3' },
+              { k: 'food_businesses_count', l: t('general_survey.field_food_businesses'), p: 'e.g. 15' },
+              { k: 'retail_count',          l: t('general_survey.field_retail'), p: 'e.g. 30' },
+              { k: 'services_count',        l: t('general_survey.field_services'), p: 'e.g. 20' },
+              { k: 'manufacturing_count',   l: t('general_survey.field_manufacturing'), p: 'e.g. 3' },
             ].map(({ k, l, p }) => (
               <div key={k}>
                 <FL label={l} />
@@ -174,74 +176,74 @@ export default function GeneralSurveyPage() {
           </div>
 
           <div style={{ marginTop: 10 }}>
-            <FL label="What businesses are missing from this area?" hint="gaps you've noticed" />
+            <FL label={t('general_survey.field_missing_businesses')} hint={t('general_survey.field_missing_businesses_hint')} />
             <input value={d.missing_services} onChange={e => set('missing_services', e.target.value)}
-              placeholder='e.g. "No pharmacy, no electronics repair, no fresh meat butcher"'
+              placeholder={t('general_survey.field_missing_businesses_placeholder')}
               className="kip-input" style={{ fontSize: 13, marginBottom: 10 }} />
 
-            <FL label="What sectors are oversaturated?" hint="too much competition" />
+            <FL label={t('general_survey.field_oversaturated')} hint={t('general_survey.field_oversaturated_hint')} />
             <input value={d.oversaturated_sectors} onChange={e => set('oversaturated_sectors', e.target.value)}
-              placeholder='e.g. "Barbershops, kapenta sellers, phone accessories"'
+              placeholder={t('general_survey.field_oversaturated_placeholder')}
               className="kip-input" style={{ fontSize: 13 }} />
           </div>
         </Section>
 
         {/* 2. Infrastructure */}
-        <Section title="2. Infrastructure" icon={Zap} color="var(--gold)">
-          <FL label="Electricity" />
+        <Section title={t('general_survey.section_infrastructure')} icon={Zap} color="var(--gold)">
+          <FL label={t('general_survey.field_electricity')} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {[{v:'reliable',l:'Reliable'},{v:'load_shedding',l:'Load shedding'},{v:'unreliable',l:'Very unreliable'}].map(o =>
+            {[{v:'reliable',l:t('general_survey.opt_reliable')},{v:'load_shedding',l:t('general_survey.opt_load_shedding')},{v:'unreliable',l:t('general_survey.opt_very_unreliable')}].map(o =>
               <Opt key={o.v} value={o.v} selected={d.power_reliability===o.v} label={o.l} color="var(--gold)" onClick={v => set('power_reliability', v)} />
             )}
           </div>
 
-          <FL label="Internet / Mobile data" />
+          <FL label={t('general_survey.field_internet')} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {[{v:'good',l:'Good (4G)'},{v:'fair',l:'Fair (3G)'},{v:'poor',l:'Poor'},{v:'none',l:'None'}].map(o =>
+            {[{v:'good',l:t('general_survey.opt_good_4g')},{v:'fair',l:t('general_survey.opt_fair_3g')},{v:'poor',l:t('general_survey.opt_poor')},{v:'none',l:t('common.no')}].map(o =>
               <Opt key={o.v} value={o.v} selected={d.internet_access===o.v} label={o.l} color="var(--gold)" onClick={v => set('internet_access', v)} />
             )}
           </div>
 
-          <FL label="Roads" />
+          <FL label={t('general_survey.field_roads')} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {[{v:'tarmac',l:'Tarmac'},{v:'gravel',l:'Gravel'},{v:'dirt',l:'Dirt/Poor'}].map(o =>
+            {[{v:'tarmac',l:t('general_survey.opt_tarmac')},{v:'gravel',l:t('general_survey.opt_gravel')},{v:'dirt',l:t('general_survey.opt_dirt_poor')}].map(o =>
               <Opt key={o.v} value={o.v} selected={d.road_quality===o.v} label={o.l} color="var(--gold)" onClick={v => set('road_quality', v)} />
             )}
           </div>
         </Section>
 
         {/* 3. Economy */}
-        <Section title="3. Local Economy" icon={TrendingUp} color="var(--teal)">
-          <FL label="Income level — most residents" />
+        <Section title={t('general_survey.section_local_economy')} icon={TrendingUp} color="var(--teal)">
+          <FL label={t('general_survey.field_income_level')} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {[{v:'low',l:'Low income'},{v:'lower_mid',l:'Lower middle'},{v:'middle',l:'Middle class'},{v:'upper',l:'Upper / High'}].map(o =>
+            {[{v:'low',l:t('general_survey.opt_low_income')},{v:'lower_mid',l:t('general_survey.opt_lower_middle')},{v:'middle',l:t('general_survey.opt_middle_class')},{v:'upper',l:t('general_survey.opt_upper_high')}].map(o =>
               <Opt key={o.v} value={o.v} selected={d.dominant_income_level===o.v} label={o.l} color="var(--teal)" onClick={v => set('dominant_income_level', v)} />
             )}
           </div>
 
-          <FL label="Primary source of income in the area" />
+          <FL label={t('general_survey.field_primary_income')} />
           <input value={d.primary_employment} onChange={e => set('primary_employment', e.target.value)}
-            placeholder='e.g. "Mining workers, government employees, informal trade"'
+            placeholder={t('general_survey.field_primary_income_placeholder')}
             className="kip-input" style={{ fontSize: 13, marginBottom: 10 }} />
 
-          <FL label="Market days" hint="if there are scheduled market days" />
+          <FL label={t('general_survey.field_market_days')} hint={t('general_survey.field_market_days_hint')} />
           <input value={d.market_days} onChange={e => set('market_days', e.target.value)}
-            placeholder='e.g. "Every Friday" or "Permanent market"'
+            placeholder={t('general_survey.field_market_days_placeholder')}
             className="kip-input" style={{ fontSize: 13 }} />
         </Section>
 
         {/* 4. Price Intelligence */}
-        <Section title="4. Local Prices (ZMW)" icon={ShoppingBag} color="var(--green)">
+        <Section title={t('general_survey.section_local_prices')} icon={ShoppingBag} color="var(--green)">
           <p style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 14 }}>
-            Current prices in this specific area — helps KIP give accurate cost estimates.
+            {t('general_survey.local_prices_desc')}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {[
-              { k: 'avg_mealie_meal_price', l: 'Break Fast meali meal (25kg)', p: '300' },
-              { k: 'avg_bread_price',         l: 'Bread loaf (large)', p: '35' },
-              { k: 'avg_cooking_oil_2_5',      l: 'Cooking Oil (2.5L)', p: '200' },
-              { k: 'avg_shop_rent_pm',        l: 'Shop/stall rent (per month)', p: '2000' },
-              { k: 'avg_labor_wage_pm',       l: 'Unskilled worker wage (per month)', p: '2500' },
+              { k: 'avg_mealie_meal_price', l: t('general_survey.field_mealie_meal'), p: '300' },
+              { k: 'avg_bread_price',         l: t('general_survey.field_bread'), p: '35' },
+              { k: 'avg_cooking_oil_2_5',      l: t('general_survey.field_cooking_oil'), p: '200' },
+              { k: 'avg_shop_rent_pm',        l: t('general_survey.field_shop_rent'), p: '2000' },
+              { k: 'avg_labor_wage_pm',       l: t('general_survey.field_labor_wage'), p: '2500' },
             ].map(({ k, l, p }) => (
               <div key={k}>
                 <FL label={l} />
@@ -252,15 +254,15 @@ export default function GeneralSurveyPage() {
         </Section>
 
         {/* 5. Other */}
-        <Section title="5. Additional Observations" icon={MapPin} color="var(--muted)">
-          <FL label="Seasonal patterns" hint="months when business is slow or busy" />
+        <Section title={t('general_survey.section_additional_observations')} icon={MapPin} color="var(--muted)">
+          <FL label={t('general_survey.field_seasonal_patterns')} hint={t('general_survey.field_seasonal_patterns_hint')} />
           <input value={d.seasonal_notes} onChange={e => set('seasonal_notes', e.target.value)}
-            placeholder='e.g. "December–January very busy, June–August slow"'
+            placeholder={t('general_survey.field_seasonal_patterns_placeholder')}
             className="kip-input" style={{ fontSize: 13, marginBottom: 10 }} />
 
-          <FL label="Anything else KIP should know about this area" />
+          <FL label={t('general_survey.field_anything_else')} />
           <textarea value={d.other_observations} onChange={e => set('other_observations', e.target.value)}
-            placeholder='e.g. "New shopping mall opening in 2025" or "Mining operations closing next year will affect income levels"'
+            placeholder={t('general_survey.field_anything_else_placeholder')}
             className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
         </Section>
 
@@ -278,15 +280,15 @@ export default function GeneralSurveyPage() {
           opacity: saving ? 0.7 : 1, transition: 'all 0.25s ease',
         }}>
           {saving
-            ? <><div style={{ width: 17, height: 17, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> Saving…</>
+            ? <><div style={{ width: 17, height: 17, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> {t('general_survey.saving')}</>
             : saved
-              ? <><CheckCircle size={17} /> Saved — Thank you for improving KIP!</>
-              : <><Send size={17} /> Submit Market Intelligence</>
+              ? <><CheckCircle size={17} /> {t('general_survey.saved_thank_you')}</>
+              : <><Send size={17} /> {t('general_survey.submit_button')}</>
           }
         </button>
 
         <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--faint)', marginTop: 10 }}>
-          Your data is anonymous and used only to improve business recommendations in your area.
+          {t('general_survey.anonymous_note')}
         </p>
       </div>
     </Layout>

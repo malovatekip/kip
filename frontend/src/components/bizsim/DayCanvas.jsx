@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react'
 import { C } from './theme'
 import GameAudio from './GameAudio'
+import { useT } from '../../context/TranslationContext'
 
 // Fixed internal coordinate system (Part 5: 375x260px mobile-first canvas)
 const W = 375
@@ -48,10 +49,13 @@ function buildPlan(dayResult) {
 function laneY(lane) { return GROUND_Y - 14 - (lane % 3) * 16 }
 
 export default function DayCanvas({ dayResult, rivalName, onComplete }) {
+  const { t } = useT()
   const canvasRef = useRef(null)
   const animRef   = useRef(null)
   const startRef  = useRef(null)
   const dotsPlan  = useMemo(() => buildPlan(dayResult), [dayResult])
+  const shopLabel = t('bizsim.your_shop_canvas')
+  const rivalFallbackLabel = t('bizsim.rival_fallback')
 
   const eventText = `${dayResult?.event?.label || ''} ${dayResult?.event?.id || ''} ${dayResult?.adjustments?.event?.label || ''}`.toLowerCase()
   const isLoadShedding = /shed|power outage|blackout/.test(eventText)
@@ -131,7 +135,7 @@ export default function DayCanvas({ dayResult, rivalName, onComplete }) {
       ctx.fillStyle = C.white
       ctx.font = '700 10px Syne, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('YOUR SHOP', SHOP_X + SHOP_W / 2, SHOP_Y + 16)
+      ctx.fillText(shopLabel, SHOP_X + SHOP_W / 2, SHOP_Y + 16)
     }
 
     function drawRivalShop() {
@@ -146,7 +150,7 @@ export default function DayCanvas({ dayResult, rivalName, onComplete }) {
       ctx.fillStyle = C.red
       ctx.font = '700 8px Syne, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText((rivalName || 'RIVAL').toUpperCase().slice(0, 12), RIVAL_X + RIVAL_W / 2, RIVAL_Y + RIVAL_H / 2)
+      ctx.fillText((rivalName || rivalFallbackLabel).toUpperCase().slice(0, 12), RIVAL_X + RIVAL_W / 2, RIVAL_Y + RIVAL_H / 2)
     }
 
     function drawGround() {
@@ -303,7 +307,7 @@ export default function DayCanvas({ dayResult, rivalName, onComplete }) {
       ro.disconnect()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dotsPlan])
+  }, [dotsPlan, shopLabel, rivalFallbackLabel])
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px' }}>
@@ -314,7 +318,7 @@ export default function DayCanvas({ dayResult, rivalName, onComplete }) {
         <canvas ref={canvasRef} style={{ width: '100%', display: 'block' }} />
       </div>
       <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11, color: C.muted, fontFamily: 'Syne', fontWeight: 600 }}>
-        Day {dayResult?.day} unfolding…
+        {t('bizsim.day_unfolding', { day: dayResult?.day })}
       </div>
     </div>
   )

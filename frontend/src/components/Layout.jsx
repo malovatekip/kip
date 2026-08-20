@@ -12,29 +12,30 @@ import {
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
-import TrialBanner from './TrialBanner'
 import OfflineBanner from './OfflineBanner'
 import LanguageToggle from './LanguageToggle'
-
-const NAV = [
-  { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard'   },
-  { to: '/chat',       icon: MessageSquare,   label: 'Chat'     },
-  { to: '/news',       icon: Newspaper,       label: 'News'        },
-  { to: '/ideas',      icon: Lightbulb,       label: 'Ideas'    },
-  { to: '/startup',    icon: Rocket,          label: 'Startup'     },
-  { to: '/templates',  icon: FileText,        label: 'Forms'   },
-  { to: '/learn', icon: BookOpen, label: 'Learn' },
-  { to: '/bizsim', icon: Gamepad2, label: 'Simulate' },
-//   { to: '/capital', icon: DollarSign, label: 'Funding' },
-  { to: '/market', icon: BarChart2, label: 'Market Intel' },
-  { to: '/survey',     icon: Globe,           label: 'Survey'      },
-  { to: '/enterprise', icon: Crown,           label: 'Enterprise', premium: true },
-  { to: '/settings',   icon: Settings,        label: 'Settings'    },
-]
+import { useT } from '../context/TranslationContext'
 
 export default function Layout({ children }) {
+  const { t }                     = useT()
   const { user, logout }          = useAuth()
   const { theme, toggle, isDark } = useTheme()
+
+  const NAV = [
+    { to: '/dashboard',  icon: LayoutDashboard, label: t('nav.dashboard')   },
+    { to: '/chat',       icon: MessageSquare,   label: t('nav.chat')       },
+    { to: '/news',       icon: Newspaper,       label: t('nav.news')       },
+    { to: '/ideas',      icon: Lightbulb,       label: t('nav.ideas')      },
+    { to: '/startup',    icon: Rocket,          label: t('nav.startup')    },
+    { to: '/templates',  icon: FileText,        label: t('nav.templates')  },
+    { to: '/learn',      icon: BookOpen,        label: t('nav.learn')      },
+    { to: '/bizsim',     icon: Gamepad2,        label: t('nav.bizsim')     },
+    // { to: '/capital', icon: DollarSign, label: t('nav.capital') },
+    { to: '/market',     icon: BarChart2,       label: t('nav.market')     },
+    { to: '/survey',     icon: Globe,           label: t('nav.survey')     },
+    { to: '/enterprise', icon: Crown,           label: t('nav.enterprise'), premium: true },
+    { to: '/settings',   icon: Settings,        label: t('nav.settings')   },
+  ]
   const location                  = useLocation()
   const navigate                  = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -59,7 +60,7 @@ export default function Layout({ children }) {
   const BOTTOM_NAV = NAV.filter(n => !n.premium).slice(0, 5)
 
   const ThemeBtn = ({ size = 17 }) => (
-    <button onClick={toggle} className="theme-toggle" title={isDark ? 'Light mode' : 'Dark mode'}>
+    <button onClick={toggle} className="theme-toggle" title={isDark ? t('layout.light_mode') : t('layout.dark_mode')}>
       {isDark ? <Sun size={size} /> : <Moon size={size} />}
     </button>
   )
@@ -92,7 +93,7 @@ export default function Layout({ children }) {
             {label}
             {premium && !isPremium && (
               <span style={{ fontSize: 8, fontFamily: 'Syne', fontWeight: 700, color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.3)', borderRadius: 20, padding: '1px 5px' }}>
-                PRO
+                {t('layout.pro_badge')}
               </span>
             )}
           </span>
@@ -121,7 +122,7 @@ export default function Layout({ children }) {
           {!collapsed && (
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, letterSpacing: '0.1em', color: 'var(--text)' }}>KIP</div>
-              <div style={{ fontSize: 9, color: 'var(--muted)' }}>Business Intelligence</div>
+              <div style={{ fontSize: 9, color: 'var(--muted)' }}>{t('layout.brand_tagline')}</div>
 
             </div>
           )}
@@ -131,7 +132,7 @@ export default function Layout({ children }) {
         <nav style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }}>
           {NAV.map(({ to, icon, label, premium }) => (
             <div key={to} style={{ position: 'relative' }} className="group">
-              <NavLink to={to} icon={icon} label={label} badge={label === 'News' ? alerts : 0} premium={premium} />
+              <NavLink to={to} icon={icon} label={label} badge={to === '/news' ? alerts : 0} premium={premium} />
               {collapsed && <span className="kip-tooltip">{label}</span>}
             </div>
           ))}
@@ -141,9 +142,9 @@ export default function Layout({ children }) {
           {collapsed && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}><ThemeBtn /></div>}
           <div className="relative group" style={{ marginBottom: 4 }}>
             <button onClick={() => setCollapsed(c => !c)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', justifyContent: collapsed ? 'center' : 'flex-start', fontSize: 12 }}>
-              {collapsed ? <PanelLeftOpen size={17} /> : <><PanelLeftClose size={17} /><span>Collapse</span></>}
+              {collapsed ? <PanelLeftOpen size={17} /> : <><PanelLeftClose size={17} /><span>{t('layout.collapse')}</span></>}
             </button>
-            {collapsed && <span className="kip-tooltip">Expand</span>}
+            {collapsed && <span className="kip-tooltip">{t('layout.expand')}</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: collapsed ? 0 : 8, padding: '6px 10px', justifyContent: collapsed ? 'center' : 'flex-start' }}>
             <div style={{ width: 30, height: 30, borderRadius: 9, background: 'linear-gradient(135deg,var(--blue),var(--blue-mid))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', fontFamily: 'Syne', flexShrink: 0 }}>
@@ -152,16 +153,16 @@ export default function Layout({ children }) {
             {!collapsed && (
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name}</div>
-                <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'capitalize' }}>{user?.plan_tier || 'free'} plan</div>
+                <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'capitalize' }}>{user?.plan_tier || 'free'} {t('layout.plan_label')}</div>
               </div>
             )}
           </div>
           <div className="relative group">
             <button onClick={() => { logout(); navigate('/') }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', justifyContent: collapsed ? 'center' : 'flex-start', fontSize: 12 }}>
               <LogOut size={17} />
-              {!collapsed && <span>Sign Out</span>}
+              {!collapsed && <span>{t('nav.logout')}</span>}
             </button>
-            {collapsed && <span className="kip-tooltip">Sign Out</span>}
+            {collapsed && <span className="kip-tooltip">{t('nav.logout')}</span>}
           </div>
         </div>
       </aside>
@@ -179,7 +180,7 @@ export default function Layout({ children }) {
             <img src={KIP_LOGO} alt="KIP" style={{ width: 34, height: 34, borderRadius: 9, objectFit: 'cover' }} className="animate-logo-glow" />
             <div>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>KIP</div>
-              <div style={{ fontSize: 9, color: 'var(--muted)' }}>Business Intelligence</div>
+              <div style={{ fontSize: 9, color: 'var(--muted)' }}>{t('layout.brand_tagline')}</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -189,7 +190,7 @@ export default function Layout({ children }) {
         </div>
         <nav style={{ flex: 1, overflowY: 'auto', padding: '10px 10px' }}>
           {NAV.map(({ to, icon, label, premium }) => (
-            <NavLink key={to} to={to} icon={icon} label={label} badge={label === 'News' ? alerts : 0} mobile premium={premium} />
+            <NavLink key={to} to={to} icon={icon} label={label} badge={to === '/news' ? alerts : 0} mobile premium={premium} />
           ))}
         </nav>
         <div style={{ padding: '12px 10px', borderTop: '1px solid var(--border)' }}>
@@ -199,11 +200,11 @@ export default function Layout({ children }) {
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{user?.full_name}</div>
-              <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'capitalize' }}>{user?.plan_tier || 'free'} plan</div>
+              <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'capitalize' }}>{user?.plan_tier || 'free'} {t('layout.plan_label')}</div>
             </div>
           </div>
           <button onClick={() => { logout(); navigate('/') }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 10, background: 'rgba(224,38,62,0.08)', border: '1px solid rgba(224,38,62,0.2)', color: 'var(--red)', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans', fontWeight: 600, fontSize: 13 }}>
-            <LogOut size={16} /> Sign Out
+            <LogOut size={16} /> {t('nav.logout')}
           </button>
         </div>
       </aside>
@@ -234,7 +235,6 @@ export default function Layout({ children }) {
           </div>
         </header>
 
-{/*         <TrialBanner /> */}
 {/*         <OfflineBanner /> */}
         <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 64px)', WebkitOverflowScrolling: 'touch' }} className="kip-main-content">
           {children}
@@ -243,7 +243,7 @@ export default function Layout({ children }) {
         <nav className="kip-bottom-nav" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingBottom: 'env(safe-area-inset-bottom,0px)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', zIndex: 50, minHeight: 56 }}>
           {BOTTOM_NAV.map(({ to, icon: Icon, label }) => {
             const active = location.pathname.startsWith(to)
-            const badge  = label === 'News' ? alerts : 0
+            const badge  = to === '/news' ? alerts : 0
             return (
               <Link key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '8px 10px', textDecoration: 'none', flex: 1, position: 'relative' }}>
                 <div style={{ position: 'relative' }}>

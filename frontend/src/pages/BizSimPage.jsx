@@ -16,6 +16,7 @@ import StorySetup from '../components/bizsim/StorySetup'
 import EventCard from '../components/bizsim/EventCard'
 import DayCanvas from '../components/bizsim/DayCanvas'
 import GameAudio from '../components/bizsim/GameAudio'
+import { useT } from '../context/TranslationContext'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt  = n => `K${(n || 0).toLocaleString('en-ZM', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -93,6 +94,7 @@ function HealthBar({ value, max, colour, label }) {
 
 // ── Decision Panel ────────────────────────────────────────────────────────────
 function DecisionPanel({ session, biz, onSubmit, loading }) {
+  const { t } = useT()
   const cogs      = biz?.cogs_per_unit || 100
   const maxBuy    = Math.floor((session?.cash || 0) / cogs)
   const [stock,       setStock]       = useState(Math.min(5, maxBuy))
@@ -126,9 +128,9 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       setNegHistory(h => [...h, { sender: 'supplier', text: data.reply }])
       if (data.deal_confirmed && data.negotiated_cogs) {
         setDealLocked(data.negotiated_cogs)
-        toast.success(`Deal locked! Buying at K${data.negotiated_cogs}/unit today — saving K${data.savings_per_unit} per unit`)
+        toast.success(t('bizsim.deal_locked_toast', { price: data.negotiated_cogs, savings: data.savings_per_unit }))
       }
-    } catch { toast.error('Negotiation failed.') }
+    } catch { toast.error(t('bizsim.negotiation_failed')) }
     finally { setNegLoad(false) }
   }
 
@@ -143,11 +145,11 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       setCustHistory(h => [...h, { sender: 'customer', text: data.reply, name: data.customer_name }])
       if (data.outcome === 'sale') {
         setCustOutcome({ type: 'sale', price: data.agreed_price, name: data.customer_name })
-        toast.success(`${data.customer_name} agreed to buy at K${data.agreed_price}!`)
+        toast.success(t('bizsim.customer_agreed_toast', { name: data.customer_name, price: data.agreed_price }))
       } else if (data.outcome === 'walked') {
         setCustOutcome({ type: 'walked', reason: data.walked_reason, name: data.customer_name })
       }
-    } catch { toast.error('Customer chat failed.') }
+    } catch { toast.error(t('bizsim.customer_chat_failed')) }
     finally { setCustLoad(false) }
   }
 
@@ -156,11 +158,11 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       {/* Phase badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ padding: '3px 12px', borderRadius: 20, background: `${C.blue}20`, border: `1px solid ${C.blue}40`, fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: C.blue }}>
-          Phase {session?.phase} · Day {session?.day}
+          {t('bizsim.phase')} {session?.phase} · {t('bizsim.day_of')} {session?.day}
         </div>
         {session?.phase >= 2 && (
           <div style={{ fontSize: 11, color: C.muted }}>
-            Fixed cost today: {fmt(biz?.fixed_cost_ph2 || 0)}
+            {t('bizsim.fixed_cost_today')}: {fmt(biz?.fixed_cost_ph2 || 0)}
           </div>
         )}
       </div>
@@ -168,24 +170,24 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       {/* Stock slider */}
       <GlowCard colour={C.teal} style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>BUY STOCK</span>
+          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>{t('bizsim.buy_stock').toUpperCase()}</span>
           <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: C.teal }}>
-            {stock} units · {fmt(stock * effectiveCogs)}
-            {dealLocked && <span style={{ color: C.green, fontSize: 11, marginLeft: 6 }}>(deal price)</span>}
+            {stock} {t('bizsim.units_suffix')} · {fmt(stock * effectiveCogs)}
+            {dealLocked && <span style={{ color: C.green, fontSize: 11, marginLeft: 6 }}>({t('bizsim.deal_price_suffix')})</span>}
           </span>
         </div>
         <input type="range" min={0} max={Math.min(30, maxBuy)} value={stock}
           onChange={e => setStock(+e.target.value)} style={{ width: '100%', accentColor: C.teal }} />
         <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>
-          Cash: {fmt(session?.cash || 0)} · Max: {maxBuy} units
-          {dealLocked && <span style={{ color: C.green }}> · Negotiated: {fmt(dealLocked)}/unit (was {fmt(cogs)})</span>}
+          {t('bizsim.cash_label')}: {fmt(session?.cash || 0)} · {t('bizsim.max_label')}: {maxBuy} {t('bizsim.units_suffix')}
+          {dealLocked && <span style={{ color: C.green }}> · {t('bizsim.negotiated_was', { negotiated: fmt(dealLocked), original: fmt(cogs) })}</span>}
         </div>
       </GlowCard>
 
       {/* Price setter */}
       <GlowCard colour={priceColour} style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>SELLING PRICE</span>
+          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>{t('bizsim.selling_price').toUpperCase()}</span>
           <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: priceColour }}>
             {fmt(price)}
           </span>
@@ -196,14 +198,14 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
           style={{ width: '100%', accentColor: priceColour }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
           <span style={{ fontSize: 11, color: priceColour, fontWeight: 600 }}>
-            {price < effectiveCogs ? '⚠️ Below cost — instant loss on every unit!'
-             : price < effectiveCogs * 1.15 ? '😐 Thin margin — busy but barely profitable'
-             : price < effectiveCogs * 1.5 ? '✅ Healthy margin — good balance'
-             : price < effectiveCogs * 2.2 ? '💰 Premium — fewer customers, bigger margin'
-             : '🚫 Overpriced — customers will go to competitors'}
+            {price < effectiveCogs ? t('bizsim.price_below_cost')
+             : price < effectiveCogs * 1.15 ? t('bizsim.price_thin_margin')
+             : price < effectiveCogs * 1.5 ? t('bizsim.price_healthy_margin')
+             : price < effectiveCogs * 2.2 ? t('bizsim.price_premium_margin')
+             : t('bizsim.price_overpriced')}
           </span>
           <span style={{ fontSize: 11, color: C.muted }}>
-            Margin: <span style={{ color: priceColour, fontWeight: 700 }}>{pct(margin)}</span>
+            {t('bizsim.margin_label')}: <span style={{ color: priceColour, fontWeight: 700 }}>{pct(margin)}</span>
           </span>
         </div>
       </GlowCard>
@@ -211,14 +213,14 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       {/* Marketing */}
       <GlowCard colour={C.purple} style={{ padding: '14px 16px' }}>
         <div style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted, marginBottom: 10 }}>
-          MARKETING SPEND
+          {t('bizsim.marketing').toUpperCase()}
         </div>
         <div className="bizsim-mkt-buttons">
           {[
-            { v: 0,   l: 'None',   sub: 'Word of mouth' },
-            { v: 50,  l: 'K50',    sub: '+20% customers' },
-            { v: 150, l: 'K150',   sub: '+40% customers' },
-            { v: 300, l: 'K300',   sub: '+65% customers' },
+            { v: 0,   l: t('bizsim.marketing_none'), sub: t('bizsim.marketing_word_of_mouth') },
+            { v: 50,  l: 'K50',    sub: t('bizsim.marketing_customers_pct', { pct: 20 }) },
+            { v: 150, l: 'K150',   sub: t('bizsim.marketing_customers_pct', { pct: 40 }) },
+            { v: 300, l: 'K300',   sub: t('bizsim.marketing_customers_pct', { pct: 65 }) },
           ].map(({ v, l, sub }) => (
             <button key={v} onClick={() => setMkt(v)} style={{
               padding: '8px 4px', borderRadius: 10, cursor: 'pointer',
@@ -238,13 +240,13 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
       {/* Save */}
       <GlowCard colour={C.blue} style={{ padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>SAVE FROM REVENUE</span>
+          <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>{t('bizsim.save_from_revenue').toUpperCase()}</span>
           <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: C.blue }}>{fmt(save)}</span>
         </div>
         <input type="range" min={0} max={500} step={25} value={save}
           onChange={e => setSave(+e.target.value)} style={{ width: '100%', accentColor: C.blue }} />
         <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>
-          Saving before spending is Pillar 1 of the FinScope financial health framework
+          {t('bizsim.save_tip')}
         </div>
       </GlowCard>
 
@@ -259,12 +261,12 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
           <MessageSquare size={14} />
-          {dealLocked ? `✓ Deal locked — K${dealLocked}/unit today` : 'Negotiate with supplier'}
+          {dealLocked ? t('bizsim.deal_locked_unit', { price: dealLocked }) : t('bizsim.negotiate_supplier')}
         </button>
         {negOpen && (
           <div style={{ marginTop: 8, padding: '12px 14px', background: '#0F2040', borderRadius: 12, border: `1px solid ${C.gold}20` }}>
             <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>
-              Standard price: {fmt(cogs)}/unit · Try to get a discount for bulk orders
+              {t('bizsim.standard_price')}: {fmt(cogs)}/unit · {t('bizsim.negotiate_hint')}
             </div>
             {/* Conversation history */}
             <div style={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
@@ -277,33 +279,33 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
                   maxWidth: '85%',
                 }}>
                   <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 10, color: m.sender === 'player' ? C.blue : C.gold, marginRight: 6 }}>
-                    {m.sender === 'player' ? 'You' : 'Supplier'}
+                    {m.sender === 'player' ? t('chat.you') : t('bizsim.supplier_label')}
                   </span>
                   <span style={{ color: C.white }}>{m.text}</span>
                 </div>
               ))}
               {negLoading && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.muted }}>
-                  <Loader2 size={12} style={{ animation: 'spin 0.8s linear infinite' }} /> Supplier is thinking…
+                  <Loader2 size={12} style={{ animation: 'spin 0.8s linear infinite' }} /> {t('bizsim.supplier_thinking')}
                 </div>
               )}
             </div>
             {dealLocked ? (
               <div style={{ padding: '8px 12px', background: `${C.green}15`, borderRadius: 9, border: `1px solid ${C.green}30`, fontSize: 12, color: C.green, fontFamily: 'Syne', fontWeight: 700 }}>
-                ✓ Deal agreed — K{dealLocked}/unit. This applies to today's stock purchase.
+                {t('bizsim.deal_agreed', { price: dealLocked })}
               </div>
             ) : (
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={negMsg} onChange={e => setNegMsg(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleNegotiate()}
-                  placeholder="I'll buy 20 units if you reduce to K90…"
+                  placeholder={t('bizsim.negotiate_placeholder')}
                   style={{ flex: 1, padding: '9px 12px', borderRadius: 9, background: C.card, border: `1px solid ${C.border}`, color: C.white, fontSize: 12, outline: 'none' }} />
                 <button onClick={handleNegotiate} disabled={negLoading} style={{
                   padding: '9px 14px', borderRadius: 9, cursor: 'pointer',
                   background: C.gold, border: 'none', color: C.navy,
                   fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
                 }}>
-                  {negLoading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : 'Send'}
+                  {negLoading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : t('chat.send')}
                 </button>
               </div>
             )}
@@ -319,17 +321,17 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
           color: C.teal, fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
-          <Users size={14} /> Talk to a customer
+          <Users size={14} /> {t('bizsim.talk_customer')}
         </button>
         {custOpen && (
           <div style={{ marginTop: 8, padding: '12px 14px', background: '#0A1E2E', borderRadius: 12, border: `1px solid ${C.teal}20` }}>
             {/* Customer type selector */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
               {[
-                { v: 'regular',     l: '👤 Regular',     c: C.teal   },
-                { v: 'market_mama', l: '👩 Market Mama', c: C.orange },
-                { v: 'student',     l: '🎓 Student',     c: C.purple },
-                { v: 'salaried',    l: '💼 Worker',      c: C.blue   },
+                { v: 'regular',     l: t('bizsim.customer_regular'),     c: C.teal   },
+                { v: 'market_mama', l: t('bizsim.customer_market_mama'), c: C.orange },
+                { v: 'student',     l: t('bizsim.customer_student'),     c: C.purple },
+                { v: 'salaried',    l: t('bizsim.customer_worker'),      c: C.blue   },
               ].map(({ v, l, c }) => (
                 <button key={v} onClick={() => { setCustType(v); setCustHistory([]); setCustOutcome(null) }} style={{
                   padding: '5px 10px', borderRadius: 8, cursor: 'pointer', fontSize: 11,
@@ -344,7 +346,7 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
             <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
               {custHistory.length === 0 && (
                 <div style={{ fontSize: 11, color: C.muted, fontStyle: 'italic' }}>
-                  A customer just walked in. Say hello or make them an offer…
+                  {t('bizsim.customer_walk_in_hint')}
                 </div>
               )}
               {custHistory.map((m, i) => (
@@ -356,14 +358,14 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
                   maxWidth: '85%',
                 }}>
                   <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 10, color: m.sender === 'player' ? C.blue : C.teal, marginRight: 6 }}>
-                    {m.sender === 'player' ? 'You' : m.name || 'Customer'}
+                    {m.sender === 'player' ? t('chat.you') : m.name || t('bizsim.customer_label')}
                   </span>
                   <span style={{ color: C.white }}>{m.text}</span>
                 </div>
               ))}
               {custLoading && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.muted }}>
-                  <Loader2 size={12} style={{ animation: 'spin 0.8s linear infinite' }} /> Customer is responding…
+                  <Loader2 size={12} style={{ animation: 'spin 0.8s linear infinite' }} /> {t('bizsim.customer_responding')}
                 </div>
               )}
             </div>
@@ -377,8 +379,8 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
                 fontFamily: 'Syne', fontWeight: 700,
               }}>
                 {custOutcome.type === 'sale'
-                  ? `✓ ${custOutcome.name} bought at K${custOutcome.price} — sale recorded`
-                  : `✗ ${custOutcome.name} walked away: ${custOutcome.reason}`
+                  ? t('bizsim.customer_bought', { name: custOutcome.name, price: custOutcome.price })
+                  : t('bizsim.customer_walked_away', { name: custOutcome.name, reason: custOutcome.reason })
                 }
               </div>
             )}
@@ -386,14 +388,14 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={custMsg} onChange={e => setCustMsg(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCustomerChat()}
-                  placeholder="Welcome! Our price today is…"
+                  placeholder={t('bizsim.customer_placeholder')}
                   style={{ flex: 1, padding: '9px 12px', borderRadius: 9, background: C.card, border: `1px solid ${C.border}`, color: C.white, fontSize: 12, outline: 'none' }} />
                 <button onClick={handleCustomerChat} disabled={custLoading} style={{
                   padding: '9px 14px', borderRadius: 9, cursor: 'pointer',
                   background: C.teal, border: 'none', color: C.navy,
                   fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
                 }}>
-                  {custLoading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : 'Send'}
+                  {custLoading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : t('chat.send')}
                 </button>
               </div>
             )}
@@ -414,8 +416,8 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
           transition: 'all 0.2s ease',
         }}>
         {loading
-          ? <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> Running…</>
-          : <>Open for Business — Day {session?.day} <ChevronRight size={18} /></>
+          ? <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> {t('bizsim.running')}</>
+          : <>{t('bizsim.open_business')} — {t('bizsim.day_of')} {session?.day} <ChevronRight size={18} /></>
         }
       </button>
     </div>
@@ -424,6 +426,7 @@ function DecisionPanel({ session, biz, onSubmit, loading }) {
 
 // ── Day Result ────────────────────────────────────────────────────────────────
 function DayResult({ result, session, onContinue }) {
+  const { t } = useT()
   if (!result) return null
   const isProfit  = result.profit >= 0
   const accentCol = isProfit ? C.green : C.red
@@ -448,11 +451,11 @@ function DayResult({ result, session, onContinue }) {
           </div>
           <div>
             <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: accentCol }}>
-              Day {result.day} — {isProfit ? 'Profitable!' : 'Loss today'}
+              {t('bizsim.day_of')} {result.day} — {isProfit ? t('bizsim.profitable') : t('bizsim.loss_day')}
             </div>
             {result.event && (
               <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                {result.event.icon || '⚡'} {result.event.label} affected today
+                {result.event.icon || '⚡'} {t('bizsim.event_affected_today', { label: result.event.label })}
               </div>
             )}
           </div>
@@ -461,12 +464,12 @@ function DayResult({ result, session, onContinue }) {
         {/* Key numbers */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {[
-            { l: 'Revenue',  v: fmt(result.revenue),       c: C.green },
-            { l: 'Expenses', v: fmt(result.total_expenses), c: C.red   },
-            { l: 'Profit',   v: fmt(result.profit),         c: accentCol },
-            { l: 'Customers',v: result.units_sold,           c: C.teal  },
-            { l: 'Margin',   v: pct(result.gross_margin_pct),c: accentCol },
-            { l: 'Saved',    v: fmt(result.saved),            c: C.blue  },
+            { l: t('bizsim.revenue'),  v: fmt(result.revenue),       c: C.green },
+            { l: t('bizsim.expenses'), v: fmt(result.total_expenses), c: C.red   },
+            { l: t('bizsim.profit'),   v: fmt(result.profit),         c: accentCol },
+            { l: t('bizsim.customers_short'),v: result.units_sold,           c: C.teal  },
+            { l: t('bizsim.margin_label'),   v: pct(result.gross_margin_pct),c: accentCol },
+            { l: t('bizsim.saved'),    v: fmt(result.saved),            c: C.blue  },
           ].map(({ l, v, c }) => (
             <div key={l} style={{ background: '#0A1628', borderRadius: 10, padding: '9px 12px', textAlign: 'center' }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: c }}>{v}</div>
@@ -478,7 +481,7 @@ function DayResult({ result, session, onContinue }) {
         {/* Warnings */}
         {result.profit < 0 && result.price < (result.cogs * 1.05) && (
           <div style={{ marginTop: 12, padding: '8px 12px', background: `${C.red}15`, borderRadius: 9, border: `1px solid ${C.red}30`, fontSize: 12, color: C.red }}>
-            ⚠️ Your price ({fmt(result.price)}) is below your cost ({fmt(result.cogs)}). You lose money on every unit sold.
+            {t('bizsim.price_below_cost_warning', { price: fmt(result.price), cost: fmt(result.cogs) })}
           </div>
         )}
         {result.adjustments?.event && (
@@ -492,7 +495,7 @@ function DayResult({ result, session, onContinue }) {
       {chartData.length > 1 && (
         <GlowCard colour={C.blue} style={{ padding: '14px 16px' }}>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 10, letterSpacing: '0.08em' }}>
-            14-DAY PERFORMANCE
+            {t('bizsim.performance_14day')}
           </div>
           <ResponsiveContainer width="100%" height={100}>
             <AreaChart data={chartData}>
@@ -523,14 +526,14 @@ function DayResult({ result, session, onContinue }) {
       {/* Demand factors */}
       <GlowCard colour={C.purple} style={{ padding: '14px 16px' }}>
         <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 10, letterSpacing: '0.08em' }}>
-          WHY YOU GOT {result.units_sold} CUSTOMERS
+          {t('bizsim.why_customers', { units: result.units_sold })}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {[
-            { l: 'Price positioning',  v: result.demand_factors?.price_factor,       max: 2.0, col: C.teal   },
-            { l: 'Marketing effect',   v: result.demand_factors?.marketing_factor,   max: 2.0, col: C.purple },
-            { l: 'Market conditions',  v: result.demand_factors?.market_factor,      max: 2.0, col: C.blue   },
-            { l: 'Competitor pressure',v: result.demand_factors?.competitor_factor,  max: 1.5, col: C.gold   },
+            { l: t('bizsim.factor_price'),       v: result.demand_factors?.price_factor,       max: 2.0, col: C.teal   },
+            { l: t('bizsim.factor_marketing'),    v: result.demand_factors?.marketing_factor,   max: 2.0, col: C.purple },
+            { l: t('bizsim.factor_market'),      v: result.demand_factors?.market_factor,      max: 2.0, col: C.blue   },
+            { l: t('bizsim.factor_competitor'),v: result.demand_factors?.competitor_factor,  max: 1.5, col: C.gold   },
           ].map(({ l, v, max, col }) => v !== undefined && (
             <div key={l}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.muted, marginBottom: 3 }}>
@@ -553,7 +556,7 @@ function DayResult({ result, session, onContinue }) {
         boxShadow: `0 8px 32px ${C.blue}30`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
-        Continue <ChevronRight size={18} />
+        {t('common.continue')} <ChevronRight size={18} />
       </button>
     </div>
   )
@@ -561,6 +564,7 @@ function DayResult({ result, session, onContinue }) {
 
 // ── Coaching screen ───────────────────────────────────────────────────────────
 function CoachingScreen({ coaching, weekNum, onContinue }) {
+  const { t } = useT()
   return (
     <GlowCard colour={C.teal} style={{ padding: '24px 22px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -572,9 +576,9 @@ function CoachingScreen({ coaching, weekNum, onContinue }) {
         }}>K</div>
         <div>
           <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: C.white }}>
-            KIP Weekly Coaching
+            {t('bizsim.weekly_coaching')}
           </div>
-          <div style={{ fontSize: 12, color: C.muted }}>Week {weekNum} · AI-personalised review</div>
+          <div style={{ fontSize: 12, color: C.muted }}>{t('bizsim.week')} {weekNum} · {t('bizsim.ai_personalised_review')}</div>
         </div>
       </div>
       <div style={{ padding: '14px 16px', background: '#0A1628', borderRadius: 12, marginBottom: 16 }}>
@@ -582,7 +586,7 @@ function CoachingScreen({ coaching, weekNum, onContinue }) {
           ? <p style={{ fontSize: 14, color: C.white, lineHeight: 1.8, margin: 0 }}>{coaching}</p>
           : <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: C.muted, fontSize: 14 }}>
               <Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite', color: C.teal }} />
-              KIP is reviewing your week…
+              {t('bizsim.coaching_loading')}
             </div>
         }
       </div>
@@ -592,7 +596,7 @@ function CoachingScreen({ coaching, weekNum, onContinue }) {
           background: `linear-gradient(135deg, ${C.teal}, ${C.blue})`,
           border: 'none', color: '#fff', fontFamily: 'Syne', fontWeight: 800, fontSize: 15,
         }}>
-          Start Week {weekNum + 1} →
+          {t('bizsim.start_week', { week: weekNum + 1 })}
         </button>
       )}
     </GlowCard>
@@ -601,9 +605,10 @@ function CoachingScreen({ coaching, weekNum, onContinue }) {
 
 // ── Phase unlock ──────────────────────────────────────────────────────────────
 function PhaseUnlockScreen({ phase, onContinue }) {
+  const { t } = useT()
   const phases = {
-    2: { title: 'Phase 2 Unlocked!', sub: 'Welcome to the Retail Store', desc: 'Fixed costs now apply every day — rent, wages. You must calculate your break-even point. You can also apply for loans now — but an AI loan officer will review your track record before approving.', colour: C.blue, emoji: '🏪' },
-    3: { title: 'Phase 3 Unlocked!', sub: 'The Enterprise Phase', desc: 'You\'ve proven you can run a serious business. Larger loan limits and bigger market dynamics now apply. Debt still costs money — keep your repayment capacity in mind.', colour: C.gold, emoji: '🏢' },
+    2: { title: t('bizsim.phase2_unlocked_title'), sub: t('bizsim.phase2_unlocked_sub'), desc: t('bizsim.phase2_unlocked_desc'), colour: C.blue, emoji: '🏪' },
+    3: { title: t('bizsim.phase3_unlocked_title'), sub: t('bizsim.phase3_unlocked_sub'), desc: t('bizsim.phase3_unlocked_desc'), colour: C.gold, emoji: '🏢' },
   }
   const p = phases[phase] || phases[2]
   return (
@@ -618,7 +623,7 @@ function PhaseUnlockScreen({ phase, onContinue }) {
         border: 'none', color: '#fff', fontFamily: 'Syne', fontWeight: 800, fontSize: 15,
         boxShadow: `0 8px 32px ${p.colour}40`,
       }}>
-        Let's go! →
+        {t('bizsim.lets_go')}
       </button>
     </div>
   )
@@ -626,22 +631,23 @@ function PhaseUnlockScreen({ phase, onContinue }) {
 
 // ── Failure screen ────────────────────────────────────────────────────────────
 function FailureScreen({ session, onRestart }) {
+  const { t } = useT()
   const days = (session?.day || 1) - 1
   return (
     <div style={{ textAlign: 'center', padding: '32px 16px' }}>
       <div style={{ fontSize: 56, marginBottom: 14 }}>💸</div>
-      <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 28, color: C.red, marginBottom: 8 }}>Business Failed</div>
+      <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 28, color: C.red, marginBottom: 8 }}>{t('bizsim.business_failed')}</div>
       <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: C.white, marginBottom: 12 }}>
-        {session?.biz_name} ran out of cash on Day {days}
+        {t('bizsim.ran_out_of_cash', { name: session?.biz_name, day: days })}
       </div>
       <div style={{ padding: '14px 20px', background: `${C.red}10`, border: `1px solid ${C.red}25`, borderRadius: 14, marginBottom: 20, maxWidth: 420, margin: '0 auto 20px' }}>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.75, margin: 0 }}>
-          This is the most important lesson in business: <strong style={{ color: C.white }}>cash flow kills profitable businesses</strong>. Your assets may have had value, but when cash = K0, operations stop. Real Zambian businesses fail this way every day.
+          {t('bizsim.failure_lesson_prefix')} <strong style={{ color: C.white }}>{t('bizsim.failure_lesson_bold')}</strong>. {t('bizsim.failure_lesson_suffix')}
         </p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, maxWidth: 360, margin: '0 auto 20px' }}>
-        <StatTile label="Days survived" value={days}             colour={C.red}  />
-        <StatTile label="Peak cash"     value={fmt(session?.total_revenue || 0)} colour={C.gold} />
+        <StatTile label={t('bizsim.days_survived')} value={days}             colour={C.red}  />
+        <StatTile label={t('bizsim.peak_cash')}     value={fmt(session?.total_revenue || 0)} colour={C.gold} />
       </div>
       <button onClick={onRestart} style={{
         padding: '14px 32px', borderRadius: 14, cursor: 'pointer',
@@ -649,7 +655,7 @@ function FailureScreen({ session, onRestart }) {
         border: 'none', color: '#fff', fontFamily: 'Syne', fontWeight: 800, fontSize: 15,
         boxShadow: `0 8px 32px ${C.blue}30`,
       }}>
-        Try Again — You'll Know Better Now
+        {t('bizsim.try_again_full')}
       </button>
     </div>
   )
@@ -657,6 +663,7 @@ function FailureScreen({ session, onRestart }) {
 
 // ── AI Lender Widget ──────────────────────────────────────────────────────────
 function LoanWidget({ session, onLoanResult }) {
+  const { t } = useT()
   const [open,     setOpen]     = useState(false)
   const [provider, setProvider] = useState('CEEC')
   const [amount,   setAmount]   = useState(1000)
@@ -664,10 +671,10 @@ function LoanWidget({ session, onLoanResult }) {
   const [result,   setResult]   = useState(null)
 
   const PROVIDERS = {
-    CEEC:   { rate: 5,  max: 50000,  label: 'CEEC',   sub: 'Citizens Empowerment · 5% p.a.',  c: C.green  },
-    DBZ:    { rate: 12, max: 200000, label: 'DBZ',    sub: 'Development Bank · 12% p.a.',     c: C.blue   },
-    ZANACO: { rate: 26, max: 100000, label: 'ZANACO', sub: 'Commercial bank · 26% p.a.',      c: C.gold   },
-    kaloba: { rate: 60, max: 5000,   label: 'Kaloba', sub: 'Informal lender · 60% p.a.',      c: C.red    },
+    CEEC:   { rate: 5,  max: 50000,  label: 'CEEC',   sub: t('bizsim.provider_ceec_sub', { rate: 5 }),  c: C.green  },
+    DBZ:    { rate: 12, max: 200000, label: 'DBZ',    sub: t('bizsim.provider_dbz_sub', { rate: 12 }),     c: C.blue   },
+    ZANACO: { rate: 26, max: 100000, label: 'ZANACO', sub: t('bizsim.provider_zanaco_sub', { rate: 26 }),      c: C.gold   },
+    kaloba: { rate: 60, max: 5000,   label: 'Kaloba', sub: t('bizsim.provider_kaloba_sub', { rate: 60 }),      c: C.red    },
   }
 
   if (session?.loan_balance > 0) {
@@ -678,7 +685,7 @@ function LoanWidget({ session, onLoanResult }) {
         toast.success(data.message)
         onLoanResult?.()
       } catch (err) {
-        toast.error(err.response?.data?.detail || 'Repayment failed.')
+        toast.error(err.response?.data?.detail || t('bizsim.repayment_failed'))
       } finally { setLoading(false) }
     }
     const dailyInterest = session.loan_balance * (session.loan_interest_rate / 100) / 30
@@ -688,18 +695,18 @@ function LoanWidget({ session, onLoanResult }) {
     return (
       <GlowCard colour={C.red} style={{ padding: '12px 14px' }}>
         <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 8, letterSpacing: '0.08em' }}>
-          ACTIVE LOAN
+          {t('bizsim.active_loan_header')}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-          <span style={{ color: C.white }}>Outstanding balance</span>
+          <span style={{ color: C.white }}>{t('bizsim.outstanding_balance')}</span>
           <span style={{ color: C.red, fontFamily: 'Syne', fontWeight: 800 }}>{fmt(session.loan_balance)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.muted, marginTop: 4 }}>
-          <span>Interest rate</span>
-          <span>{session.loan_interest_rate}% p.a.</span>
+          <span>{t('bizsim.interest_rate_label')}</span>
+          <span>{session.loan_interest_rate}% {t('bizsim.pa_suffix')}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.muted, marginTop: 4, marginBottom: 10 }}>
-          <span>Daily interest cost</span>
+          <span>{t('bizsim.daily_interest_cost')}</span>
           <span>{fmt(dailyInterest)}</span>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -709,7 +716,7 @@ function LoanWidget({ session, onLoanResult }) {
             color: canRepayHalf ? C.white : C.muted, fontSize: 11, fontFamily: 'Syne', fontWeight: 600,
             opacity: canRepayHalf ? 1 : 0.5,
           }}>
-            Repay 50%
+            {t('bizsim.repay_50')}
           </button>
           <button onClick={() => handleRepay(session.loan_balance)} disabled={loading || !canRepayFull} style={{
             flex: 1, padding: '8px', borderRadius: 8, cursor: canRepayFull ? 'pointer' : 'not-allowed',
@@ -717,12 +724,12 @@ function LoanWidget({ session, onLoanResult }) {
             color: canRepayFull ? C.navy : C.muted, fontSize: 11, fontFamily: 'Syne', fontWeight: 700,
             opacity: canRepayFull ? 1 : 0.5,
           }}>
-            Repay Full
+            {t('bizsim.repay_full')}
           </button>
         </div>
         {!canRepayHalf && (
           <div style={{ fontSize: 10, color: C.muted, marginTop: 6 }}>
-            Not enough cash to repay yet — keep your business running.
+            {t('bizsim.not_enough_cash_repay')}
           </div>
         )}
       </GlowCard>
@@ -738,13 +745,13 @@ function LoanWidget({ session, onLoanResult }) {
       const { data } = await api.post('/bizsim/loan/apply', { amount, provider })
       setResult(data)
       if (data.approved) {
-        toast.success(`Loan approved by ${provider}!`)
+        toast.success(t('bizsim.loan_approved_toast', { provider }))
         onLoanResult?.()
       } else {
-        toast.error(`${provider} declined the loan.`)
+        toast.error(t('bizsim.loan_declined_toast', { provider }))
       }
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Loan application failed.')
+      toast.error(err.response?.data?.detail || t('bizsim.loan_application_failed'))
     } finally { setLoading(false) }
   }
 
@@ -756,12 +763,12 @@ function LoanWidget({ session, onLoanResult }) {
         color: C.blue, fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
-        <DollarSign size={14} /> Apply for a loan
+        <DollarSign size={14} /> {t('bizsim.apply_loan')}
       </button>
       {open && (
         <GlowCard colour={C.blue} style={{ padding: '14px 16px', marginTop: 8 }}>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 10, letterSpacing: '0.08em' }}>
-            CHOOSE LENDER
+            {t('bizsim.choose_lender_header')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
             {Object.entries(PROVIDERS).map(([key, p]) => (
@@ -777,7 +784,7 @@ function LoanWidget({ session, onLoanResult }) {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>LOAN AMOUNT</span>
+            <span style={{ fontSize: 12, fontFamily: 'Syne', fontWeight: 700, color: C.muted }}>{t('bizsim.loan_amount_header')}</span>
             <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: PROVIDERS[provider].c }}>{fmt(amount)}</span>
           </div>
           <input type="range" min={500} max={Math.min(PROVIDERS[provider].max, 20000)} step={500}
@@ -792,7 +799,7 @@ function LoanWidget({ session, onLoanResult }) {
               color: C.white,
             }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, color: result.approved ? C.green : C.red, marginBottom: 4 }}>
-                {result.approved ? `✓ APPROVED — ${fmt(result.amount)} at ${result.rate}%` : '✗ DECLINED'}
+                {result.approved ? t('bizsim.loan_approved_result', { amount: fmt(result.amount), rate: result.rate }) : t('bizsim.loan_declined_result')}
               </div>
               {result.officer_msg}
             </div>
@@ -804,7 +811,7 @@ function LoanWidget({ session, onLoanResult }) {
             fontFamily: 'Syne', fontWeight: 800, fontSize: 13,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}>
-            {loading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : `Apply to ${PROVIDERS[provider].label}`}
+            {loading ? <Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> : t('bizsim.apply_to', { lender: PROVIDERS[provider].label })}
           </button>
         </GlowCard>
       )}
@@ -814,6 +821,7 @@ function LoanWidget({ session, onLoanResult }) {
 
 
 export default function BizSimPage() {
+  const { t } = useT()
   const [screen,      setScreen]      = useState('loading') // loading|setup|game|result|coaching|phase_unlock|failure|final
   const [session,     setSession]     = useState(null)
   const [bizMeta,     setBizMeta]     = useState(null)
@@ -878,7 +886,7 @@ export default function BizSimPage() {
     setSession(data.session)
     const bizTypes = (await api.get('/bizsim/business-types')).data.businesses
     setBizMeta(bizTypes.find(b => b.id === bizType))
-    toast.success(`${bizName} is open for business!`)
+    toast.success(t('bizsim.biz_open_toast', { name: bizName }))
     setScreen('game')
     loadExtras()
   }
@@ -910,7 +918,7 @@ export default function BizSimPage() {
       setDayCanvasResult({ ...data, __sessionDay: sd.session?.day })
       setScreen('day_canvas')
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Day simulation failed.')
+      toast.error(err.response?.data?.detail || t('bizsim.day_simulation_failed'))
     } finally {
       setRunning(false)
     }
@@ -929,7 +937,7 @@ export default function BizSimPage() {
     if (data.newly_completed_missions?.length) {
       data.newly_completed_missions.forEach(mid => {
         const m = missions.find(m => m.id === mid)
-        if (m) toast.success(`🏅 Mission complete: ${m.name}! +K${m.reward}`)
+        if (m) toast.success(t('bizsim.mission_complete_toast', { name: m.name, reward: m.reward }))
       })
     }
 
@@ -1044,7 +1052,7 @@ export default function BizSimPage() {
                   {session.biz_name}
                 </div>
                 <div style={{ fontSize: 11, color: accentCol, fontFamily: 'Syne', fontWeight: 600 }}>
-                  {bizMeta?.location} · Phase {session.phase}
+                  {bizMeta?.location} · {t('bizsim.phase')} {session.phase}
                 </div>
               </div>
             </div>
@@ -1052,9 +1060,9 @@ export default function BizSimPage() {
             {/* Health pills */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[
-                { l: 'Cash',    v: fmt(session.cash),         c: session.cash < 500 ? C.red : C.green  },
-                { l: 'Profit',  v: fmt(session.total_profit), c: session.total_profit >= 0 ? C.green : C.red },
-                { l: 'Day',     v: session.day,                c: C.blue  },
+                { l: t('bizsim.cash_label'),    v: fmt(session.cash),         c: session.cash < 500 ? C.red : C.green  },
+                { l: t('bizsim.profit'),  v: fmt(session.total_profit), c: session.total_profit >= 0 ? C.green : C.red },
+                { l: t('bizsim.day_of'),     v: session.day,                c: C.blue  },
               ].map(({ l, v, c }) => (
                 <div key={l} style={{
                   padding: '5px 12px', borderRadius: 20, background: `${c}15`,
@@ -1073,7 +1081,7 @@ export default function BizSimPage() {
                 color: C.muted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 5,
                 whiteSpace: 'nowrap',
               }}>
-                <RefreshCw size={12} /> Restart
+                <RefreshCw size={12} /> {t('bizsim.restart')}
               </button>
             </div>
           </div>
@@ -1085,10 +1093,10 @@ export default function BizSimPage() {
             overflowX: 'auto',
           }}>
             {[
-              { k: 'game',        l: 'Play',        icon: Zap       },
-              { k: 'stats',       l: 'Statements',  icon: BarChart2 },
-              { k: 'leaderboard', l: 'Leaderboard', icon: Trophy    },
-              { k: 'missions',    l: 'Missions',    icon: Target    },
+              { k: 'game',        l: t('bizsim.tab_play'),        icon: Zap       },
+              { k: 'stats',       l: t('bizsim.tab_statements'),  icon: BarChart2 },
+              { k: 'leaderboard', l: t('bizsim.leaderboard'), icon: Trophy    },
+              { k: 'missions',    l: t('bizsim.missions'), icon: Target    },
             ].map(({ k, l, icon: Icon }) => (
               <button key={k} onClick={() => setTab(k)} style={{
                 flex: '1 1 82px', minWidth: 82, padding: '9px 8px', borderRadius: 9, cursor: 'pointer',
@@ -1151,10 +1159,10 @@ export default function BizSimPage() {
 
                 {/* Stats grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <StatTile label="Total Revenue"  value={fmt(session.total_revenue)} colour={C.green} icon={TrendingUp} />
-                  <StatTile label="Net Profit"     value={fmt(session.total_profit)}  colour={session.total_profit >= 0 ? C.gold : C.red} icon={DollarSign} />
-                  <StatTile label="Cash on Hand"   value={fmt(session.cash)}          colour={session.cash < 500 ? C.red : C.teal} icon={ShoppingCart} />
-                  <StatTile label="Customers"      value={session.total_customers}    colour={C.purple} icon={Users} />
+                  <StatTile label={t('bizsim.total_revenue')}  value={fmt(session.total_revenue)} colour={C.green} icon={TrendingUp} />
+                  <StatTile label={t('bizsim.net_profit')}     value={fmt(session.total_profit)}  colour={session.total_profit >= 0 ? C.gold : C.red} icon={DollarSign} />
+                  <StatTile label={t('bizsim.cash_on_hand')}   value={fmt(session.cash)}          colour={session.cash < 500 ? C.red : C.teal} icon={ShoppingCart} />
+                  <StatTile label={t('bizsim.customers_short')}      value={session.total_customers}    colour={C.purple} icon={Users} />
                 </div>
 
                 {/* AI Lender */}
@@ -1164,7 +1172,7 @@ export default function BizSimPage() {
                 {chartData.length > 2 && (
                   <GlowCard colour={accentCol} style={{ padding: '14px 14px' }}>
                     <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 10, letterSpacing: '0.08em' }}>
-                      CASH TREND
+                      {t('bizsim.cash_trend_header')}
                     </div>
                     <ResponsiveContainer width="100%" height={90}>
                       <AreaChart data={chartData}>
@@ -1188,7 +1196,7 @@ export default function BizSimPage() {
                 {session.competitors?.length > 0 && (
                   <GlowCard colour={C.orange} style={{ padding: '12px 14px' }}>
                     <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 8, letterSpacing: '0.08em' }}>
-                      COMPETITORS
+                      {t('bizsim.competitor_label')}
                     </div>
                     {session.competitors.map(c => (
                       <div key={c.id} style={{
@@ -1198,11 +1206,11 @@ export default function BizSimPage() {
                       }}>
                         <div>
                           <div style={{ color: C.white, fontWeight: 600 }}>{c.name}</div>
-                          <div style={{ fontSize: 10, color: C.muted }}>{c.personality} strategy</div>
+                          <div style={{ fontSize: 10, color: C.muted }}>{c.personality} {t('bizsim.strategy_suffix')}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ color: C.orange, fontFamily: 'Syne', fontWeight: 700 }}>{fmt(c.price)}</div>
-                          <div style={{ fontSize: 10, color: C.muted }}>{c.customers || 0} customers</div>
+                          <div style={{ fontSize: 10, color: C.muted }}>{c.customers || 0} {t('bizsim.customers_suffix')}</div>
                         </div>
                       </div>
                     ))}
@@ -1219,17 +1227,17 @@ export default function BizSimPage() {
               {/* P&L */}
               <GlowCard colour={C.green} style={{ padding: '18px 20px' }}>
                 <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: C.green, marginBottom: 14 }}>
-                  Profit & Loss
+                  {t('bizsim.profit_loss')}
                 </div>
                 {[
-                  { l: 'Revenue',      v: statements.profit_loss?.revenue,      c: C.green, bold: false },
-                  { l: 'Cost of Sales',v: -statements.profit_loss?.cogs,        c: C.red,   bold: false },
-                  { l: 'Gross Profit', v: statements.profit_loss?.gross_profit, c: C.teal,  bold: true  },
-                  { l: `Margin`,       v: null, sub: pct(statements.profit_loss?.gross_margin) },
-                  { l: 'Marketing',    v: -statements.profit_loss?.marketing,   c: C.muted, bold: false },
-                  { l: 'Fixed Costs',  v: -statements.profit_loss?.fixed_costs, c: C.muted, bold: false },
-                  { l: 'Interest',     v: -statements.profit_loss?.interest,    c: C.red,   bold: false },
-                  { l: 'NET PROFIT',   v: statements.profit_loss?.net_profit,   c: statements.profit_loss?.net_profit >= 0 ? C.gold : C.red, bold: true },
+                  { l: t('bizsim.revenue'),      v: statements.profit_loss?.revenue,      c: C.green, bold: false },
+                  { l: t('bizsim.cost_of_sales'),v: -statements.profit_loss?.cogs,        c: C.red,   bold: false },
+                  { l: t('bizsim.gross_profit'), v: statements.profit_loss?.gross_profit, c: C.teal,  bold: true  },
+                  { l: t('bizsim.margin_label'),       v: null, sub: pct(statements.profit_loss?.gross_margin) },
+                  { l: t('bizsim.marketing'),    v: -statements.profit_loss?.marketing,   c: C.muted, bold: false },
+                  { l: t('bizsim.fixed_costs'),  v: -statements.profit_loss?.fixed_costs, c: C.muted, bold: false },
+                  { l: t('bizsim.interest_label'),     v: -statements.profit_loss?.interest,    c: C.red,   bold: false },
+                  { l: t('bizsim.net_profit'),   v: statements.profit_loss?.net_profit,   c: statements.profit_loss?.net_profit >= 0 ? C.gold : C.red, bold: true },
                 ].map(({ l, v, c, bold, sub }) => (
                   <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}15`, fontSize: bold ? 13 : 12 }}>
                     <span style={{ color: bold ? C.white : C.muted, fontWeight: bold ? 700 : 400 }}>{l}</span>
@@ -1243,12 +1251,12 @@ export default function BizSimPage() {
               {/* Balance sheet */}
               <GlowCard colour={C.blue} style={{ padding: '18px 20px' }}>
                 <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: C.blue, marginBottom: 14 }}>
-                  Balance Sheet
+                  {t('bizsim.balance_sheet')}
                 </div>
-                <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 8, letterSpacing: '0.06em' }}>ASSETS</div>
+                <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, marginBottom: 8, letterSpacing: '0.06em' }}>{t('bizsim.assets_header').toUpperCase()}</div>
                 {[
-                  { l: 'Cash',        v: statements.balance_sheet?.balances?.cash        || 0, c: C.green },
-                  { l: 'Inventory',   v: statements.balance_sheet?.balances?.inventory   || 0, c: C.teal  },
+                  { l: t('bizsim.cash_label'),        v: statements.balance_sheet?.balances?.cash        || 0, c: C.green },
+                  { l: t('bizsim.inventory_label'),   v: statements.balance_sheet?.balances?.inventory   || 0, c: C.teal  },
                 ].map(({ l, v, c }) => (
                   <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, borderBottom: `1px solid ${C.border}15` }}>
                     <span style={{ color: C.muted }}>{l}</span>
@@ -1256,13 +1264,13 @@ export default function BizSimPage() {
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0 5px', fontSize: 13, borderBottom: `1px solid ${C.border}` }}>
-                  <span style={{ color: C.white, fontWeight: 700 }}>Total Assets</span>
+                  <span style={{ color: C.white, fontWeight: 700 }}>{t('bizsim.total_assets')}</span>
                   <span style={{ color: C.blue, fontFamily: 'Syne', fontWeight: 800 }}>{fmt(statements.balance_sheet?.total_assets)}</span>
                 </div>
-                <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, margin: '10px 0 8px', letterSpacing: '0.06em' }}>LIABILITIES + EQUITY</div>
+                <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: C.muted, margin: '10px 0 8px', letterSpacing: '0.06em' }}>{t('bizsim.liabilities_equity_header').toUpperCase()}</div>
                 {[
-                  { l: 'Loans',   v: statements.balance_sheet?.balances?.loan_payable || 0, c: C.red    },
-                  { l: 'Equity',  v: statements.balance_sheet?.total_equity           || 0, c: C.purple },
+                  { l: t('bizsim.loans_label'),   v: statements.balance_sheet?.balances?.loan_payable || 0, c: C.red    },
+                  { l: t('bizsim.equity_label'),  v: statements.balance_sheet?.total_equity           || 0, c: C.purple },
                 ].map(({ l, v, c }) => (
                   <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 12, borderBottom: `1px solid ${C.border}15` }}>
                     <span style={{ color: C.muted }}>{l}</span>
@@ -1270,7 +1278,7 @@ export default function BizSimPage() {
                   </div>
                 ))}
                 <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 9, background: statements.balance_sheet?.balanced ? `${C.green}15` : `${C.red}15`, border: `1px solid ${statements.balance_sheet?.balanced ? C.green : C.red}30`, fontSize: 11, color: statements.balance_sheet?.balanced ? C.green : C.red, fontFamily: 'Syne', fontWeight: 700 }}>
-                  {statements.balance_sheet?.balanced ? '✓ Balance sheet balances' : '⚠️ Imbalance detected'}
+                  {statements.balance_sheet?.balanced ? t('bizsim.balance_sheet_balanced') : t('bizsim.balance_sheet_imbalance')}
                 </div>
               </GlowCard>
 
@@ -1278,7 +1286,7 @@ export default function BizSimPage() {
               {statements.cash_flow_chart?.length > 2 && (
                 <GlowCard colour={C.teal} style={{ padding: '18px 20px', gridColumn: '1 / -1' }}>
                   <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 14, color: C.teal, marginBottom: 14 }}>
-                    Cash Flow Over Time
+                    {t('bizsim.cash_flow_over_time')}
                   </div>
                   <ResponsiveContainer width="100%" height={160}>
                     <BarChart data={statements.cash_flow_chart}>
@@ -1286,7 +1294,7 @@ export default function BizSimPage() {
                       <YAxis tick={{ fontSize: 9, fill: C.muted }} axisLine={false} tickLine={false} width={50} tickFormatter={v => `K${v}`} />
                       <Tooltip contentStyle={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11 }} />
                       <ReferenceLine y={0} stroke={C.border} />
-                      <Bar dataKey="profit" fill={C.blue} radius={[3,3,0,0]} name="Daily Profit" />
+                      <Bar dataKey="profit" fill={C.blue} radius={[3,3,0,0]} name={t('bizsim.daily_profit')} />
                     </BarChart>
                   </ResponsiveContainer>
                 </GlowCard>
@@ -1298,12 +1306,12 @@ export default function BizSimPage() {
           {tab === 'leaderboard' && (
             <GlowCard colour={C.gold} style={{ padding: '20px' }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 16, color: C.gold, marginBottom: 16 }}>
-                🏆 Live Leaderboard
+                {t('bizsim.live_leaderboard')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {leaderboard.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '30px 0', color: C.muted, fontSize: 14 }}>
-                    No players yet — you could be #1.
+                    {t('bizsim.no_players')}
                   </div>
                 )}
                 {leaderboard.map((p, i) => (
@@ -1321,13 +1329,13 @@ export default function BizSimPage() {
                       <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: C.white, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {p.business}
                       </div>
-                      <div style={{ fontSize: 10, color: C.muted }}>{p.owner} · Day {p.day} · Phase {p.phase}</div>
+                      <div style={{ fontSize: 10, color: C.muted }}>{p.owner} · {t('bizsim.day_of')} {p.day} · {t('bizsim.phase')} {p.phase}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 15, color: p.net_profit >= 0 ? C.green : C.red }}>
                         {fmt(p.net_profit)}
                       </div>
-                      <div style={{ fontSize: 10, color: C.muted }}>net profit</div>
+                      <div style={{ fontSize: 10, color: C.muted }}>{t('bizsim.net_profit_lower')}</div>
                     </div>
                   </div>
                 ))}
@@ -1344,13 +1352,13 @@ export default function BizSimPage() {
                     <div style={{ fontSize: 26 }}>{m.completed ? '✅' : m.icon}</div>
                     <div>
                       <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: C.white }}>{m.name}</div>
-                      <div style={{ fontSize: 10, color: m.colour, fontFamily: 'Syne', fontWeight: 600 }}>Reward: +{fmt(m.reward)}</div>
+                      <div style={{ fontSize: 10, color: m.colour, fontFamily: 'Syne', fontWeight: 600 }}>{t('bizsim.mission_reward')}: +{fmt(m.reward)}</div>
                     </div>
                   </div>
                   <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>{m.desc}</div>
                   {m.completed && (
                     <div style={{ marginTop: 8, fontSize: 11, color: C.green, fontFamily: 'Syne', fontWeight: 700 }}>
-                      ✓ Complete — reward claimed!
+                      {t('bizsim.mission_reward_claimed')}
                     </div>
                   )}
                 </GlowCard>

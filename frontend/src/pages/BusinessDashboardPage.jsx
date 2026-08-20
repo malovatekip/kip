@@ -10,9 +10,11 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 /* ── Plan update banner ──────────────────────────────── */
 function UpdateBanner({ summary, onConfirm, onCancel }) {
+  const { t } = useT()
   return (
     <div className="animate-slide-up" style={{
       background: 'linear-gradient(135deg, rgba(26,224,110,0.1), rgba(0,240,200,0.07))',
@@ -23,7 +25,7 @@ function UpdateBanner({ summary, onConfirm, onCancel }) {
         <CheckCircle size={16} style={{ color: 'var(--green)', flexShrink: 0, marginTop: 1 }} />
         <div>
           <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--green)', marginBottom: 4 }}>
-            KIP approved this change
+            {t('business_dashboard.kip_approved_change')}
           </div>
           <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
             {summary}
@@ -38,7 +40,7 @@ function UpdateBanner({ summary, onConfirm, onCancel }) {
           border: 'none', transition: 'all 0.2s ease',
           boxShadow: '0 2px 12px rgba(26,224,110,0.3)',
         }}>
-          ✓ Apply to Plan
+          ✓ {t('business_dashboard.apply_to_plan')}
         </button>
         <button onClick={onCancel} style={{
           flex: 1, padding: '9px 0', borderRadius: 9, cursor: 'pointer',
@@ -46,7 +48,7 @@ function UpdateBanner({ summary, onConfirm, onCancel }) {
           color: 'var(--muted)', background: 'rgba(255,255,255,0.05)',
           border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s ease',
         }}>
-          ✗ Keep Current Plan
+          ✗ {t('business_dashboard.keep_current_plan')}
         </button>
       </div>
     </div>
@@ -55,6 +57,7 @@ function UpdateBanner({ summary, onConfirm, onCancel }) {
 
 /* ── Business Chat ───────────────────────────────────── */
 function BusinessChat({ planId, businessName }) {
+  const { t } = useT()
   const [messages,     setMessages]     = useState([])
   const [input,        setInput]        = useState('')
   const [loading,      setLoading]      = useState(false)
@@ -78,7 +81,7 @@ function BusinessChat({ planId, businessName }) {
       const lastAssistant = [...msgs].reverse().find(m => m.role === 'assistant')
       if (lastAssistant?.is_plan_update_proposal && !lastAssistant?.is_plan_update_applied) {
         // Find the summary — it won't be in content (sentinel stripped), use update_summary
-        setPendingUpdate({ summary: lastAssistant.update_summary || 'Proposed change' })
+        setPendingUpdate({ summary: lastAssistant.update_summary || t('business_dashboard.proposed_change') })
       }
     }).catch(() => {}).finally(() => setHistLoading(false))
   }, [planId])
@@ -118,12 +121,12 @@ function BusinessChat({ planId, businessName }) {
       if (data.plan_updated) {
         setPendingUpdate(null)
         setPlanUpdated(true)
-        toast.success('Plan updated successfully!')
+        toast.success(t('business_dashboard.plan_updated_success'))
         setTimeout(() => setPlanUpdated(false), 4000)
       }
     } catch {
       setMessages(prev => prev.filter(m => !m._temp))
-      toast.error('Could not reach KIP. Try again.')
+      toast.error(t('business_dashboard.chat_error'))
     } finally {
       setLoading(false)
       inputRef.current?.focus()
@@ -158,7 +161,7 @@ function BusinessChat({ planId, businessName }) {
           fontSize: 13, color: 'var(--green)', fontFamily: 'Syne', fontWeight: 700,
         }}>
           <CheckCircle size={15} />
-          Plan updated! View it in the Launch Plan tab.
+          {t('business_dashboard.plan_updated_banner')}
         </div>
       )}
 
@@ -185,16 +188,16 @@ function BusinessChat({ planId, businessName }) {
               </div>
               <div>
                 <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: '#fff' }}>
-                  KIP — {businessName} Advisor
+                  {t('business_dashboard.kip_advisor_title', { name: businessName })}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--teal)' }}>
-                  Full context loaded · Conversation saved automatically
+                  {t('business_dashboard.context_loaded_note')}
                 </div>
               </div>
             </div>
             <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.65 }}>
-              I have your launch plan, logs, market survey, and financial targets.
-              Ask anything about <strong style={{ color: '#fff' }}>{businessName}</strong> — or suggest a change to the plan.
+              {t('business_dashboard.chat_intro_prefix')}{' '}
+              <strong style={{ color: '#fff' }}>{businessName}</strong> {t('business_dashboard.chat_intro_suffix')}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {suggestions.map((s, i) => (
@@ -236,7 +239,7 @@ function BusinessChat({ planId, businessName }) {
                     </div>
                     {msg.is_plan_update_applied && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: 11, color: 'var(--green)', fontFamily: 'Syne', fontWeight: 600 }}>
-                        <CheckCircle size={11} /> Plan updated
+                        <CheckCircle size={11} /> {t('business_dashboard.plan_updated_short')}
                       </div>
                     )}
                   </div>
@@ -265,7 +268,7 @@ function BusinessChat({ planId, businessName }) {
                   {[0,1,2].map(i => (
                     <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ease-in-out ${i*0.2}s infinite` }} />
                   ))}
-                  <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 8, fontStyle: 'italic' }}>KIP is thinking…</span>
+                  <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 8, fontStyle: 'italic' }}>{t('business_dashboard.kip_thinking')}</span>
                 </div>
               </div>
             </div>
@@ -288,10 +291,10 @@ function BusinessChat({ planId, businessName }) {
         {messages.length > 2 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, color: 'var(--faint)', fontFamily: 'Syne', fontWeight: 600 }}>
-              {messages.length} messages · saved
+              {t('business_dashboard.messages_saved', { count: messages.length })}
             </span>
             <button onClick={reset} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--faint)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 600 }}>
-              <RotateCcw size={10} /> Clear view
+              <RotateCcw size={10} /> {t('business_dashboard.clear_view')}
             </button>
           </div>
         )}
@@ -301,7 +304,7 @@ function BusinessChat({ planId, businessName }) {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-            placeholder={pendingUpdate ? 'Type "confirm" or "cancel"…' : `Ask KIP about ${businessName}…`}
+            placeholder={pendingUpdate ? t('business_dashboard.confirm_cancel_placeholder') : t('business_dashboard.ask_kip_placeholder', { name: businessName })}
             className="kip-input"
             style={{ flex: 1, fontSize: 13, borderColor: pendingUpdate ? 'rgba(26,224,110,0.4)' : undefined }}
             disabled={loading}
@@ -313,7 +316,7 @@ function BusinessChat({ planId, businessName }) {
           </button>
         </div>
         <p style={{ fontSize: 10, color: 'var(--faint)', margin: 0 }}>
-          Suggest "add delivery service" or "change pricing" to update your plan
+          {t('business_dashboard.suggest_hint')}
         </p>
       </div>
     </div>
@@ -322,6 +325,7 @@ function BusinessChat({ planId, businessName }) {
 
 /* ── Main Dashboard Page ─────────────────────────────── */
 export default function BusinessDashboardPage() {
+  const { t } = useT()
   const { planId } = useParams()
   const navigate   = useNavigate()
   const [plan,    setPlan]    = useState(null)
@@ -336,10 +340,10 @@ export default function BusinessDashboardPage() {
   }
 
   useEffect(() => {
-    if (!planId || planId === 'undefined') { toast.error('Invalid plan.'); navigate('/ideas'); return }
+    if (!planId || planId === 'undefined') { toast.error(t('business_dashboard.invalid_plan')); navigate('/ideas'); return }
     api.get(`/business/plan/${planId}`)
       .then(r => setPlan(r.data))
-      .catch(() => { toast.error('Plan not found.'); navigate('/ideas') })
+      .catch(() => { toast.error(t('business_dashboard.plan_not_found')); navigate('/ideas') })
       .finally(() => setLoading(false))
     api.get(`/business-chat/plan-versions/${planId}`)
       .then(r => setVersions(r.data || [])).catch(() => {})
@@ -366,9 +370,9 @@ export default function BusinessDashboardPage() {
   const logCount       = plan.logs?.length || 0
 
   const TABS = [
-    { key: 'plan', label: 'Launch Plan',       icon: BookOpen      },
-    { key: 'logs', label: `Logs (${logCount})`,icon: ClipboardList  },
-    { key: 'chat', label: 'Ask KIP',           icon: MessageSquare, accent: 'var(--teal)' },
+    { key: 'plan', label: t('business_dashboard.tab_launch_plan'),                          icon: BookOpen      },
+    { key: 'logs', label: t('business_dashboard.tab_logs', { count: logCount }),             icon: ClipboardList  },
+    { key: 'chat', label: t('business_dashboard.tab_ask_kip'),                               icon: MessageSquare, accent: 'var(--teal)' },
   ]
 
   return (
@@ -376,7 +380,7 @@ export default function BusinessDashboardPage() {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px', position: 'relative', zIndex: 1 }}>
 
         <Link to="/ideas" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', textDecoration: 'none', marginBottom: 16 }}>
-          <ArrowLeft size={14} /> My Ideas
+          <ArrowLeft size={14} /> {t('business_dashboard.my_ideas')}
         </Link>
 
         {/* Header */}
@@ -384,27 +388,29 @@ export default function BusinessDashboardPage() {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
             <div>
               <span className="kip-badge kip-badge-green" style={{ marginBottom: 8, display: 'inline-block' }}>
-                {plan.status?.toUpperCase() || 'ACTIVE'}
+                {plan.status?.toUpperCase() || t('business_dashboard.status_active')}
               </span>
               <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>
                 {plan.business_name}
               </h1>
               <p style={{ fontSize: 12, color: 'var(--muted)' }}>
-                Started {plan.created_at ? new Date(plan.created_at).toLocaleDateString('en-ZM', { day:'numeric', month:'long', year:'numeric' }) : '—'}
+                {t('business_dashboard.started_on', { date: plan.created_at ? new Date(plan.created_at).toLocaleDateString('en-ZM', { day:'numeric', month:'long', year:'numeric' }) : '—' })}
                 {versions.length > 0 && (
                   <span style={{ marginLeft: 12, color: 'var(--teal)', fontFamily: 'Syne', fontWeight: 600, cursor: 'pointer' }}
                     onClick={() => setShowVer(v => !v)}>
-                    · v{versions.length + 1} ({versions.length} update{versions.length !== 1 ? 's' : ''})
+                    · {versions.length !== 1
+                        ? t('business_dashboard.version_updates_plural', { version: versions.length + 1, count: versions.length })
+                        : t('business_dashboard.version_updates_single', { version: versions.length + 1, count: versions.length })}
                   </span>
                 )}
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <Link to={`/business/${planId}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '9px 16px' }}>
-                <ClipboardList size={15} /> Log Today
+                <ClipboardList size={15} /> {t('business_dashboard.log_today')}
               </Link>
               <Link to={`/business/${planId}/survey`} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '9px 16px' }}>
-                <MapPin size={15} /> Survey
+                <MapPin size={15} /> {t('business_dashboard.survey')}
               </Link>
             </div>
           </div>
@@ -413,7 +419,7 @@ export default function BusinessDashboardPage() {
           {showVer && versions.length > 0 && (
             <div className="animate-slide-up" style={{ marginTop: 12, background: 'rgba(0,240,200,0.05)', border: '1px solid rgba(0,240,200,0.2)', borderRadius: 12, padding: '12px 16px' }}>
               <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--teal)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <History size={13} /> Plan Change History
+                <History size={13} /> {t('business_dashboard.plan_change_history')}
               </div>
               {versions.map((v, i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, fontSize: 12, color: 'var(--muted)', marginBottom: 4, alignItems: 'flex-start' }}>
@@ -429,11 +435,11 @@ export default function BusinessDashboardPage() {
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 10, marginBottom: 20 }}>
           {[
-            { label:'Revenue',   value:`K${totalRevenue.toLocaleString()}`,   color:'var(--green)',       icon:DollarSign },
-            { label:'Expenses',  value:`K${totalExpenses.toLocaleString()}`,  color:'var(--red)',         icon:DollarSign },
-            { label:'Profit',    value:`K${totalProfit.toLocaleString()}`,    color:totalProfit>=0?'var(--gold-bright)':'var(--red)', icon:TrendingUp },
-            { label:'Customers', value:totalCustomers.toLocaleString(),       color:'var(--teal)',        icon:Users },
-            { label:'Days',      value:logCount.toString(),                  color:'var(--blue-bright)', icon:Calendar },
+            { label:t('business_dashboard.stat_revenue'),   value:`K${totalRevenue.toLocaleString()}`,   color:'var(--green)',       icon:DollarSign },
+            { label:t('business_dashboard.stat_expenses'),  value:`K${totalExpenses.toLocaleString()}`,  color:'var(--red)',         icon:DollarSign },
+            { label:t('business_dashboard.stat_profit'),    value:`K${totalProfit.toLocaleString()}`,    color:totalProfit>=0?'var(--gold-bright)':'var(--red)', icon:TrendingUp },
+            { label:t('business_dashboard.stat_customers'), value:totalCustomers.toLocaleString(),       color:'var(--teal)',        icon:Users },
+            { label:t('business_dashboard.stat_days'),      value:logCount.toString(),                  color:'var(--blue-bright)', icon:Calendar },
           ].map(({ label, value, color, icon: Icon }) => (
             <div key={label} className="kip-card" style={{ padding: '14px 16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
@@ -464,7 +470,7 @@ export default function BusinessDashboardPage() {
                 {label}
                 {key === 'chat' && (
                   <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 20, background: 'var(--teal-dim)', color: 'var(--teal)', border: '1px solid rgba(0,240,200,0.3)' }}>
-                    AI
+                    {t('business_dashboard.ai_badge')}
                   </span>
                 )}
               </button>
@@ -477,10 +483,10 @@ export default function BusinessDashboardPage() {
           <div className="kip-card" style={{ padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
               <BookOpen size={16} style={{ color: 'var(--gold-bright)' }} />
-              <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff' }}>KIP Launch Plan</span>
+              <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: '#fff' }}>{t('business_dashboard.kip_launch_plan')}</span>
               {versions.length > 0 && (
                 <span className="kip-badge kip-badge-teal" style={{ marginLeft: 'auto' }}>
-                  v{versions.length + 1} — latest
+                  {t('business_dashboard.version_latest', { version: versions.length + 1 })}
                 </span>
               )}
             </div>
@@ -497,11 +503,11 @@ export default function BusinessDashboardPage() {
                   fontSize: 12, color: 'var(--blue-bright)', background: 'none',
                   border: 'none', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 600, padding: 0,
                 }}>
-                  {showFull ? <><ChevronUp size={14}/> Show less</> : <><ChevronDown size={14}/> Read full plan</>}
+                  {showFull ? <><ChevronUp size={14}/> {t('business_dashboard.show_less')}</> : <><ChevronDown size={14}/> {t('business_dashboard.read_full_plan')}</>}
                 </button>
               </>
             ) : (
-              <p style={{ fontSize: 13, color: 'var(--muted)' }}>Plan not yet generated.</p>
+              <p style={{ fontSize: 13, color: 'var(--muted)' }}>{t('business_dashboard.plan_not_generated')}</p>
             )}
           </div>
         )}
@@ -512,10 +518,10 @@ export default function BusinessDashboardPage() {
             {logCount === 0 ? (
               <div className="kip-card" style={{ textAlign: 'center', padding: '40px 24px' }}>
                 <Zap size={36} style={{ color: 'var(--faint)', margin: '0 auto 12px', display: 'block' }} className="animate-float" />
-                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: '#fff', marginBottom: 8 }}>No logs yet</h3>
-                <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 18 }}>Log your first day to activate KIP coaching.</p>
+                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 16, color: '#fff', marginBottom: 8 }}>{t('business_dashboard.no_logs_title')}</h3>
+                <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 18 }}>{t('business_dashboard.no_logs_desc')}</p>
                 <Link to={`/business/${planId}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
-                  <ClipboardList size={15} /> Log Day 1
+                  <ClipboardList size={15} /> {t('business_dashboard.log_day_1')}
                 </Link>
               </div>
             ) : (
@@ -527,11 +533,11 @@ export default function BusinessDashboardPage() {
                         <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600 }}>
                           {log.created_at ? new Date(log.created_at).toLocaleDateString('en-ZM', { day:'numeric', month:'short' }) : '—'}
                         </span>
-                        <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600 }}>K{(log.revenue||0).toLocaleString()} in</span>
-                        <span style={{ fontSize: 12, color: 'var(--red)', fontWeight: 600 }}>K{(log.expenses||0).toLocaleString()} out</span>
-                        <span style={{ fontSize: 12, color: 'var(--gold-bright)', fontWeight: 700 }}>K{((log.revenue||0)-(log.expenses||0)).toLocaleString()} profit</span>
+                        <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600 }}>{t('business_dashboard.log_amount_in', { amount: (log.revenue||0).toLocaleString() })}</span>
+                        <span style={{ fontSize: 12, color: 'var(--red)', fontWeight: 600 }}>{t('business_dashboard.log_amount_out', { amount: (log.expenses||0).toLocaleString() })}</span>
+                        <span style={{ fontSize: 12, color: 'var(--gold-bright)', fontWeight: 700 }}>{t('business_dashboard.log_amount_profit', { amount: ((log.revenue||0)-(log.expenses||0)).toLocaleString() })}</span>
                       </div>
-                      {log.customers > 0 && <span style={{ fontSize: 11, color: 'var(--muted)' }}>{log.customers} customers</span>}
+                      {log.customers > 0 && <span style={{ fontSize: 11, color: 'var(--muted)' }}>{t('business_dashboard.log_customers_count', { count: log.customers })}</span>}
                     </div>
                     {log.coaching && (
                       <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>

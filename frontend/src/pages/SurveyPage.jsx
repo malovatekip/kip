@@ -8,6 +8,7 @@ import {
 import Layout from '../components/Layout'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 /* ── Option button ───────────────────────────────────── */
 function OptionBtn({ value, selected, label, color = 'var(--blue-bright)', onClick }) {
@@ -106,6 +107,7 @@ function Options({ value, onChange, options, color }) {
 
 /* ── Progress bar ────────────────────────────────────── */
 function Progress({ sections, data }) {
+  const { t } = useT()
   const filled = sections.filter(s => {
     const check = s.requiredFields || []
     return check.some(f => data[f] !== null && data[f] !== '' && data[f] !== undefined)
@@ -115,7 +117,7 @@ function Progress({ sections, data }) {
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
         <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600 }}>
-          {filled} of {sections.length} sections completed
+          {t('survey.sections_completed', { filled, total: sections.length })}
         </span>
         <span style={{ fontSize: 12, color: pct === 100 ? 'var(--green)' : 'var(--blue-bright)', fontFamily: 'Syne', fontWeight: 700 }}>
           {pct.toFixed(0)}%
@@ -130,6 +132,7 @@ function Progress({ sections, data }) {
 
 /* ── MAIN ────────────────────────────────────────────── */
 export default function SurveyPage() {
+  const { t } = useT()
   const { planId } = useParams()
   const navigate   = useNavigate()
   const [activeSection, setActiveSection] = useState(0)
@@ -186,19 +189,19 @@ export default function SurveyPage() {
 
       await api.post('/logs/survey', payload)
       setSaved(true)
-      toast.success('Market survey saved! This improves KIP\'s advice for you.')
+      toast.success(t('survey.save_success'))
     } catch {
-      toast.error('Save failed. Try again.')
+      toast.error(t('survey.save_failed'))
     } finally {
       setSaving(false) }
   }
 
   const SECTIONS = [
-    { title: 'Location & Infrastructure',  desc: 'Physical environment, access, utilities', icon: MapPin,     color: 'var(--blue-bright)', requiredFields: ['area_type', 'foot_traffic'] },
-    { title: 'Customer Profile',           desc: 'Who buys from you and how',              icon: Users,      color: 'var(--teal)',        requiredFields: ['dominant_income_level'] },
-    { title: 'Competition',                desc: 'Who else is selling the same thing',     icon: ShoppingBag,color: 'var(--gold)',        requiredFields: ['competition_quality'] },
-    { title: 'Supply Chain',               desc: 'Where you get your stock',               icon: Truck,      color: 'var(--green)',       requiredFields: ['supplier_reliability'] },
-    { title: 'Business Environment',       desc: 'Financing, security, seasonality',       icon: Building2,  color: 'var(--muted)',       requiredFields: ['security_level'] },
+    { title: t('survey.section_location_title'),  desc: t('survey.section_location_desc'), icon: MapPin,     color: 'var(--blue-bright)', requiredFields: ['area_type', 'foot_traffic'] },
+    { title: t('survey.section_customer_title'),   desc: t('survey.section_customer_desc'),              icon: Users,      color: 'var(--teal)',        requiredFields: ['dominant_income_level'] },
+    { title: t('survey.section_competition_title'),desc: t('survey.section_competition_desc'),     icon: ShoppingBag,color: 'var(--gold)',        requiredFields: ['competition_quality'] },
+    { title: t('survey.section_supply_title'),     desc: t('survey.section_supply_desc'),               icon: Truck,      color: 'var(--green)',       requiredFields: ['supplier_reliability'] },
+    { title: t('survey.section_environment_title'),desc: t('survey.section_environment_desc'),       icon: Building2,  color: 'var(--muted)',       requiredFields: ['security_level'] },
   ]
 
   return (
@@ -209,16 +212,15 @@ export default function SurveyPage() {
         <div style={{ marginBottom: 22 }}>
           {planId && (
             <Link to={`/business/${planId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', textDecoration: 'none', marginBottom: 12 }}>
-              <ArrowLeft size={14} /> Back
+              <ArrowLeft size={14} /> {t('common.back')}
             </Link>
           )}
           <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 6 }}>
-            Market Intelligence Survey
+            {t('survey.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 580 }}>
-            Help KIP understand your local market. This makes your business recommendations,
-            daily coaching, and ML predictions far more accurate.
-            {planName && <span style={{ color: 'var(--blue-bright)', fontWeight: 600 }}> For: {planName}</span>}
+            {t('survey.subtitle')}
+            {planName && <span style={{ color: 'var(--blue-bright)', fontWeight: 600 }}> {t('survey.for_business', { name: planName })}</span>}
           </p>
         </div>
 
@@ -230,8 +232,7 @@ export default function SurveyPage() {
         }}>
           <Info size={15} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
-            Your answers are used only to improve KIP's advice for you. No section is mandatory —
-            fill in what you know. You can update this survey any time.
+            {t('survey.info_banner')}
           </p>
         </div>
 
@@ -240,7 +241,7 @@ export default function SurveyPage() {
 
         {/* Location input */}
         <div style={{ marginBottom: 16 }}>
-          <FieldLabel label="Your business location" hint="town, neighbourhood, or area" />
+          <FieldLabel label={t('survey.field_location')} hint={t('survey.field_location_hint')} />
           <TextInput value={data.location} onChange={v => set('location', v)} placeholder="e.g. Riverside, Kitwe" />
         </div>
 
@@ -248,31 +249,31 @@ export default function SurveyPage() {
         <SurveySection num="1" icon={MapPin} title={SECTIONS[0].title} desc={SECTIONS[0].desc}
           color={SECTIONS[0].color} active={activeSection === 0} onToggle={() => setActiveSection(activeSection === 0 ? -1 : 0)}>
 
-          <FieldLabel label="Area type" />
+          <FieldLabel label={t('survey.field_area_type')} />
           <Options value={data.area_type} onChange={v => set('area_type', v)} color="var(--blue-bright)" options={[
-            {v:'residential',l:'Residential'},{v:'commercial',l:'Commercial'},{v:'market',l:'Market Area'},
-            {v:'cbd',l:'CBD'},{v:'industrial',l:'Industrial'},{v:'peri_urban',l:'Peri-Urban'},
+            {v:'residential',l:t('survey.opt_residential')},{v:'commercial',l:t('survey.opt_commercial')},{v:'market',l:t('survey.opt_market_area')},
+            {v:'cbd',l:t('survey.opt_cbd')},{v:'industrial',l:t('survey.opt_industrial')},{v:'peri_urban',l:t('survey.opt_peri_urban')},
           ]} />
 
-          <FieldLabel label="Foot traffic level" hint="how many people pass your location daily" />
+          <FieldLabel label={t('survey.field_foot_traffic')} hint={t('survey.field_foot_traffic_hint')} />
           <Options value={data.foot_traffic} onChange={v => set('foot_traffic', v)} color="var(--blue-bright)" options={[
-            {v:'very_high',l:'Very High (500+/day)'},{v:'high',l:'High (200–500)'},
-            {v:'medium',l:'Medium (50–200)'},{v:'low',l:'Low (<50)'},
+            {v:'very_high',l:t('survey.opt_very_high_traffic')},{v:'high',l:t('survey.opt_high_traffic')},
+            {v:'medium',l:t('survey.opt_medium_traffic')},{v:'low',l:t('survey.opt_low_traffic')},
           ]} />
 
-          <FieldLabel label="Road access" />
+          <FieldLabel label={t('survey.field_road_access')} />
           <Options value={data.road_access} onChange={v => set('road_access', v)} color="var(--blue-bright)" options={[
-            {v:'tarmac',l:'Tarmac road'},{v:'gravel',l:'Gravel road'},{v:'poor',l:'Poor/Dirt'},
+            {v:'tarmac',l:t('survey.opt_tarmac_road')},{v:'gravel',l:t('survey.opt_gravel_road')},{v:'poor',l:t('survey.opt_poor_dirt')},
           ]} />
 
-          <FieldLabel label="Electricity reliability" />
+          <FieldLabel label={t('survey.field_electricity')} />
           <Options value={data.power_reliability} onChange={v => set('power_reliability', v)} color="var(--blue-bright)" options={[
-            {v:'reliable',l:'Reliable'},{v:'load_shedding',l:'Load shedding'},{v:'unreliable',l:'Very unreliable'},
+            {v:'reliable',l:t('general_survey.opt_reliable')},{v:'load_shedding',l:t('general_survey.opt_load_shedding')},{v:'unreliable',l:t('general_survey.opt_very_unreliable')},
           ]} />
 
-          <FieldLabel label="Internet access" />
+          <FieldLabel label={t('survey.field_internet')} />
           <Options value={data.internet_access} onChange={v => set('internet_access', v)} color="var(--blue-bright)" options={[
-            {v:'good',l:'Good (4G)'},{v:'fair',l:'Fair (3G)'},{v:'poor',l:'Poor'},{v:'none',l:'No internet'},
+            {v:'good',l:t('general_survey.opt_good_4g')},{v:'fair',l:t('general_survey.opt_fair_3g')},{v:'poor',l:t('general_survey.opt_poor')},{v:'none',l:t('survey.opt_no_internet')},
           ]} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
@@ -287,12 +288,12 @@ export default function SurveyPage() {
                 left: data.has_nearby_market ? 20 : 4,
               }} />
             </button>
-            <span style={{ fontSize: 13, color: 'var(--muted)' }}>There is a market or trading area nearby</span>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{t('survey.nearby_market_toggle')}</span>
           </div>
 
           {data.has_nearby_market && (
             <>
-              <FieldLabel label="Distance to nearest market" />
+              <FieldLabel label={t('survey.field_market_distance')} />
               <NumInput value={data.market_distance_km} onChange={v => set('market_distance_km', v)} placeholder="0.5" prefix="km" />
             </>
           )}
@@ -302,31 +303,31 @@ export default function SurveyPage() {
         <SurveySection num="2" icon={Users} title={SECTIONS[1].title} desc={SECTIONS[1].desc}
           color={SECTIONS[1].color} active={activeSection === 1} onToggle={() => setActiveSection(activeSection === 1 ? -1 : 1)}>
 
-          <FieldLabel label="Dominant income level in this area" />
+          <FieldLabel label={t('survey.field_income_level')} />
           <Options value={data.dominant_income_level} onChange={v => set('dominant_income_level', v)} color="var(--teal)" options={[
-            {v:'low',l:'Low income'},{v:'lower_mid',l:'Lower middle'},
-            {v:'middle',l:'Middle class'},{v:'upper',l:'Upper middle / High'},
+            {v:'low',l:t('general_survey.opt_low_income')},{v:'lower_mid',l:t('general_survey.opt_lower_middle')},
+            {v:'middle',l:t('general_survey.opt_middle_class')},{v:'upper',l:t('survey.opt_upper_middle_high')},
           ]} />
 
-          <FieldLabel label="What do most people in the area do for work?" />
+          <FieldLabel label={t('survey.field_primary_occupation')} />
           <Options value={data.primary_occupation} onChange={v => set('primary_occupation', v)} color="var(--teal)" options={[
-            {v:'mining',l:'Mining'},{v:'farming',l:'Farming'},{v:'government',l:'Government'},
-            {v:'informal_trade',l:'Informal trade'},{v:'formal_employment',l:'Formal employment'},
-            {v:'mixed',l:'Mixed'},{v:'students',l:'Students'},
+            {v:'mining',l:t('survey.opt_mining')},{v:'farming',l:t('survey.opt_farming')},{v:'government',l:t('survey.opt_government')},
+            {v:'informal_trade',l:t('survey.opt_informal_trade')},{v:'formal_employment',l:t('survey.opt_formal_employment')},
+            {v:'mixed',l:t('survey.opt_mixed')},{v:'students',l:t('survey.opt_students')},
           ]} />
 
-          <FieldLabel label="Peak shopping time" hint="when do people buy most" />
+          <FieldLabel label={t('survey.field_peak_shopping_time')} hint={t('survey.field_peak_shopping_time_hint')} />
           <Options value={data.peak_shopping_time} onChange={v => set('peak_shopping_time', v)} color="var(--teal)" options={[
-            {v:'morning',l:'Morning (7–11am)'},{v:'afternoon',l:'Afternoon (12–4pm)'},
-            {v:'evening',l:'Evening (5–8pm)'},{v:'weekend',l:'Weekends'},
+            {v:'morning',l:t('survey.opt_morning')},{v:'afternoon',l:t('survey.opt_afternoon')},
+            {v:'evening',l:t('survey.opt_evening')},{v:'weekend',l:t('survey.opt_weekends')},
           ]} />
 
-          <FieldLabel label="How do people prefer to pay?" />
+          <FieldLabel label={t('survey.field_payment_preference')} />
           <Options value={data.payment_preference} onChange={v => set('payment_preference', v)} color="var(--teal)" options={[
-            {v:'cash',l:'Cash only'},{v:'mobile_money',l:'Mobile money'},{v:'mix',l:'Mix of both'},
+            {v:'cash',l:t('survey.opt_cash_only')},{v:'mobile_money',l:t('survey.opt_mobile_money')},{v:'mix',l:t('survey.opt_mix_of_both')},
           ]} />
 
-          <FieldLabel label="Average spend per visit (estimate in ZMW)" />
+          <FieldLabel label={t('survey.field_avg_spend')} />
           <NumInput value={data.avg_spend_per_visit} onChange={v => set('avg_spend_per_visit', v)} placeholder="50" prefix="K" />
         </SurveySection>
 
@@ -334,26 +335,26 @@ export default function SurveyPage() {
         <SurveySection num="3" icon={ShoppingBag} title={SECTIONS[2].title} desc={SECTIONS[2].desc}
           color={SECTIONS[2].color} active={activeSection === 2} onToggle={() => setActiveSection(activeSection === 2 ? -1 : 2)}>
 
-          <FieldLabel label="How many direct competitors are nearby?" />
+          <FieldLabel label={t('survey.field_competitors_count')} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {[{v:'0',l:'None'},{v:'1',l:'1'},{v:'2',l:'2-3'},{v:'5',l:'4-6'},{v:'10',l:'7+'}].map(o => (
+            {[{v:'0',l:t('survey.opt_none')},{v:'1',l:'1'},{v:'2',l:'2-3'},{v:'5',l:'4-6'},{v:'10',l:'7+'}].map(o => (
               <OptionBtn key={o.v} value={o.v} label={o.l} selected={data.direct_competitors_count == o.v}
                 color="var(--gold)" onClick={v => set('direct_competitors_count', v)} />
             ))}
           </div>
 
-          <FieldLabel label="How strong is the competition?" />
+          <FieldLabel label={t('survey.field_competition_strength')} />
           <Options value={data.competition_quality} onChange={v => set('competition_quality', v)} color="var(--gold)" options={[
-            {v:'none',l:'No competition'},{v:'weak',l:'Weak'},{v:'moderate',l:'Moderate'},{v:'strong',l:'Strong'},
+            {v:'none',l:t('survey.opt_no_competition')},{v:'weak',l:t('survey.opt_weak')},{v:'moderate',l:t('survey.opt_moderate')},{v:'strong',l:t('survey.opt_strong')},
           ]} />
 
-          <FieldLabel label="Main weakness of existing competitors" hint="what are they bad at?" />
+          <FieldLabel label={t('survey.field_competitor_weakness')} hint={t('survey.field_competitor_weakness_hint')} />
           <TextInput value={data.main_competitor_weakness} onChange={v => set('main_competitor_weakness', v)}
-            placeholder='e.g. "Always out of stock" or "Rude to customers" or "Closes early"' />
+            placeholder={t('survey.field_competitor_weakness_placeholder')} />
 
-          <FieldLabel label="What is missing in this area?" hint="gaps in the market you've noticed" />
+          <FieldLabel label={t('survey.field_market_gaps')} hint={t('survey.field_market_gaps_hint')} />
           <textarea value={data.market_gaps_noted || ''} onChange={e => set('market_gaps_noted', e.target.value)}
-            placeholder='e.g. "No one delivers food in the evening" or "No phone repair shop within 3km"'
+            placeholder={t('survey.field_market_gaps_placeholder')}
             className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13, marginBottom: 14 }} />
         </SurveySection>
 
@@ -361,18 +362,18 @@ export default function SurveyPage() {
         <SurveySection num="4" icon={Truck} title={SECTIONS[3].title} desc={SECTIONS[3].desc}
           color={SECTIONS[3].color} active={activeSection === 3} onToggle={() => setActiveSection(activeSection === 3 ? -1 : 3)}>
 
-          <FieldLabel label="Distance to nearest wholesale market" />
+          <FieldLabel label={t('survey.field_wholesale_distance')} />
           <NumInput value={data.nearest_wholesale_km} onChange={v => set('nearest_wholesale_km', v)} placeholder="5" prefix="km" />
 
-          <FieldLabel label="How reliable are your suppliers?" />
+          <FieldLabel label={t('survey.field_supplier_reliability')} />
           <Options value={data.supplier_reliability} onChange={v => set('supplier_reliability', v)} color="var(--green)" options={[
-            {v:'good',l:'Good — always on time'},{v:'fair',l:'Fair — usually on time'},
-            {v:'poor',l:'Poor — often late or out of stock'},
+            {v:'good',l:t('survey.opt_supplier_good')},{v:'fair',l:t('survey.opt_supplier_fair')},
+            {v:'poor',l:t('survey.opt_supplier_poor')},
           ]} />
 
-          <FieldLabel label="Where do you get your main stock?" />
+          <FieldLabel label={t('survey.field_main_supply_source')} />
           <TextInput value={data.main_supply_source} onChange={v => set('main_supply_source', v)}
-            placeholder='e.g. "Chisokone Market, Kitwe" or "Downtown Lusaka" or "Direct from factory"' />
+            placeholder={t('survey.field_main_supply_source_placeholder')} />
         </SurveySection>
 
         {/* Section 5 — Business Environment */}
@@ -380,12 +381,12 @@ export default function SurveyPage() {
           color={SECTIONS[4].color} active={activeSection === 4} onToggle={() => setActiveSection(activeSection === 4 ? -1 : 4)}>
 
           {/* Financing nearby */}
-          <FieldLabel label="Financing options nearby" hint="select all that apply" />
+          <FieldLabel label={t('survey.field_financing_options')} hint={t('survey.field_financing_options_hint')} />
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
             {[
-              { key: 'has_cdf_office',  label: 'CDF Office',   color: 'var(--teal)' },
-              { key: 'has_ceec_office', label: 'CEEC Office',  color: 'var(--teal)' },
-              { key: 'has_bank_branch', label: 'Bank Branch',  color: 'var(--teal)' },
+              { key: 'has_cdf_office',  label: t('survey.opt_cdf_office'),   color: 'var(--teal)' },
+              { key: 'has_ceec_office', label: t('survey.opt_ceec_office'),  color: 'var(--teal)' },
+              { key: 'has_bank_branch', label: t('survey.opt_bank_branch'),  color: 'var(--teal)' },
             ].map(({ key, label, color }) => (
               <button key={key} onClick={() => set(key, !data[key])} style={{
                 display: 'flex', alignItems: 'center', gap: 7,
@@ -402,9 +403,9 @@ export default function SurveyPage() {
             ))}
           </div>
 
-          <FieldLabel label="Security level" />
+          <FieldLabel label={t('survey.field_security_level')} />
           <Options value={data.security_level} onChange={v => set('security_level', v)} color="var(--muted)" options={[
-            {v:'safe',l:'Safe area'},{v:'moderate',l:'Moderate'},{v:'risky',l:'Risky'},
+            {v:'safe',l:t('survey.opt_safe_area')},{v:'moderate',l:t('survey.opt_moderate')},{v:'risky',l:t('survey.opt_risky')},
           ]} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
@@ -418,20 +419,20 @@ export default function SurveyPage() {
                 transition: 'left 0.2s ease', left: data.seasonal_business ? 20 : 4,
               }} />
             </button>
-            <span style={{ fontSize: 13, color: 'var(--muted)' }}>Business is seasonal (sales vary by month)</span>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{t('survey.seasonal_business_toggle')}</span>
           </div>
 
           {data.seasonal_business && (
             <>
-              <FieldLabel label="When are peak months?" />
+              <FieldLabel label={t('survey.field_peak_months')} />
               <TextInput value={data.peak_season_months} onChange={v => set('peak_season_months', v)}
-                placeholder='e.g. "December-January" or "May-August"' />
+                placeholder={t('survey.field_peak_months_placeholder')} />
             </>
           )}
 
-          <FieldLabel label="Anything else KIP should know about your area" hint="optional" />
+          <FieldLabel label={t('survey.field_anything_else')} hint={t('templates.optional')} />
           <textarea value={data.additional_notes || ''} onChange={e => set('additional_notes', e.target.value)}
-            placeholder='e.g. "New shopping mall opening nearby" or "Most residents are miners who get paid on the 25th"'
+            placeholder={t('survey.field_anything_else_placeholder')}
             className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
         </SurveySection>
 
@@ -447,10 +448,10 @@ export default function SurveyPage() {
             opacity: saving ? 0.7 : 1, transition: 'all 0.25s ease',
           }}>
             {saving
-              ? <><div style={{ width: 17, height: 17, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> Saving…</>
+              ? <><div style={{ width: 17, height: 17, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> {t('survey.saving')}</>
               : saved
-                ? <><CheckCircle size={17} /> Survey Saved — KIP is Learning</>
-                : <><Send size={17} /> Save Market Intelligence</>
+                ? <><CheckCircle size={17} /> {t('survey.saved_kip_learning')}</>
+                : <><Send size={17} /> {t('survey.save_button')}</>
             }
           </button>
           {planId && saved && (
@@ -462,14 +463,14 @@ export default function SurveyPage() {
               border: '1px solid rgba(27,110,243,0.3)',
               background: 'rgba(27,110,243,0.06)',
             }}>
-              Back to Business <ArrowRight size={14} />
+              {t('survey.back_to_business')} <ArrowRight size={14} />
             </Link>
           )}
         </div>
 
         {saved && (
           <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--muted)', marginTop: 12 }}>
-            KIP will use this intelligence in your daily coaching, business recommendations, and market predictions.
+            {t('survey.saved_footer_note')}
           </p>
         )}
 

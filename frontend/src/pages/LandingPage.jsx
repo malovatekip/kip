@@ -135,7 +135,6 @@ export default function LandingPage() {
               <Link to="/login" className="kip-btn kip-btn-ghost" style={{ fontSize: 15, padding: '13px 28px' }}>
                 Sign In
               </Link>
-              <Link to="/pricing" className="kip-btn kip-btn-primary" style={{ fontSize: 15, padding: '13px 28px' }}>View Pricing</Link>
             </div>
           </div>
         </section>

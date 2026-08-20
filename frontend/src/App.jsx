@@ -5,7 +5,6 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 // import { LoginPage, RegisterPage } from './pages/AuthPages'
 import { ThemeProvider } from './hooks/useTheme'
-import { PricingPage, BillingPage } from './pages/PricingAndBilling'
 
 import LandingPage           from './pages/LandingPage'
 import LoginPage             from './pages/LoginPage'
@@ -77,9 +76,6 @@ function AppRoutes() {
         <Route path="/verify-email"  element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password"  element={<ResetPasswordPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-
-
 
         {/* Legal — public, no auth required */}
         <Route path="/legal/terms"   element={<TermsPage />} />
@@ -89,7 +85,6 @@ function AppRoutes() {
         <Route path="/contact"       element={<ContactPage />} />
 
         {/* Protected */}
-        <Route path="/billing" element={<Protected><BillingPage /></Protected>} />
         <Route path="/dashboard"   element={<Protected><DashboardPage /></Protected>} />
         <Route path="/chat"        element={<Protected><ChatPage /></Protected>} />
         <Route path="/chat/:id"    element={<Protected><ChatPage /></Protected>} />

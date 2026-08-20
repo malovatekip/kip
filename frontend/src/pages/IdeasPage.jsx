@@ -8,9 +8,11 @@ import Layout from '../components/Layout'
 import AddBusinessModal from '../components/AddBusinessModal'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
+import { useT } from '../context/TranslationContext'
 
 /* ── Branch manager notification banner ──────────────── */
 function BranchNotificationBanner() {
+  const { t } = useT()
   const [notifications, setNotifications] = useState([])
   const [dismissed,     setDismissed]     = useState(false)
 
@@ -41,7 +43,7 @@ function BranchNotificationBanner() {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--blue-bright)', marginBottom: 4 }}>
-              Branch Manager Assignment
+              {t('ideas.branch_manager_assignment')}
             </div>
             <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6 }}>
               <KipMarkdown content={n.message} />
@@ -49,7 +51,7 @@ function BranchNotificationBanner() {
             {n.branch_id && (
               <Link to={`/business/${n.branch_id}`}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8, fontSize: 12, color: 'var(--blue-bright)', fontFamily: 'Syne', fontWeight: 600, textDecoration: 'none' }}>
-                View Branch Dashboard <ArrowRight size={12} />
+                {t('ideas.view_branch_dashboard')} <ArrowRight size={12} />
               </Link>
             )}
           </div>
@@ -64,6 +66,7 @@ function BranchNotificationBanner() {
 
 /* ── Idea card ───────────────────────────────────────── */
 function IdeaCard({ idea, onFeedback, onStart, startingId }) {
+  const { t } = useT()
   const [declining, setDeclining] = useState(false)
   const [reason,    setReason]    = useState('')
   const isStarting = startingId === idea.id
@@ -71,20 +74,20 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
 
   const accept = async () => {
     try { await api.post(`/ideas/${idea.id}/feedback`, { accepted: true }); onFeedback() }
-    catch { toast.error('Failed to save feedback.') }
+    catch { toast.error(t('ideas.feedback_failed')) }
   }
   const decline = async () => {
     try {
       await api.post(`/ideas/${idea.id}/feedback`, { accepted: false, decline_reason: reason })
       onFeedback(); setDeclining(false)
-    } catch { toast.error('Failed to save feedback.') }
+    } catch { toast.error(t('ideas.feedback_failed')) }
   }
 
   const status = idea.accepted === true
-    ? { label: 'Accepted', color: 'var(--green)',       bg: 'rgba(26,224,110,0.1)',  border: 'rgba(26,224,110,0.25)',  Icon: CheckCircle }
+    ? { label: t('ideas.status_accepted'), color: 'var(--green)',       bg: 'rgba(26,224,110,0.1)',  border: 'rgba(26,224,110,0.25)',  Icon: CheckCircle }
     : idea.accepted === false
-    ? { label: 'Declined', color: 'var(--red)',         bg: 'rgba(255,77,106,0.1)',  border: 'rgba(255,77,106,0.25)',  Icon: XCircle }
-    : { label: 'Pending',  color: 'var(--blue-bright)', bg: 'rgba(75,158,255,0.1)',  border: 'rgba(75,158,255,0.25)',  Icon: Clock }
+    ? { label: t('ideas.status_declined'), color: 'var(--red)',         bg: 'rgba(255,77,106,0.1)',  border: 'rgba(255,77,106,0.25)',  Icon: XCircle }
+    : { label: t('ideas.status_pending'),  color: 'var(--blue-bright)', bg: 'rgba(75,158,255,0.1)',  border: 'rgba(75,158,255,0.25)',  Icon: Clock }
 
   return (
     <div className="kip-card animate-slide-up" style={{ padding: 20 }}>
@@ -111,7 +114,7 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
               </h3>
               {isUserAdded && (
                 <span style={{ fontSize: 9, fontFamily: 'Syne', fontWeight: 700, color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.3)', borderRadius: 20, padding: '2px 7px' }}>
-                  MY BUSINESS
+                  {t('ideas.my_business_badge')}
                 </span>
               )}
             </div>
@@ -156,7 +159,7 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
             fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--gold)',
             background: 'var(--gold-dim)', border: '1px solid rgba(232,151,62,0.35)',
           }}>
-            <Rocket size={13} /> View Business Dashboard
+            <Rocket size={13} /> {t('ideas.view_business_dashboard')}
           </Link>
         )}
 
@@ -169,8 +172,8 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
             opacity: isStarting ? 0.65 : 1,
           }}>
             {isStarting
-              ? <><div style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid var(--gold)', borderTopColor: 'transparent', animation: 'spinSlow 0.8s linear infinite' }} /> Generating Plan…</>
-              : <><Rocket size={13} /> Start Business — Get Launch Plan</>
+              ? <><div style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid var(--gold)', borderTopColor: 'transparent', animation: 'spinSlow 0.8s linear infinite' }} /> {t('ideas.generating_plan')}</>
+              : <><Rocket size={13} /> {t('ideas.start_business')}</>
             }
           </button>
         )}
@@ -178,11 +181,11 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
         {(idea.accepted === null || idea.accepted === undefined) && !idea.plan_id && !isUserAdded && (
           declining ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              <textarea rows={2} placeholder="Why declining? (optional)" className="kip-input"
+              <textarea rows={2} placeholder={t('ideas.decline_reason_placeholder')} className="kip-input"
                 style={{ resize: 'none', fontSize: 12 }} value={reason} onChange={e => setReason(e.target.value)} />
               <div style={{ display: 'flex', gap: 7 }}>
-                <button onClick={decline} className="kip-btn kip-btn-primary" style={{ flex: 1, padding: '8px 0', fontSize: 12 }}>Submit</button>
-                <button onClick={() => setDeclining(false)} className="kip-btn kip-btn-ghost" style={{ flex: 1, padding: '8px 0', fontSize: 12 }}>Cancel</button>
+                <button onClick={decline} className="kip-btn kip-btn-primary" style={{ flex: 1, padding: '8px 0', fontSize: 12 }}>{t('common.submit')}</button>
+                <button onClick={() => setDeclining(false)} className="kip-btn kip-btn-ghost" style={{ flex: 1, padding: '8px 0', fontSize: 12 }}>{t('common.cancel')}</button>
               </div>
             </div>
           ) : (
@@ -192,14 +195,14 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
                 padding: '9px 0', borderRadius: 9, cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'Syne',
                 color: 'var(--green)', background: 'var(--green-dim)', border: '1px solid rgba(26,224,110,0.25)',
               }}>
-                <ThumbsUp size={12} /> Accept
+                <ThumbsUp size={12} /> {t('ideas.accept')}
               </button>
               <button onClick={() => setDeclining(true)} style={{
                 flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
                 padding: '9px 0', borderRadius: 9, cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'Syne',
                 color: 'var(--red)', background: 'var(--red-dim)', border: '1px solid rgba(255,77,106,0.25)',
               }}>
-                <ThumbsDown size={12} /> Decline
+                <ThumbsDown size={12} /> {t('ideas.decline')}
               </button>
             </div>
           )
@@ -215,6 +218,7 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
 
 /* ── Main ────────────────────────────────────────────── */
 export default function IdeasPage() {
+  const { t } = useT()
   const [ideas,       setIdeas]       = useState([])
   const [loading,     setLoading]     = useState(true)
   const [startingId,  setStartingId]  = useState(null)
@@ -246,11 +250,11 @@ export default function IdeasPage() {
     try {
       const { data } = await api.post('/business/start', { idea_id: ideaId })
       const planId   = data.plan_id ?? data.id ?? null
-      if (!planId) { toast.error('Plan created but ID missing. Refresh the page.'); fetchIdeas(); return }
-      toast.success('Launch plan ready!')
+      if (!planId) { toast.error(t('ideas.plan_id_missing')); fetchIdeas(); return }
+      toast.success(t('ideas.launch_plan_ready'))
       navigate(`/business/${planId}`)
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not start. Try again.')
+      toast.error(err.response?.data?.detail || t('ideas.could_not_start'))
     } finally { setStartingId(null) }
   }
 
@@ -269,14 +273,14 @@ export default function IdeasPage() {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
           <div>
             <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 24, color: 'var(--text)', marginBottom: 5 }}>
-              My Business Ideas
+              {t('ideas.title')}
             </h1>
             <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-              KIP-generated ideas and your own businesses — all in one place.
+              {t('ideas.subtitle')}
             </p>
           </div>
           <button onClick={() => setShowAddModal(true)} className="kip-btn kip-btn-copper" style={{ fontSize: 13, padding: '10px 18px' }}>
-            <Building2 size={15} /> Add My Business
+            <Building2 size={15} /> {t('ideas.add_my_business')}
           </button>
         </div>
 
@@ -292,15 +296,15 @@ export default function IdeasPage() {
           <div className="kip-card" style={{ textAlign: 'center', padding: '52px 24px' }}>
             <Lightbulb size={48} style={{ color: 'var(--faint)', margin: '0 auto 16px', display: 'block' }} className="animate-float" />
             <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
-              No ideas yet
+              {t('ideas.no_ideas_title')}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 22 }}>
-              Ask KIP for a business idea, or add a business you're already running.
+              {t('ideas.no_ideas_desc')}
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>Ask KIP Now</Link>
+              <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>{t('ideas.ask_kip_now')}</Link>
               <button onClick={() => setShowAddModal(true)} className="kip-btn kip-btn-copper" style={{ fontSize: 13 }}>
-                <Building2 size={14} /> Add My Business
+                <Building2 size={14} /> {t('ideas.add_my_business')}
               </button>
             </div>
           </div>

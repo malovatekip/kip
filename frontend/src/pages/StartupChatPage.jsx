@@ -27,6 +27,7 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
+import { useT } from '../context/TranslationContext'
 
 // ─── SYSTEM PROMPT SENT TO K-BIG-1 ───────────────────────────────────────────
 // This is injected as the first "user" message to frame the assistant's role.
@@ -55,69 +56,70 @@ Answer their questions specifically about this step. You may also help with rela
 
 // ─── SUGGESTION CHIPS — context-aware ────────────────────────────────────────
 
-function suggestionsForStep(stepContext) {
+function suggestionsForStep(stepContext, t) {
   if (!stepContext) {
     return [
-      'What business structure should I choose in Zambia?',
-      'How long does PACRA registration take?',
-      'What is a TPIN and how do I get one?',
-      'Do I need to register for VAT as a new business?',
+      t('startup_chat.suggestion_default_1'),
+      t('startup_chat.suggestion_default_2'),
+      t('startup_chat.suggestion_default_3'),
+      t('startup_chat.suggestion_default_4'),
     ]
   }
   const title = stepContext.title || ''
   if (title.includes('PACRA')) return [
-    'What documents do I need to register a Private Limited Company?',
-    'Can I register online or must I visit PACRA in person?',
-    'What is the difference between a Business Name and a Private Limited Company?',
-    'How do I do a name search before registering?',
+    t('startup_chat.suggestion_pacra_1'),
+    t('startup_chat.suggestion_pacra_2'),
+    t('startup_chat.suggestion_pacra_3'),
+    t('startup_chat.suggestion_pacra_4'),
   ]
   if (title.includes('ZRA') || title.includes('Tax')) return [
-    'Will my TPIN be generated automatically after PACRA registration?',
-    'When should I register for VAT?',
-    'What is Turnover Tax and is it right for my business?',
-    'How do I file a NIL return if I made no sales?',
+    t('startup_chat.suggestion_zra_1'),
+    t('startup_chat.suggestion_zra_2'),
+    t('startup_chat.suggestion_zra_3'),
+    t('startup_chat.suggestion_zra_4'),
   ]
   if (title.includes('NAPSA')) return [
-    'When exactly must I register with NAPSA after hiring?',
-    'How do I calculate NAPSA contributions for my employees?',
-    'What happens if I miss a NAPSA payment deadline?',
-    'Can a director of the company also be registered as an employee under NAPSA?',
+    t('startup_chat.suggestion_napsa_1'),
+    t('startup_chat.suggestion_napsa_2'),
+    t('startup_chat.suggestion_napsa_3'),
+    t('startup_chat.suggestion_napsa_4'),
   ]
   if (title.includes('NHIMA')) return [
-    'What is the difference between NAPSA and NHIMA?',
-    'How do employees access health services through NHIMA?',
-    'Is there a ceiling on NHIMA contributions?',
-    'How do I register on the eNHIMA portal?',
+    t('startup_chat.suggestion_nhima_1'),
+    t('startup_chat.suggestion_nhima_2'),
+    t('startup_chat.suggestion_nhima_3'),
+    t('startup_chat.suggestion_nhima_4'),
   ]
   if (title.includes('NCC')) return [
-    'What NCC grade should a new construction company start with?',
-    'What financial documents does NCC require to assess my grade?',
-    'Can I tender for government projects immediately after NCC registration?',
-    'How do I upgrade my NCC grade after completing projects?',
+    t('startup_chat.suggestion_ncc_1'),
+    t('startup_chat.suggestion_ncc_2'),
+    t('startup_chat.suggestion_ncc_3'),
+    t('startup_chat.suggestion_ncc_4'),
   ]
   if (title.includes('Bank Account')) return [
-    'Which bank is best for a small business in Zambia?',
-    'Can I open a business account without a physical office?',
-    'What is the minimum deposit required to open a business account?',
-    'Can I use mobile money instead of a bank account?',
+    t('startup_chat.suggestion_bank_1'),
+    t('startup_chat.suggestion_bank_2'),
+    t('startup_chat.suggestion_bank_3'),
+    t('startup_chat.suggestion_bank_4'),
   ]
   if (title.includes('Trading Licence') || title.includes('Local Council')) return [
-    'Which council do I go to if I operate online with no fixed premises?',
-    'What happens if I operate without a Trading Licence?',
-    'How often must I renew my Trading Licence?',
-    'Do I need a separate licence for each premises I operate from?',
+    t('startup_chat.suggestion_trading_licence_1'),
+    t('startup_chat.suggestion_trading_licence_2'),
+    t('startup_chat.suggestion_trading_licence_3'),
+    t('startup_chat.suggestion_trading_licence_4'),
   ]
   return [
-    `What is the most important thing to know about ${stepContext.title}?`,
-    'What are the most common mistakes founders make at this step?',
-    'How long does this step typically take in practice?',
-    'Are there any recent changes I should be aware of?',
+    t('startup_chat.suggestion_fallback_1', { title: stepContext.title }),
+    t('startup_chat.suggestion_fallback_2'),
+    t('startup_chat.suggestion_fallback_3'),
+    t('startup_chat.suggestion_fallback_4'),
   ]
 }
 
 // ─── CONVERSATION LIST PANEL ──────────────────────────────────────────────────
 
 function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading, mobile, onClose }) {
+  const { t } = useT()
   return (
     <div style={{
       display: 'flex', flexDirection: 'column',
@@ -130,7 +132,7 @@ function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-          Startup Chats
+          {t('startup_chat.conversations_header')}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={onNew} style={{
@@ -139,7 +141,7 @@ function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading,
             border: '1px solid rgba(43,127,255,0.3)', color: 'var(--blue-bright)',
             cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 11,
           }}>
-            <Plus size={12} /> New
+            <Plus size={12} /> {t('startup_chat.new_button')}
           </button>
           {mobile && (
             <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 2 }}>
@@ -157,7 +159,7 @@ function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading,
         ) : conversations.length === 0 ? (
           <div style={{ padding: '24px 12px', textAlign: 'center' }}>
             <Rocket size={24} style={{ color: 'var(--faint)', margin: '0 auto 8px', display: 'block' }} />
-            <p style={{ fontSize: 11, color: 'var(--faint)', margin: 0 }}>No conversations yet</p>
+            <p style={{ fontSize: 11, color: 'var(--faint)', margin: 0 }}>{t('startup_chat.no_conversations')}</p>
           </div>
         ) : conversations.map(conv => {
           const active = conv.id === activeId
@@ -179,7 +181,7 @@ function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading,
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 fontWeight: active ? 600 : 400,
               }}>
-                {conv.title || 'Startup question'}
+                {conv.title || t('startup_chat.default_conv_title')}
               </span>
               <button
                 onClick={e => { e.stopPropagation(); onDelete(conv.id) }}
@@ -198,6 +200,7 @@ function ConvList({ conversations, activeId, onSelect, onNew, onDelete, loading,
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function StartupChatPage() {
+  const { t }         = useT()
   const { stepId }   = useParams()          // optional — step that opened this chat
   const location     = useLocation()
   const navigate     = useNavigate()
@@ -218,7 +221,7 @@ export default function StartupChatPage() {
   const bottomRef = useRef(null)
   const inputRef  = useRef(null)
 
-  const suggestions = suggestionsForStep(stepContext)
+  const suggestions = suggestionsForStep(stepContext, t)
 
   // ── Load conversation list ──
   const loadConversations = useCallback(async () => {
@@ -257,7 +260,7 @@ export default function StartupChatPage() {
       const { data } = await api.get(`/startup-chat/conversations/${conv.id}`)
       setMessages(data.messages || [])
     } catch {
-      toast.error('Could not load conversation.')
+      toast.error(t('startup_chat.error_load_conversation'))
     } finally {
       setLoadingMsgs(false)
     }
@@ -274,14 +277,14 @@ export default function StartupChatPage() {
 
   // ── Delete conversation ──
   const deleteConversation = async (convId) => {
-    if (!confirm('Delete this conversation?')) return
+    if (!confirm(t('startup_chat.confirm_delete'))) return
     try {
       await api.delete(`/startup-chat/conversations/${convId}`)
       setConversations(prev => prev.filter(c => c.id !== convId))
       if (activeConvId === convId) startNew()
-      toast.success('Deleted.')
+      toast.success(t('startup_chat.deleted_success'))
     } catch {
-      toast.error('Could not delete.')
+      toast.error(t('startup_chat.error_delete'))
     }
   }
 
@@ -329,7 +332,7 @@ export default function StartupChatPage() {
         // with the startup system prompt injected as a prefix
         setChatError('startup_chat_not_ready')
       } else {
-        toast.error(detail || 'Could not reach KIP. Try again.')
+        toast.error(detail || t('startup_chat.error_generic_send'))
       }
     } finally {
       setSending(false)
@@ -370,7 +373,7 @@ export default function StartupChatPage() {
       ])
     } catch {
       setMessages(prev => prev.filter(m => !m._temp))
-      toast.error('Send failed. Please try again.')
+      toast.error(t('startup_chat.error_send_fallback'))
     } finally {
       setSending(false)
       setTimeout(() => inputRef.current?.focus(), 50)
@@ -388,8 +391,8 @@ export default function StartupChatPage() {
   // ── Active conversation title ──
   const activeConv = conversations.find(c => c.id === activeConvId)
   const chatTitle  = stepContext
-    ? `Ask KIP about: ${stepContext.title}`
-    : activeConv?.title || 'Startup Registration Advisor'
+    ? t('startup_chat.chat_title_with_step', { title: stepContext.title })
+    : activeConv?.title || t('startup_chat.default_chat_title')
 
   return (
     <Layout>
@@ -411,7 +414,7 @@ export default function StartupChatPage() {
               background: 'var(--input-bg)', border: '1px solid var(--border)',
             }}
           >
-            <ArrowLeft size={13} /> Startup Guide
+            <ArrowLeft size={13} /> {t('startup_chat.back_to_guide')}
           </Link>
 
           {/* Step context badge */}
@@ -444,7 +447,7 @@ export default function StartupChatPage() {
             }}
           >
             <MessageSquare size={13} />
-            History
+            {t('startup_chat.history_button')}
           </button>
         </div>
 
@@ -482,7 +485,7 @@ export default function StartupChatPage() {
                 />
                 <div style={{ padding: '10px 14px' }}>
                   <button onClick={() => setShowConvList(false)} style={{ width: '100%', padding: '12px 0', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 600, fontSize: 14 }}>
-                    Close
+                    {t('common.close')}
                   </button>
                 </div>
               </div>
@@ -509,7 +512,7 @@ export default function StartupChatPage() {
                   {chatTitle}
                 </div>
                 <div style={{ fontSize: 10, color: 'var(--teal)' }}>
-                  KIP Startup Registration Advisor
+                  {t('startup_chat.advisor_subtitle')}
                 </div>
               </div>
               <button onClick={startNew} style={{
@@ -517,7 +520,7 @@ export default function StartupChatPage() {
                 background: 'rgba(43,127,255,0.12)', border: '1px solid rgba(43,127,255,0.25)',
                 color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 11, flexShrink: 0,
               }}>
-                <Plus size={12} /> New
+                <Plus size={12} /> {t('startup_chat.new_button')}
               </button>
             </div>
 
@@ -542,7 +545,7 @@ export default function StartupChatPage() {
                       <Rocket size={26} color="#fff" />
                     </div>
                     <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 17, color: 'var(--text)', marginBottom: 5 }}>
-                      KIP Startup Advisor
+                      {t('startup_chat.advisor_heading')}
                     </h2>
                     {stepContext ? (
                       <>
@@ -557,12 +560,12 @@ export default function StartupChatPage() {
                           </span>
                         </div>
                         <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
-                          I have the full details for this registration step. Ask me anything — requirements, costs, how long it takes, common pitfalls, or what happens if you skip it.
+                          {t('startup_chat.advisor_intro_with_step')}
                         </p>
                       </>
                     ) : (
                       <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>
-                        Ask me anything about registering a business in Zambia — PACRA, ZRA, NAPSA, trading licences, sector-specific permits, and more.
+                        {t('startup_chat.advisor_intro_default')}
                       </p>
                     )}
                   </div>
@@ -626,7 +629,7 @@ export default function StartupChatPage() {
                           {[0, 1, 2].map(i => (
                             <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ${i * 0.2}s ease-in-out infinite` }} />
                           ))}
-                          <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>KIP Advisor is thinking…</span>
+                          <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>{t('startup_chat.advisor_thinking')}</span>
                         </div>
                       </div>
                     </div>
@@ -643,7 +646,7 @@ export default function StartupChatPage() {
                 }}>
                   <AlertCircle size={13} style={{ color: 'var(--gold)', flexShrink: 0, marginTop: 1 }} />
                   <p style={{ fontSize: 12, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
-                    The Startup Chat API endpoint is not yet available — using the main KIP chat with your step context injected. Deploy the backend route to enable separate startup conversation history.
+                    {t('startup_chat.fallback_warning')}
                   </p>
                 </div>
               )}
@@ -661,8 +664,8 @@ export default function StartupChatPage() {
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                   placeholder={
                     stepContext
-                      ? `Ask KIP about ${stepContext.title}…`
-                      : 'Ask about registering a business in Zambia…'
+                      ? t('startup_chat.input_placeholder_with_step', { title: stepContext.title })
+                      : t('startup_chat.input_placeholder_default')
                   }
                   rows={1}
                   className="kip-input"
@@ -679,7 +682,7 @@ export default function StartupChatPage() {
                 </button>
               </div>
               <p style={{ fontSize: 10, color: 'var(--faint)', textAlign: 'center', marginTop: 6, marginBottom: 0 }}>
-                KIP's answers are informational — always verify with the official body before submitting documents.
+                {t('startup_chat.disclaimer')}
               </p>
             </div>
           </div>

@@ -1,40 +1,43 @@
 import React, { useState } from 'react'
 import { Zap, Users, TrendingUp, Sparkles, ShieldAlert, ChevronRight, Loader2 } from 'lucide-react'
 import { C } from './theme'
+import { useT } from '../../context/TranslationContext'
 
 const CATEGORY_META = {
-  zambian_reality:  { label: 'Zambian Reality',   colour: C.orange, icon: Zap },
-  social_family:    { label: 'Social & Family',   colour: C.pink,   icon: Users },
-  market_shocks:    { label: 'Market Shock',      colour: C.red,    icon: TrendingUp },
-  opportunity:      { label: 'Opportunity',       colour: C.green,  icon: Sparkles },
-  risk_consequence: { label: 'Risk & Consequence',colour: C.gold,   icon: ShieldAlert },
-  debt:             { label: 'Debt Reminder',     colour: C.purple, icon: ShieldAlert },
+  zambian_reality:  { labelKey: 'bizsim.category_zambian_reality',   colour: C.orange, icon: Zap },
+  social_family:    { labelKey: 'bizsim.category_social_family',     colour: C.pink,   icon: Users },
+  market_shocks:    { labelKey: 'bizsim.category_market_shock',      colour: C.red,    icon: TrendingUp },
+  opportunity:      { labelKey: 'bizsim.category_opportunity',       colour: C.green,  icon: Sparkles },
+  risk_consequence: { labelKey: 'bizsim.category_risk_consequence',  colour: C.gold,   icon: ShieldAlert },
+  debt:             { labelKey: 'bizsim.category_debt_reminder',     colour: C.purple, icon: ShieldAlert },
 }
 
-function consequenceLine(consequence) {
+function consequenceLine(consequence, t) {
   if (!consequence) return null
   const parts = []
   if (consequence.cash_delta) {
     const n = consequence.cash_delta
-    parts.push(`${n > 0 ? '+' : ''}K${n} cash`)
+    parts.push(`${n > 0 ? '+' : ''}K${n} ${t('bizsim.word_cash')}`)
   }
   if (consequence.reputation_delta) {
-    parts.push(`${consequence.reputation_delta > 0 ? '+' : ''}${consequence.reputation_delta} reputation`)
+    parts.push(`${consequence.reputation_delta > 0 ? '+' : ''}${consequence.reputation_delta} ${t('bizsim.word_reputation')}`)
   }
   if (consequence.family_reputation_delta) {
-    parts.push(`${consequence.family_reputation_delta > 0 ? '+' : ''}${consequence.family_reputation_delta} family standing`)
+    parts.push(`${consequence.family_reputation_delta > 0 ? '+' : ''}${consequence.family_reputation_delta} ${t('bizsim.word_family_standing')}`)
   }
   if (consequence.demand_mult && consequence.demand_mult !== 1.0) {
-    parts.push(consequence.demand_mult > 1
-      ? `+${Math.round((consequence.demand_mult - 1) * 100)}% customers today`
-      : `${Math.round((consequence.demand_mult - 1) * 100)}% customers today`)
+    const pct = consequence.demand_mult > 1
+      ? `+${Math.round((consequence.demand_mult - 1) * 100)}`
+      : `${Math.round((consequence.demand_mult - 1) * 100)}`
+    parts.push(t('bizsim.pct_customers_today', { pct }))
   }
-  if (consequence.skip_day) parts.push('No trading today')
-  return parts.length ? parts.join(' · ') : 'No lasting effect.'
+  if (consequence.skip_day) parts.push(t('bizsim.no_trading_today'))
+  return parts.length ? parts.join(' · ') : t('bizsim.no_lasting_effect')
 }
 
 // Presentational only — BizSimPage owns fetching /event/today and posting /event/choose.
 export default function EventCard({ event, onChoose, onContinue }) {
+  const { t } = useT()
   const [chosenId,    setChosenId]    = useState(null)
   const [loading,     setLoading]     = useState(false)
   const [consequence, setConsequence] = useState(null)
@@ -75,7 +78,7 @@ export default function EventCard({ event, onChoose, onContinue }) {
             fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: meta.colour,
             letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>
-            {meta.label}
+            {t(meta.labelKey)}
           </span>
         </div>
 
@@ -122,7 +125,7 @@ export default function EventCard({ event, onChoose, onContinue }) {
                 background: `${meta.colour}12`, border: `1px solid ${meta.colour}35`,
                 fontSize: 13, color: C.white, fontFamily: 'Syne', fontWeight: 600,
               }}>
-                {consequenceLine(consequence)}
+                {consequenceLine(consequence, t)}
               </div>
               <button onClick={onContinue} style={{
                 width: '100%', padding: '13px 0', borderRadius: 12, cursor: 'pointer',
@@ -130,7 +133,7 @@ export default function EventCard({ event, onChoose, onContinue }) {
                 border: 'none', color: '#fff', fontFamily: 'Syne', fontWeight: 800, fontSize: 14,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}>
-                Continue <ChevronRight size={16} />
+                {t('common.continue')} <ChevronRight size={16} />
               </button>
             </div>
           )}

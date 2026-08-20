@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
+import { useT } from '../context/TranslationContext'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { submitLog } from '../lib/submitLog'
@@ -94,6 +95,7 @@ function NumIn({ value, onChange, prefix = '', placeholder = '0' }) {
 
 /* ── Main ────────────────────────────────────────────── */
 export default function EnhancedLogPage() {
+  const { t }       = useT()
   const { planId }  = useParams()
   const navigate    = useNavigate()
   const [plan,      setPlan]      = useState(null)
@@ -117,20 +119,20 @@ export default function EnhancedLogPage() {
   // Load plan details for business name
   useEffect(() => {
     if (!planId || planId === 'undefined') {
-      toast.error('Invalid plan ID.')
+      toast.error(t('daily_log.error_invalid_plan'))
       navigate('/ideas')
       return
     }
     api.get(`/business/plan/${planId}`)
       .then(r => setPlan(r.data))
-      .catch(() => toast.error('Could not load plan.'))
+      .catch(() => toast.error(t('daily_log.error_load_plan')))
       .finally(() => setPlanLoading(false))
   }, [planId])
 
   const handleSubmit = async () => {
     // Revenue is required (can be 0)
     if (form.revenue === '' && form.revenue !== '0') {
-      toast.error("Enter today's revenue — use 0 if no sales")
+      toast.error(t('daily_log.error_revenue_required'))
       return
     }
 
@@ -153,18 +155,18 @@ export default function EnhancedLogPage() {
       const data = result.data || {}
 
       if (result.queued) {
-        toast.success('Log saved offline — will sync when you\'re back online.')
+        toast.success(t('daily_log.offline_queued'))
         setSubmitted(true)
-        setCoaching('Your log has been saved offline. KIP coaching will be available once your log syncs to the server.')
+        setCoaching(t('daily_log.offline_coaching_placeholder'))
         return
       }
 
       setCoaching(data.coaching)
       setSubmitted(true)
-      toast.success('Log submitted! KIP coaching ready.')
+      toast.success(t('daily_log.submitted_toast'))
     } catch (err) {
       console.error('Log submit error:', err)
-      const msg = err.response?.data?.detail || err.message || 'Submission failed.'
+      const msg = err.response?.data?.detail || err.message || t('daily_log.error_submission_failed')
       toast.error(msg)
     } finally {
       setLoading(false)
@@ -182,15 +184,15 @@ export default function EnhancedLogPage() {
       <Layout>
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '28px 20px', position: 'relative', zIndex: 1 }}>
           <Link to={`/business/${planId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', textDecoration: 'none', marginBottom: 20 }}>
-            <ArrowLeft size={14} /> Back to Dashboard
+            <ArrowLeft size={14} /> {t('daily_log.back_to_dashboard')}
           </Link>
 
           {/* Stats row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
             {[
-              { label: 'Revenue',  val: `K${revenue.toFixed(0)}`,  color: 'var(--green)' },
-              { label: 'Expenses', val: `K${expenses.toFixed(0)}`, color: 'var(--red)' },
-              { label: 'Profit',   val: `K${profit.toFixed(0)}`,   color: profit >= 0 ? 'var(--gold)' : 'var(--red)' },
+              { label: t('bizsim.revenue'),  val: `K${revenue.toFixed(0)}`,  color: 'var(--green)' },
+              { label: t('bizsim.expenses'), val: `K${expenses.toFixed(0)}`, color: 'var(--red)' },
+              { label: t('bizsim.profit'),   val: `K${profit.toFixed(0)}`,   color: profit >= 0 ? 'var(--gold)' : 'var(--red)' },
             ].map(s => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '12px 14px', textAlign: 'center' }}>
                 <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'Syne', fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
@@ -208,7 +210,7 @@ export default function EnhancedLogPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <Zap size={16} style={{ color: 'var(--gold)' }} />
               <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 14, color: '#fff' }}>
-                KIP Daily Coaching
+                {t('daily_log.daily_coaching_title')}
               </span>
             </div>
             <KipMarkdown content={coaching} />
@@ -216,11 +218,11 @@ export default function EnhancedLogPage() {
 
           <div style={{ display: 'flex', gap: 10 }}>
             <Link to={`/business/${planId}`} className="kip-btn kip-btn-primary" style={{ flex: 1, fontSize: 13, justifyContent: 'center' }}>
-              Business Dashboard <ArrowRight size={14} />
+              {t('dashboard.title')} <ArrowRight size={14} />
             </Link>
             <button onClick={() => { setSubmitted(false); setForm({ revenue: '', expenses: '', customers: '', stock_status: 'sufficient', challenges: '', wins: '', notes: '' }); setCoaching(null) }}
               className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>
-              Log Another Day
+              {t('daily_log.log_another_day')}
             </button>
           </div>
         </div>
@@ -235,26 +237,26 @@ export default function EnhancedLogPage() {
         {/* Header */}
         <div style={{ marginBottom: 22 }}>
           <Link to={`/business/${planId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', textDecoration: 'none', marginBottom: 12 }}>
-            <ArrowLeft size={14} /> Back
+            <ArrowLeft size={14} /> {t('common.back')}
           </Link>
           <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: '#fff', marginBottom: 4 }}>
-            Daily Business Log
+            {t('daily_log.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            {plan?.business_name || 'Your Business'} ·{' '}
+            {plan?.business_name || t('daily_log.your_business_fallback')} ·{' '}
             {new Date().toLocaleDateString('en-ZM', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
 
         {/* 1. Financial */}
-        <Section icon={DollarSign} title="1. Financial" color="var(--green)" defaultOpen={true}>
+        <Section icon={DollarSign} title={t('daily_log.section_financial')} color="var(--green)" defaultOpen={true}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <FL label="Total Revenue Today" hint="all income" />
+              <FL label={t('daily_log.total_revenue_today')} hint={t('daily_log.hint_all_income')} />
               <NumIn prefix="K" value={form.revenue} onChange={v => set('revenue', v)} />
             </div>
             <div>
-              <FL label="Total Expenses Today" hint="all outflows" />
+              <FL label={t('daily_log.total_expenses_today')} hint={t('daily_log.hint_all_outflows')} />
               <NumIn prefix="K" value={form.expenses} onChange={v => set('expenses', v)} />
             </div>
           </div>
@@ -266,7 +268,7 @@ export default function EnhancedLogPage() {
               border: `1px solid ${profit >= 0 ? 'rgba(0,230,118,0.2)' : 'rgba(255,83,112,0.2)'}`,
               borderRadius: 10, padding: '10px 14px', marginTop: 4,
             }}>
-              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Today's profit</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>{t('daily_log.profit_label')}</span>
               <span style={{
                 fontFamily: 'Syne', fontWeight: 800, fontSize: 15,
                 color: profit >= 0 ? 'var(--green)' : 'var(--red)',
@@ -278,23 +280,23 @@ export default function EnhancedLogPage() {
         </Section>
 
         {/* 2. Customers */}
-        <Section icon={Users} title="2. Customers & Sales" color="var(--blue-bright)">
+        <Section icon={Users} title={t('daily_log.section_customers')} color="var(--blue-bright)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <FL label="Total Customers Today" />
+              <FL label={t('daily_log.total_customers_today')} />
               <NumIn value={form.customers} onChange={v => set('customers', v)} />
             </div>
           </div>
         </Section>
 
         {/* 3. Operations */}
-        <Section icon={Package} title="3. Operations & Stock" color="var(--teal)">
-          <FL label="Stock Status" />
+        <Section icon={Package} title={t('daily_log.section_operations')} color="var(--teal)">
+          <FL label={t('daily_log.stock_label')} />
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             {[
-              { v: 'sufficient', l: '✓ Sufficient',  c: 'var(--green)' },
-              { v: 'low',        l: '⚠ Running Low', c: 'var(--gold)' },
-              { v: 'critical',   l: '✗ Critical',    c: 'var(--red)' },
+              { v: 'sufficient', l: `✓ ${t('daily_log.stock_sufficient')}`,  c: 'var(--green)' },
+              { v: 'low',        l: `⚠ ${t('daily_log.stock_running_low')}`, c: 'var(--gold)' },
+              { v: 'critical',   l: `✗ ${t('daily_log.stock_critical')}`,    c: 'var(--red)' },
             ].map(({ v, l, c }) => (
               <button key={v} onClick={() => set('stock_status', v)} style={{
                 flex: 1, padding: '9px 0', borderRadius: 9, cursor: 'pointer',
@@ -311,26 +313,26 @@ export default function EnhancedLogPage() {
         </Section>
 
         {/* 4. Marketing */}
-        <Section icon={Megaphone} title="4. Marketing Actions" color="var(--gold)">
-          <FL label="What marketing did you do today?" hint="optional" />
+        <Section icon={Megaphone} title={t('daily_log.section_marketing')} color="var(--gold)">
+          <FL label={t('daily_log.marketing_question')} hint={t('daily_log.hint_optional')} />
           <input value={form.notes} onChange={e => set('notes', e.target.value)}
-            placeholder='e.g. "Posted 2 WhatsApp statuses + distributed 20 flyers"'
+            placeholder={t('daily_log.marketing_placeholder')}
             className="kip-input" style={{ fontSize: 13 }} />
         </Section>
 
         {/* 5. Wins & Challenges */}
-        <Section icon={Clock} title="5. Today's Win & Challenge" color="var(--muted)">
+        <Section icon={Clock} title={t('daily_log.section_win_challenge')} color="var(--muted)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
-              <FL label="🏆 Today's WIN" hint="what went well" />
+              <FL label={`🏆 ${t('daily_log.today_win_label')}`} hint={t('daily_log.hint_what_went_well')} />
               <textarea value={form.wins} onChange={e => set('wins', e.target.value)}
-                placeholder='e.g. "Got first repeat customer from last week"'
+                placeholder={t('daily_log.win_placeholder')}
                 className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
             </div>
             <div>
-              <FL label="📚 Today's CHALLENGE" hint="what slowed you down" />
+              <FL label={`📚 ${t('daily_log.today_challenge_label')}`} hint={t('daily_log.hint_what_slowed_down')} />
               <textarea value={form.challenges} onChange={e => set('challenges', e.target.value)}
-                placeholder='e.g. "Supplier was 3 hours late"'
+                placeholder={t('daily_log.challenge_placeholder_example')}
                 className="kip-input" rows={3} style={{ resize: 'none', fontSize: 13 }} />
             </div>
           </div>
@@ -347,8 +349,8 @@ export default function EnhancedLogPage() {
           opacity: loading ? 0.7 : 1, transition: 'all 0.2s ease',
         }}>
           {loading
-            ? <><div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> Submitting…</>
-            : <><Zap size={17} /> Submit Log · Get KIP Coaching</>
+            ? <><div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spinSlow 0.8s linear infinite' }} /> {t('daily_log.submitting_ellipsis')}</>
+            : <><Zap size={17} /> {t('daily_log.submit_log_button')}</>
           }
         </button>
 

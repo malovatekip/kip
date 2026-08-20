@@ -1,0 +1,5 @@
+# KIP load-testing tooling — dev/ops only, NOT a runtime dependency of the app.
+# Install into a separate venv (see loadtest/README.md), not backend/venv.
+locust>=2.31.0
+matplotlib>=3.9.0
+pandas>=2.2.0

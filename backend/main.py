@@ -24,11 +24,6 @@ try:
 except ImportError:
     pass
 
-try:
-    from app.models import subscription_models
-except ImportError:
-    pass
-
 from app.routes import (
     auth, chat, ideas, dashboard, news,
     business_dashboard as bd_routes,
@@ -124,6 +119,8 @@ app.add_middleware(SlowAPIMiddleware)
 FRONTEND_URLS = [
     "http://localhost:3000",
     "http://localhost:5173",
+    # Capacitor Android WebView (androidScheme: 'https' in capacitor.config.ts)
+    "https://localhost",
     os.getenv("FRONTEND_URL", ""),
 ]
 

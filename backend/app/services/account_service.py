@@ -20,7 +20,6 @@ from app.models.enhanced_logs import (
     BusinessLogTemplate, EnhancedDailyLog, WeeklyReview, MLPrediction, MarketSurvey,
 )
 from app.models.business_chat_model import BusinessChatMessage, BusinessPlanVersion
-from app.models.subscription_models import UserSubscription, DailyUsage, PaymentRecord
 from app.models.enterprise_models import EnterpriseBusiness, EnterpriseBranch, BranchNotification
 
 
@@ -71,7 +70,7 @@ def delete_user_account(user: User, db: Session) -> None:
         EnhancedDailyLog, WeeklyReview, MLPrediction, BusinessChatMessage,
         BusinessPlanVersion, CoachingEntry, DailyBusinessLog,
         MarketSurvey, BusinessIdea, KipAlert, BranchNotification,
-        UserSubscription, DailyUsage, PaymentRecord, TokenBlocklist,
+        TokenBlocklist,
     ):
         db.query(model).filter(model.user_id == uid).delete(synchronize_session=False)
 

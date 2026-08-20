@@ -8,19 +8,21 @@ import {
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import api from '../lib/api'
+import { useT } from '../context/TranslationContext'
 
 // ─── CATEGORY META ─────────────────────────────────────────────────────────
+// `label` is the English fallback; `labelKey` is the i18n key used for display.
 const CATEGORY_META = {
-  monetary_policy: { label: 'Monetary Policy', icon: Building2,  color: '#2B7FFF' },
-  exchange_rate:   { label: 'Exchange Rate',    icon: TrendingUp,  color: '#F6AD55' },
-  inflation:       { label: 'Inflation',         icon: TrendingUp,  color: '#EF4444' },
-  fuel_energy:     { label: 'Fuel & Energy',     icon: Flame,       color: '#F97316' },
-  mining:          { label: 'Mining',             icon: Pickaxe,     color: '#8B5CF6' },
-  agriculture:     { label: 'Agriculture',        icon: Wheat,       color: '#10B981' },
-  sme_business:    { label: 'SME & Business',     icon: Briefcase,   color: '#00D4B1' },
-  trade_commerce:  { label: 'Trade & Commerce',   icon: ShoppingBag, color: '#EC4899' },
-  fiscal_policy:   { label: 'Fiscal Policy',      icon: BarChart2,   color: '#6366F1' },
-  food_security:   { label: 'Food Security',       icon: Wheat,       color: '#22C55E' },
+  monetary_policy: { label: 'Monetary Policy', labelKey: 'news.cat_monetary_policy', icon: Building2,  color: '#2B7FFF' },
+  exchange_rate:   { label: 'Exchange Rate',    labelKey: 'news.cat_exchange_rate',  icon: TrendingUp,  color: '#F6AD55' },
+  inflation:       { label: 'Inflation',         labelKey: 'news.cat_inflation',      icon: TrendingUp,  color: '#EF4444' },
+  fuel_energy:     { label: 'Fuel & Energy',     labelKey: 'news.cat_fuel_energy',    icon: Flame,       color: '#F97316' },
+  mining:          { label: 'Mining',             labelKey: 'news.cat_mining',         icon: Pickaxe,     color: '#8B5CF6' },
+  agriculture:     { label: 'Agriculture',        labelKey: 'news.cat_agriculture',    icon: Wheat,       color: '#10B981' },
+  sme_business:    { label: 'SME & Business',     labelKey: 'news.cat_sme_business',   icon: Briefcase,   color: '#00D4B1' },
+  trade_commerce:  { label: 'Trade & Commerce',   labelKey: 'news.cat_trade_commerce', icon: ShoppingBag, color: '#EC4899' },
+  fiscal_policy:   { label: 'Fiscal Policy',      labelKey: 'news.cat_fiscal_policy',  icon: BarChart2,   color: '#6366F1' },
+  food_security:   { label: 'Food Security',       labelKey: 'news.cat_food_security',  icon: Wheat,       color: '#22C55E' },
 }
 
 // ─── BRIEFING CARD HEADER ───────────────────────────────────────────────────
@@ -30,6 +32,7 @@ const CATEGORY_META = {
 // stock-photo services were tried before and returned unrelated images,
 // which is worse than no image for a briefing about specific Zambian news.)
 function BriefingImage({ imageUrl, category, title }) {
+  const { t } = useT()
   const meta  = CATEGORY_META[category] || CATEGORY_META.fiscal_policy
   const Icon  = meta.icon
   const color = meta.color
@@ -63,7 +66,7 @@ function BriefingImage({ imageUrl, category, title }) {
     }}>
       <Icon size={40} style={{ color, opacity: 0.6 }} />
       <span style={{ fontSize: 11, color, fontFamily: 'Syne', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        {meta.label}
+        {t(meta.labelKey)}
       </span>
     </div>
   )
@@ -71,6 +74,7 @@ function BriefingImage({ imageUrl, category, title }) {
 
 // ─── BRIEFING CARD ─────────────────────────────────────────────────────────
 function BriefingCard({ briefing }) {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const meta   = CATEGORY_META[briefing.category] || CATEGORY_META.fiscal_policy
   const color  = meta.color
@@ -115,7 +119,7 @@ function BriefingCard({ briefing }) {
               border: '1px solid rgba(239,68,68,0.3)',
               textTransform: 'uppercase', letterSpacing: '0.06em',
             }}>
-              Important
+              {t('news.important_badge')}
             </span>
           )}
           {briefing.date_published && (
@@ -158,7 +162,7 @@ function BriefingCard({ briefing }) {
           }}
         >
           <BookOpen size={13} />
-          {expanded ? 'Close explanation' : 'Read KIP\'s explanation'}
+          {expanded ? t('news.close_explanation') : t('news.read_explanation')}
           <span style={{ marginLeft: 'auto' }}>
             {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           </span>
@@ -174,7 +178,7 @@ function BriefingCard({ briefing }) {
               background: 'var(--input-bg)', border: '1px solid var(--border)',
             }}>
               <div style={{ fontSize: 11, fontFamily: 'Syne', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-                What Happened — Plain English
+                {t('news.what_happened')}
               </div>
               {paragraphs.map((para, i) => (
                 <p key={i} style={{
@@ -195,7 +199,7 @@ function BriefingCard({ briefing }) {
                 <Users size={15} style={{ color: '#EF4444', flexShrink: 0, marginTop: 1 }} />
                 <div>
                   <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: '#EF4444', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    How This Affects Ordinary Zambians
+                    {t('news.impact_ordinary')}
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>
                     {briefing.impact_ordinary}
@@ -213,7 +217,7 @@ function BriefingCard({ briefing }) {
                 <Briefcase size={15} style={{ color: 'var(--blue-bright)', flexShrink: 0, marginTop: 1 }} />
                 <div>
                   <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--blue-bright)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Impact on Small Businesses
+                    {t('news.impact_business')}
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0 }}>
                     {briefing.impact_business}
@@ -232,7 +236,7 @@ function BriefingCard({ briefing }) {
                 <Lightbulb size={15} style={{ color: 'var(--teal)', flexShrink: 0, marginTop: 1 }} />
                 <div>
                   <div style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--teal)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    KIP's Advice
+                    {t('news.kip_advice')}
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
                     {briefing.kip_take}
@@ -255,7 +259,7 @@ function BriefingCard({ briefing }) {
                 }}
               >
                 <ArrowUpRight size={12} />
-                Read original — {briefing.source}
+                {t('news.read_original', { source: briefing.source })}
               </a>
             )}
           </div>
@@ -267,6 +271,7 @@ function BriefingCard({ briefing }) {
 
 // ─── EMPTY STATE ────────────────────────────────────────────────────────────
 function BriefingsEmpty() {
+  const { t } = useT()
   return (
     <div style={{ textAlign: 'center', padding: '52px 24px' }}>
       <div style={{
@@ -279,10 +284,10 @@ function BriefingsEmpty() {
         <Globe size={28} style={{ color: 'var(--blue-bright)', opacity: 0.6 }} />
       </div>
       <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 17, color: 'var(--text)', marginBottom: 8 }}>
-        No briefings yet
+        {t('news.no_briefings_title')}
       </h3>
       <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 360, margin: '0 auto 20px' }}>
-        KIP researches the latest stories from BoZ, State House, and government ministries on a schedule. Check back soon.
+        {t('news.no_briefings_desc')}
       </p>
     </div>
   )
@@ -290,6 +295,7 @@ function BriefingsEmpty() {
 
 // ─── KIP EXPLAINS TAB ──────────────────────────────────────────────────────
 function KipExplainsTab() {
+  const { t } = useT()
   const [briefings,    setBriefings]    = useState([])
   const [loading,      setLoading]      = useState(true)
   const [status,       setStatus]       = useState(null)
@@ -326,10 +332,10 @@ function KipExplainsTab() {
   const timeAgoStr = (iso) => {
     if (!iso) return null
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-    if (diff < 60)   return 'Just now'
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400)return `${Math.floor(diff / 3600)}h ago`
-    return `${Math.floor(diff / 86400)}d ago`
+    if (diff < 60)   return t('news.just_now')
+    if (diff < 3600) return t('news.time_minutes_ago', { n: Math.floor(diff / 60) })
+    if (diff < 86400)return t('news.time_hours_ago', { n: Math.floor(diff / 3600) })
+    return t('news.time_days_ago', { n: Math.floor(diff / 86400) })
   }
 
   return (
@@ -347,7 +353,7 @@ function KipExplainsTab() {
               <Zap size={15} color="#fff" />
             </div>
             <h2 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 18, color: 'var(--text)', margin: 0 }}>
-              KIP Explains
+              {t('news.explains_title')}
             </h2>
             <span style={{
               fontSize: 9, fontFamily: 'Syne', fontWeight: 800,
@@ -356,16 +362,16 @@ function KipExplainsTab() {
               border: '1px solid rgba(0,240,200,0.3)',
               textTransform: 'uppercase', letterSpacing: '0.06em',
             }}>
-              AI
+              {t('news.ai_badge')}
             </span>
           </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
-            KIP reads BoZ, State House, and government ministries — then explains what the news means for ordinary Zambians, in plain language.
+            {t('news.explains_subtitle')}
           </p>
           {status?.generated_at && (
             <p style={{ fontSize: 11, color: 'var(--faint)', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Clock size={10} />
-              Last updated: {timeAgoStr(status.generated_at)} · {status.count} stories
+              {t('news.last_updated', { time: timeAgoStr(status.generated_at), count: status.count })}
             </p>
           )}
         </div>
@@ -378,7 +384,7 @@ function KipExplainsTab() {
         background: 'var(--input-bg)', border: '1px solid var(--border)',
       }}>
         <span style={{ fontSize: 10, fontFamily: 'Syne', fontWeight: 700, color: 'var(--faint)', textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0 }}>
-          Sources:
+          {t('news.sources_label')}
         </span>
         {['Bank of Zambia', 'State House', 'Min. of Finance', 'Min. of Mines', 'Min. of Agriculture', 'SMED', 'Zamstats', 'ERB', 'Min. of Commerce'].map(src => (
           <span key={src} style={{
@@ -407,7 +413,7 @@ function KipExplainsTab() {
                 color: active ? (meta ? meta.color : 'var(--blue-bright)') : 'var(--muted)',
                 transition: 'all 0.15s ease',
               }}>
-                {cat === 'all' ? '🌍 All Topics' : `${meta?.label || cat}`}
+                {cat === 'all' ? `🌍 ${t('news.all_topics')}` : (meta ? t(meta.labelKey) : cat)}
               </button>
             )
           })}
@@ -442,8 +448,7 @@ function KipExplainsTab() {
       {/* Disclaimer */}
       {briefings.length > 0 && (
         <p style={{ fontSize: 11, color: 'var(--faint)', textAlign: 'center', marginTop: 24, lineHeight: 1.6 }}>
-          KIP's explanations are educational summaries — not financial or investment advice.
-          Always verify with the original source before making business decisions.
+          {t('news.disclaimer')}
         </p>
       )}
     </div>
@@ -453,45 +458,47 @@ function KipExplainsTab() {
 // ─── EXISTING NEWS PAGE HELPERS (unchanged) ─────────────────────────────────
 
 // Colors intentionally echo CATEGORY_META above so both tabs read as one system.
+// `label` is the English fallback; `labelKey` is the i18n key used for display.
 const CATEGORIES = [
-  { key:'all',             label:'All News',       color: null },
-  { key:'general_economy', label:'Economy',        color: '#2B7FFF' },
-  { key:'banking_finance', label:'Finance',        color: '#6366F1' },
-  { key:'exchange_rate',   label:'Exchange Rate',  color: '#F6AD55' },
-  { key:'mining_copper',   label:'Mining',         color: '#8B5CF6' },
-  { key:'agriculture',     label:'Agriculture',    color: '#10B981' },
-  { key:'fuel_energy',     label:'Fuel & Energy',  color: '#F97316' },
-  { key:'sme_business',    label:'SME & Business', color: '#00D4B1' },
-  { key:'taxation_fiscal', label:'Tax & Fiscal',   color: '#EC4899' },
+  { key:'all',             label:'All News',       labelKey: 'news.category_all',           color: null },
+  { key:'general_economy', label:'Economy',        labelKey: 'news.category_economy',        color: '#2B7FFF' },
+  { key:'banking_finance', label:'Finance',        labelKey: 'news.category_finance',        color: '#6366F1' },
+  { key:'exchange_rate',   label:'Exchange Rate',  labelKey: 'news.category_exchange_rate',  color: '#F6AD55' },
+  { key:'mining_copper',   label:'Mining',         labelKey: 'news.category_mining',         color: '#8B5CF6' },
+  { key:'agriculture',     label:'Agriculture',    labelKey: 'news.category_agriculture',    color: '#10B981' },
+  { key:'fuel_energy',     label:'Fuel & Energy',  labelKey: 'news.category_fuel_energy',    color: '#F97316' },
+  { key:'sme_business',    label:'SME & Business', labelKey: 'news.category_sme_business',   color: '#00D4B1' },
+  { key:'taxation_fiscal', label:'Tax & Fiscal',   labelKey: 'news.category_tax_fiscal',     color: '#EC4899' },
 ]
 const CAT_BY_KEY = Object.fromEntries(CATEGORIES.map(c => [c.key, c]))
 
-function timeAgo(iso) {
+function timeAgo(iso, t) {
   if (!iso) return ''
   const d = (Date.now() - new Date(iso).getTime()) / 1000
-  if (d < 60) return 'Just now'
-  if (d < 3600) return `${Math.floor(d/60)}m ago`
-  if (d < 86400) return `${Math.floor(d/3600)}h ago`
-  return `${Math.floor(d/86400)}d ago`
+  if (d < 60) return t('news.just_now')
+  if (d < 3600) return t('news.time_minutes_ago', { n: Math.floor(d/60) })
+  if (d < 86400) return t('news.time_hours_ago', { n: Math.floor(d/3600) })
+  return t('news.time_days_ago', { n: Math.floor(d/86400) })
 }
 
 function RateTicker({ rates }) {
+  const { t } = useT()
   if (!rates || !Object.keys(rates).length) return null
   const items = [
     rates.usd_zmw && { label:'USD/ZMW', value:rates.usd_zmw.value?.toFixed(2), dir:rates.usd_zmw.direction },
-    rates.petrol  && { label:'Petrol',  value:`K${rates.petrol.value?.toFixed(2)}/L`, dir:rates.petrol.direction },
-    rates.diesel  && { label:'Diesel',  value:`K${rates.diesel.value?.toFixed(2)}/L`, dir:rates.diesel.direction },
+    rates.petrol  && { label:t('news.petrol'), value:`K${rates.petrol.value?.toFixed(2)}/L`, dir:rates.petrol.direction },
+    rates.diesel  && { label:t('news.diesel'), value:`K${rates.diesel.value?.toFixed(2)}/L`, dir:rates.diesel.direction },
   ].filter(Boolean)
   return (
     <div className="kip-card" style={{ padding: 16, marginBottom: 20, borderColor: 'rgba(0,240,200,0.3)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span className="live-dot" />
         <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 11, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          Live Rates
+          {t('news.live_rates')}
         </span>
         {rates.usd_zmw?.fetched_at && (
           <span style={{ fontSize: 11, color: 'var(--faint)', marginLeft: 'auto' }}>
-            Updated {timeAgo(rates.usd_zmw.fetched_at)}
+            {t('news.updated_at', { time: timeAgo(rates.usd_zmw.fetched_at, t) })}
           </span>
         )}
       </div>
@@ -517,6 +524,7 @@ function RateTicker({ rates }) {
 }
 
 function AlertCard({ alert, onDismiss }) {
+  const { t } = useT()
   return (
     <div className="animate-slide-up" style={{
       display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
@@ -550,7 +558,7 @@ function AlertCard({ alert, onDismiss }) {
                 {alert.business_name}
               </span>
             )}
-            <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(alert.created_at)}</span>
+            <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(alert.created_at, t)}</span>
           </div>
         </div>
       </div>
@@ -567,6 +575,7 @@ function AlertCard({ alert, onDismiss }) {
 }
 
 function ArticleCard({ article }) {
+  const { t } = useT()
   const cat   = CAT_BY_KEY[article.category]
   const color = cat?.color || 'var(--blue-bright)'
   // Hide the thumbnail slot entirely if the image fails to load (dead link,
@@ -586,11 +595,11 @@ function ArticleCard({ article }) {
               padding: '2px 9px', borderRadius: 20,
               background: `${color}18`, color, border: `1px solid ${color}35`,
             }}>
-              {cat?.label || article.category}
+              {cat ? t(cat.labelKey) : article.category}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(article.published_at || article.fetched_at)}</span>
+            <span style={{ fontSize: 11, color: 'var(--faint)' }}>{timeAgo(article.published_at || article.fetched_at, t)}</span>
             <ExternalLink size={13} style={{ color: 'var(--faint)' }} />
           </div>
         </div>
@@ -629,12 +638,14 @@ function ArticleCard({ article }) {
 const LIMIT = 15
 
 // Main tabs — existing feed + new KIP Explains
+// `label` is the English fallback; `labelKey` is the i18n key used for display.
 const MAIN_TABS = [
-  { key: 'feed',     label: 'News Feed'    },
-  { key: 'explains', label: 'KIP Explains' },
+  { key: 'feed',     label: 'News Feed',    labelKey: 'news.tab_feed'     },
+  { key: 'explains', label: 'KIP Explains', labelKey: 'news.tab_explains' },
 ]
 
 export default function NewsPage() {
+  const { t } = useT()
   const [mainTab,    setMainTab]    = useState('feed')
   const [rates,      setRates]      = useState({})
   const [articles,   setArticles]   = useState([])
@@ -697,17 +708,17 @@ export default function NewsPage() {
             </div>
             <div>
               <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 24, color: 'var(--text)', margin: 0 }}>
-                Economic News
+                {t('news.title')}
               </h1>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 0' }}>
-                Live rates, Zambian news, and KIP's plain-English explanations
+                {t('news.subtitle')}
               </p>
             </div>
           </div>
           {mainTab === 'feed' && (
             <button onClick={handleRefreshFeed} disabled={refreshing} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '9px 18px' }}>
               <RefreshCw size={14} style={{ animation: refreshing ? 'spinSlow 0.8s linear infinite' : 'none' }} />
-              {refreshing ? 'Refreshing…' : 'Refresh'}
+              {refreshing ? t('news.refreshing') : t('common.refresh')}
             </button>
           )}
         </div>
@@ -739,10 +750,10 @@ export default function NewsPage() {
                     color: active ? 'var(--teal)' : 'var(--faint)',
                     border: `1px solid ${active ? 'rgba(0,240,200,0.3)' : 'var(--border)'}`,
                   }}>
-                    AI
+                    {t('news.ai_badge')}
                   </span>
                 )}
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             )
           })}
@@ -761,7 +772,7 @@ export default function NewsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Bell size={15} style={{ color: 'var(--gold-bright)' }} />
-                    <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>KIP Alerts</span>
+                    <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{t('news.alerts_title')}</span>
                     <span style={{
                       fontSize: 11, fontWeight: 800, fontFamily: 'Syne',
                       background: 'var(--gold)', color: '#fff',
@@ -776,7 +787,7 @@ export default function NewsPage() {
                     onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)' }}
                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)' }}
                   >
-                    <BellOff size={13} /> Dismiss all
+                    <BellOff size={13} /> {t('news.dismiss_all')}
                   </button>
                 </div>
                 {unread.slice(0,3).map(a => <AlertCard key={a.id} alert={a} onDismiss={dismissAlert} />)}
@@ -796,7 +807,7 @@ export default function NewsPage() {
                     color: active ? color : 'var(--muted)',
                     transition: 'all 0.15s ease',
                   }}>
-                    {c.label}
+                    {t(c.labelKey)}
                   </button>
                 )
               })}
@@ -808,12 +819,12 @@ export default function NewsPage() {
               </div>
             ) : articles.length === 0 ? (
               <div className="kip-card" style={{ textAlign: 'center', padding: '48px 24px', borderStyle: 'dashed' }}>
-                <p style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', margin: '0 0 6px' }}>No articles yet</p>
-                <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>Refresh to populate the feed</p>
+                <p style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 15, color: 'var(--text)', margin: '0 0 6px' }}>{t('news.no_articles_title')}</p>
+                <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>{t('news.no_articles_desc')}</p>
               </div>
             ) : (
               <>
-                <div style={{ fontSize: 11, color: 'var(--faint)', marginBottom: 14 }}>{total} articles</div>
+                <div style={{ fontSize: 11, color: 'var(--faint)', marginBottom: 14 }}>{t('news.articles_count', { count: total })}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {articles.map(a => <ArticleCard key={a.id} article={a} />)}
                 </div>
@@ -823,7 +834,7 @@ export default function NewsPage() {
                       {loadMore
                         ? <RefreshCw size={14} style={{ animation: 'spinSlow 0.8s linear infinite' }} />
                         : <ChevronDown size={14} />}
-                      {loadMore ? 'Loading…' : 'Load more'}
+                      {loadMore ? t('news.loading_more') : t('news.load_more')}
                     </button>
                   </div>
                 )}

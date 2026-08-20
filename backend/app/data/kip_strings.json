@@ -4,7 +4,8 @@
     "app_name", "currency_symbol", "common.save", "common.cancel",
     "common.next", "common.back", "common.yes", "common.no",
     "common.or", "common.and", "common.of", "common.free",
-    "common.premium", "common.loading", "common.success"
+    "common.premium", "common.loading", "common.success",
+    "common.app_full_name", "chat.kip"
   ],
 
   "common": {

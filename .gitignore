@@ -48,3 +48,8 @@ logs/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# ── Load testing (generated output — see loadtest/README.md) ─
+loadtest/results/
+loadtest/report/
+loadtest/tokens.json
