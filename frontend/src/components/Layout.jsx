@@ -55,31 +55,35 @@ export default function Layout({ children }) {
 
   useEffect(() => { setMobileOpen(false) }, [location.pathname])
 
-  // Auto-hide bottom nav on scroll (mobile): hides on scroll-down, reappears on scroll-up / near top
+  // Auto-hide bottom nav on scroll (mobile): hides on scroll-down, reappears on scroll-up / near top.
+  // Listens on `document` with capture so it catches scrolling from ANY scrollable descendant —
+  // not just Layout's own <main>, but also pages (e.g. ChatPage) that manage their own inner
+  // scroll container for a message list.
   const [navHidden, setNavHidden] = useState(false)
-  const mainRef       = useRef(null)
-  const lastScrollY    = useRef(0)
+  const mainRef = useRef(null)
 
   useEffect(() => {
-    const el = mainRef.current
-    if (!el) return
-    lastScrollY.current = el.scrollTop
-    let ticking = false
-    const onScroll = () => {
+    let ticking     = false
+    let lastY       = 0
+    let lastTarget  = null
+    const onScroll = (e) => {
+      const el = e.target
+      if (!el || typeof el.scrollTop !== 'number') return
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
-        const y    = el.scrollTop
-        const diff = y - lastScrollY.current
+        const y = el.scrollTop
+        if (el !== lastTarget) { lastTarget = el; lastY = y }
+        const diff = y - lastY
         if (y < 40) setNavHidden(false)
         else if (diff > 6) setNavHidden(true)
         else if (diff < -6) setNavHidden(false)
-        lastScrollY.current = y
+        lastY = y
         ticking = false
       })
     }
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => el.removeEventListener('scroll', onScroll)
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true })
+    return () => document.removeEventListener('scroll', onScroll, { capture: true })
   }, [])
 
   useEffect(() => { setNavHidden(false) }, [location.pathname])
