@@ -21,6 +21,7 @@ import {
   DollarSign, Clock, MapPin, MessageSquare,
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import { BusinessIllustration } from '../components/KipIllustrations'
 import { useT } from '../context/TranslationContext'
 import {
@@ -659,7 +660,7 @@ function ProgressBar({ current, tabs }) {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function StartupPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const TABS = [
     { key: 'choose_type',   label: t('startup.tab_choose_type'), icon: Building2  },
     { key: 'structure',     label: t('startup.tab_structure'),   icon: BookOpen   },
@@ -724,7 +725,7 @@ export default function StartupPage() {
               {t('startup.hero_title')}
             </h1>
             <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 620 }}>
-              {t('startup.hero_desc')}
+              {t('startup.hero_desc_prefix')}<RotatingWords words={tList('startup.hero_desc_items')} />{t('startup.hero_desc_suffix')}
             </p>
           </div>
           <div className="kip-card" style={{ padding: 12, flexShrink: 0, display: 'none' }} data-startup-hero-figure>

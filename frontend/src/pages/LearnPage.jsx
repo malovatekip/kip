@@ -4,6 +4,7 @@ import {
   ArrowLeft, Zap, RotateCcw, Trophy, ChevronDown, ChevronUp
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
@@ -411,7 +412,7 @@ function ResultView({ result, course, onRetry, onBack }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function LearnPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const [courses,      setCourses]      = useState([])
   const [badges,       setBadges]       = useState([])
   const [selected,     setSelected]     = useState(null)   // current course
@@ -570,7 +571,7 @@ export default function LearnPage() {
                 <h1 style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 22, color: 'var(--text)', margin: 0 }}>{t('learn.title')}</h1>
               </div>
               <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 600 }}>
-                {t('learn.page_desc')}
+                {t('learn.page_desc_prefix')}<RotatingWords words={tList('learn.page_desc_items')} />{t('learn.page_desc_suffix')}
               </p>
             </div>
 

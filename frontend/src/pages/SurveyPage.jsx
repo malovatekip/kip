@@ -6,6 +6,7 @@ import {
   CheckCircle, Send, Info
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { useT } from '../context/TranslationContext'
@@ -132,7 +133,7 @@ function Progress({ sections, data }) {
 
 /* ── MAIN ────────────────────────────────────────────── */
 export default function SurveyPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const { planId } = useParams()
   const navigate   = useNavigate()
   const [activeSection, setActiveSection] = useState(0)
@@ -219,7 +220,7 @@ export default function SurveyPage() {
             {t('survey.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 580 }}>
-            {t('survey.subtitle')}
+            {t('survey.subtitle_prefix')}<RotatingWords words={tList('survey.subtitle_items')} />{t('survey.subtitle_suffix')}
             {planName && <span style={{ color: 'var(--blue-bright)', fontWeight: 600 }}> {t('survey.for_business', { name: planName })}</span>}
           </p>
         </div>

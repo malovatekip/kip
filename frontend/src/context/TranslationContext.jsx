@@ -28,7 +28,8 @@ const TranslationContext = createContext(null)
 const STORAGE_KEY  = 'kip_language'
 const CHANGE_EVENT = 'kip-language-change'
 
-// Resolve a dot-notation key against a nested object
+// Resolve a dot-notation key against a nested object.
+// Returns the raw value (string or array) — callers decide what shape they need.
 function resolve(obj, key) {
   if (!obj || !key) return null
   const parts = key.split('.')
@@ -37,7 +38,7 @@ function resolve(obj, key) {
     if (current == null) return null
     current = current[part]
   }
-  return typeof current === 'string' ? current : null
+  return (typeof current === 'string' || Array.isArray(current)) ? current : null
 }
 
 export function TranslationProvider({ children }) {
@@ -121,15 +122,29 @@ export function TranslationProvider({ children }) {
    */
   const t = useCallback((key, params = {}) => {
     const value = resolve(strings, key)
-    if (!value) return key  // Return the key itself as fallback — always visible
+    // Only fall back to showing the raw key when the value is genuinely missing (or the wrong
+    // shape) — an explicit empty string is a valid translation (e.g. a suffix some languages
+    // don't need) and must render as nothing, not as the literal key.
+    if (typeof value !== 'string') return key
 
     // Simple parameter substitution: t('welcome', {name: 'Paul'}) → "Welcome Paul"
     if (Object.keys(params).length === 0) return value
     return value.replace(/\{(\w+)\}/g, (_, k) => params[k] ?? `{${k}}`)
   }, [strings])
 
+  /**
+   * tList(key) — translate a list-valued key (JSON array of strings), e.g. for
+   * page-header taglines that rotate through a few items instead of one fixed string.
+   *   tList('templates.subtitle_items') → ["Government forms", "AI letters", ...]
+   * Returns [] if the key is missing or not an array.
+   */
+  const tList = useCallback((key) => {
+    const value = resolve(strings, key)
+    return Array.isArray(value) ? value : []
+  }, [strings])
+
   return (
-    <TranslationContext.Provider value={{ t, lang, setLang, loading, strings }}>
+    <TranslationContext.Provider value={{ t, tList, lang, setLang, loading, strings }}>
       {children}
     </TranslationContext.Provider>
   )

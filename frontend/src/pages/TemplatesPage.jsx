@@ -7,6 +7,7 @@ import {
   Landmark, Rocket
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { STARTUP_FORMS, AUTHORITIES } from '../data/startupData'
@@ -423,7 +424,7 @@ function TemplateCard({ template, plans, onGeneratePlan, generating }) {
 
 /* ── Main page ─────────────────────────────────────── */
 export default function TemplatesPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const [searchParams]      = useSearchParams()
   const initialFilter       = searchParams.get('filter')
   const [activeTab,  setActiveTab]  = useState(initialFilter === 'startup' ? 'startup' : 'all')
@@ -497,7 +498,7 @@ export default function TemplatesPage() {
             {t('templates.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-            {t('templates.subtitle')}
+            <RotatingWords words={tList('templates.subtitle_items')} />
           </p>
         </div>
 

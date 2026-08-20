@@ -471,6 +471,8 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 @keyframes ripple    { from{transform:scale(.8);opacity:1} to{transform:scale(2.5);opacity:0} }
 @keyframes shimmer   { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
 @keyframes logoGlow  { 0%,100%{filter:drop-shadow(0 0 8px rgba(36,59,143,0.5))} 50%{filter:drop-shadow(0 0 22px rgba(143,255,224,0.8))} }
+@keyframes rwIn       { from{opacity:0;transform:translateY(55%)}  to{opacity:1;transform:translateY(0)} }
+@keyframes rwOut      { from{opacity:1;transform:translateY(0)}    to{opacity:0;transform:translateY(-55%)} }
 
 .animate-fade-in    { animation: fadeIn .35s ease-out both; }
 .animate-slide-up   { animation: slideUp .38s cubic-bezier(0.4,0,0.2,1) both; }
@@ -478,6 +480,13 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 .animate-float      { animation: float 4s ease-in-out infinite; }
 .animate-pulse-soft { animation: pulse 2.5s ease-in-out infinite; }
 .animate-logo-glow  { animation: logoGlow 3s ease-in-out infinite; }
+
+/* ─── Rotating list words (RotatingWords component) ────── */
+.kip-rw-enter { animation: rwIn  .38s cubic-bezier(0.4,0,0.2,1) both; }
+.kip-rw-exit  { animation: rwOut .32s cubic-bezier(0.4,0,0.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .kip-rw-enter, .kip-rw-exit { animation: none !important; }
+}
 
 .stagger > *:nth-child(1) { animation-delay: 0.06s; }
 .stagger > *:nth-child(2) { animation-delay: 0.12s; }

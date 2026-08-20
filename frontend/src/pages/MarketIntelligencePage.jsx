@@ -4,6 +4,7 @@ import {
   Building2, Zap, DollarSign, ShoppingBag, Info
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import api from '../lib/api'
 import { useT } from '../context/TranslationContext'
 
@@ -167,7 +168,7 @@ function TownDetail({ town }) {
 }
 
 export default function MarketIntelligencePage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const [towns,    setTowns]    = useState([])
   const [selected, setSelected] = useState(null)
   const [loading,  setLoading]  = useState(true)
@@ -203,7 +204,7 @@ export default function MarketIntelligencePage() {
             </h1>
           </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, maxWidth: 620 }}>
-            {t('market_intel.page_desc')}
+            {t('market_intel.page_desc_prefix')}<RotatingWords words={tList('market_intel.page_desc_items')} />{t('market_intel.page_desc_suffix')}
           </p>
         </div>
 

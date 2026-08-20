@@ -7,6 +7,7 @@ import {
   ArrowUpRight, Lightbulb, Users, Briefcase,
 } from 'lucide-react'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import api from '../lib/api'
 import { useT } from '../context/TranslationContext'
 
@@ -645,7 +646,7 @@ const MAIN_TABS = [
 ]
 
 export default function NewsPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const [mainTab,    setMainTab]    = useState('feed')
   const [rates,      setRates]      = useState({})
   const [articles,   setArticles]   = useState([])
@@ -711,7 +712,7 @@ export default function NewsPage() {
                 {t('news.title')}
               </h1>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 0' }}>
-                {t('news.subtitle')}
+                <RotatingWords words={tList('news.subtitle_items')} />
               </p>
             </div>
           </div>

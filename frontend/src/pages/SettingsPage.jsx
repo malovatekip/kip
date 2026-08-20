@@ -6,6 +6,7 @@ import { useAuth }  from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import { useT } from '../context/TranslationContext'
 import Layout from '../components/Layout'
+import RotatingWords from '../components/RotatingWords'
 import LanguageToggle from '../components/LanguageToggle'
 import api   from '../lib/api'
 import toast from 'react-hot-toast'
@@ -106,7 +107,7 @@ function DeleteAccountModal({ onClose }) {
 }
 
 export default function SettingsPage() {
-  const { t } = useT()
+  const { t, tList } = useT()
   const { user } = useAuth()
   const { theme, toggle } = useTheme()
   const [showDelete, setShowDelete] = useState(false)
@@ -121,7 +122,7 @@ export default function SettingsPage() {
             {t('settings.title')}
           </h1>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-            {t('settings.subtitle')}
+            {t('settings.subtitle_prefix')}<RotatingWords words={tList('settings.subtitle_items')} />{t('settings.subtitle_suffix')}
           </p>
         </div>
 
