@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useSearchParams } from 'react-router-dom'
 import {
   FileText, ExternalLink, Sparkles, Mail, BarChart2,
@@ -65,7 +66,7 @@ function LetterModal({ template, plans, onClose }) {
     toast.success(t('templates.copied'))
   }
 
-  return (
+  return createPortal((
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,12,24,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0' }}
       onClick={onClose}>
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 640, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -80,7 +81,7 @@ function LetterModal({ template, plans, onClose }) {
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: 18 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 18, paddingBottom: 'calc(18px + env(safe-area-inset-bottom,0px))' }}>
           {!letter ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {plans.length > 0 && (
@@ -124,14 +125,14 @@ function LetterModal({ template, plans, onClose }) {
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }
 
 /* ── NEW: Government / Startup form detail modal ─────────────────────────── */
 function GovFormModal({ form, onClose }) {
   const { t } = useT()
   const authority = AUTHORITIES[form.authority] || {}
-  return (
+  return createPortal((
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(4,12,24,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
       onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 560, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -255,7 +256,7 @@ function GovFormModal({ form, onClose }) {
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }
 
 /* ── NEW: Government / Startup form card ─────────────────────────────────── */

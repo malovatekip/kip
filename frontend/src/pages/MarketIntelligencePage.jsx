@@ -225,10 +225,10 @@ export default function MarketIntelligencePage() {
             </a>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.6fr)', gap: 20, alignItems: 'start' }}>
+          <div className="mi-split" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.6fr)', gap: 20, alignItems: 'start' }}>
 
             {/* Left — town list */}
-            <div>
+            <div className="mi-list-col">
               {/* Search */}
               <div style={{ position: 'relative', marginBottom: 12 }}>
                 <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--faint)' }} />
@@ -237,7 +237,7 @@ export default function MarketIntelligencePage() {
                   className="kip-input" style={{ paddingLeft: 34, fontSize: 13 }} />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 520, overflowY: 'auto' }}>
+              <div className="mi-list-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 520, overflowY: 'auto' }}>
                 {filtered.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: 24, fontSize: 13, color: 'var(--faint)' }}>{t('market_intel.no_match', { search })}</div>
                 ) : filtered.map(town => (
@@ -251,7 +251,7 @@ export default function MarketIntelligencePage() {
             </div>
 
             {/* Right — town detail */}
-            <div className="kip-card" style={{ padding: '20px 22px' }}>
+            <div className="kip-card mi-detail-col" style={{ padding: '20px 22px' }}>
               {selected
                 ? <TownDetail town={selected} />
                 : <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--faint)', fontSize: 13 }}>{t('market_intel.select_town_prompt')}</div>
@@ -260,6 +260,13 @@ export default function MarketIntelligencePage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 767px) {
+          .mi-split       { grid-template-columns: 1fr !important; }
+          .mi-list-scroll { max-height: 260px !important; }
+        }
+      `}</style>
     </Layout>
   )
 }

@@ -1,6 +1,6 @@
 import KipBackground from './KipBackground'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
@@ -54,6 +54,35 @@ export default function Layout({ children }) {
   }, [])
 
   useEffect(() => { setMobileOpen(false) }, [location.pathname])
+
+  // Auto-hide bottom nav on scroll (mobile): hides on scroll-down, reappears on scroll-up / near top
+  const [navHidden, setNavHidden] = useState(false)
+  const mainRef       = useRef(null)
+  const lastScrollY    = useRef(0)
+
+  useEffect(() => {
+    const el = mainRef.current
+    if (!el) return
+    lastScrollY.current = el.scrollTop
+    let ticking = false
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const y    = el.scrollTop
+        const diff = y - lastScrollY.current
+        if (y < 40) setNavHidden(false)
+        else if (diff > 6) setNavHidden(true)
+        else if (diff < -6) setNavHidden(false)
+        lastScrollY.current = y
+        ticking = false
+      })
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => { setNavHidden(false) }, [location.pathname])
 
   const initial    = user?.full_name?.[0]?.toUpperCase() || '?'
   const isPremium  = ['premium','enterprise','pro'].includes((user?.plan_tier || 'free').toLowerCase())
@@ -236,11 +265,16 @@ export default function Layout({ children }) {
         </header>
 
 {/*         <OfflineBanner /> */}
-        <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 64px)', WebkitOverflowScrolling: 'touch' }} className="kip-main-content">
+        <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 64px)', WebkitOverflowScrolling: 'touch' }} className="kip-main-content">
           {children}
         </main>
 
-        <nav className="kip-bottom-nav" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingBottom: 'env(safe-area-inset-bottom,0px)', display: 'flex', alignItems: 'center', justifyContent: 'space-around', zIndex: 50, minHeight: 56 }}>
+        <nav className="kip-bottom-nav" style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around', zIndex: 50, minHeight: 56,
+          transform: navHidden ? 'translateY(100%)' : 'translateY(0)',
+          transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)',
+        }}>
           {BOTTOM_NAV.map(({ to, icon: Icon, label }) => {
             const active = location.pathname.startsWith(to)
             const badge  = to === '/news' ? alerts : 0
