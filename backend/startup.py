@@ -179,10 +179,13 @@ def create_all_tables():
         # ── Raw SQL tables ──────────────────────────────────────────────────
         # These are created with raw SQL in various route files.
         # We create them here to guarantee they exist before any request.
+        # AUTOINCREMENT is SQLite-only syntax — Postgres needs SERIAL instead,
+        # so the PK column is templated per dialect rather than hardcoded.
+        pk = "INTEGER PRIMARY KEY AUTOINCREMENT" if engine.dialect.name == "sqlite" else "SERIAL PRIMARY KEY"
         raw_tables = [
             # Business chat
-            """CREATE TABLE IF NOT EXISTS business_chat_messages (
-                id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS business_chat_messages (
+                id                      {pk},
                 plan_id                 INTEGER NOT NULL,
                 user_id                 INTEGER NOT NULL,
                 role                    TEXT    NOT NULL,
@@ -193,8 +196,8 @@ def create_all_tables():
                 pending_resolved        INTEGER DEFAULT 0,
                 created_at              TEXT    DEFAULT CURRENT_TIMESTAMP
             )""",
-            """CREATE TABLE IF NOT EXISTS business_plan_versions (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS business_plan_versions (
+                id             {pk},
                 plan_id        INTEGER NOT NULL,
                 user_id        INTEGER NOT NULL,
                 version_num    INTEGER DEFAULT 1,
@@ -204,8 +207,8 @@ def create_all_tables():
             )""",
 
             # Enterprise
-            """CREATE TABLE IF NOT EXISTS enterprise_businesses (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS enterprise_businesses (
+                id              {pk},
                 owner_user_id   INTEGER NOT NULL,
                 name            TEXT    NOT NULL,
                 description     TEXT,
@@ -216,8 +219,8 @@ def create_all_tables():
                 created_at      TEXT    DEFAULT CURRENT_TIMESTAMP,
                 updated_at      TEXT    DEFAULT CURRENT_TIMESTAMP
             )""",
-            """CREATE TABLE IF NOT EXISTS enterprise_branches (
-                id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS enterprise_branches (
+                id                      {pk},
                 enterprise_id           INTEGER NOT NULL,
                 plan_id                 INTEGER,
                 branch_name             TEXT    NOT NULL,
@@ -229,8 +232,8 @@ def create_all_tables():
                 is_active               INTEGER DEFAULT 1,
                 created_at              TEXT    DEFAULT CURRENT_TIMESTAMP
             )""",
-            """CREATE TABLE IF NOT EXISTS branch_notifications (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS branch_notifications (
+                id            {pk},
                 user_id       INTEGER NOT NULL,
                 enterprise_id INTEGER NOT NULL,
                 branch_id     INTEGER NOT NULL,
@@ -240,8 +243,8 @@ def create_all_tables():
             )""",
 
             # General surveys
-            """CREATE TABLE IF NOT EXISTS general_surveys (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            f"""CREATE TABLE IF NOT EXISTS general_surveys (
+                id           {pk},
                 user_id      INTEGER,
                 location     TEXT,
                 data_json    TEXT,

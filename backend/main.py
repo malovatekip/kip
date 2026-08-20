@@ -181,6 +181,20 @@ def _run_briefing_image_backfill():
 
 
 @app.on_event("startup")
+async def warm_knowledge_base():
+    """Load the RAG knowledge base (and its embedding model) once at boot,
+    off the event loop thread — not lazily on a user's first chat/idea
+    request. A cold first-request load previously blocked the single worker
+    long enough to fail health checks and get the instance restarted
+    mid-request (see git history for the 502 this caused)."""
+    from app.services.knowledge_base import get_knowledge_base
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, get_knowledge_base)
+    except Exception as e:
+        print(f"[KIP Startup] ⚠ Knowledge base warm-up failed: {e}")
+
+
+@app.on_event("startup")
 async def start_briefing_scheduler():
     db = SessionLocal()
     try:

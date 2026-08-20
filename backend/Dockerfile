@@ -15,6 +15,17 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 
 COPY . .
 
+# kip_knowledge_db/chroma.sqlite3 ships gzipped (154MB raw exceeds GitHub's
+# 100MB push limit) — decompress it into place so the pre-built knowledge
+# base is there from the first request, no runtime ingestion needed.
+RUN gunzip -f kip_knowledge_db/chroma.sqlite3.gz
+
+# Pre-bake the RAG embedding model into the image at build time, not request
+# time — avoids a slow/flaky Hugging Face Hub download blocking the single
+# worker's event loop (and failing health checks) on a live user's first
+# chat/idea request.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+
 ENV PORT=8080
 EXPOSE 8080
 
