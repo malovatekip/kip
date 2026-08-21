@@ -49,7 +49,10 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          # Capacitor 8's Android library (capacitor.build.gradle) sets
+          # source/targetCompatibility to Java 21 — Gradle needs a matching
+          # JDK to compile it, JDK 17 fails with "invalid source release: 21".
+          java-version: '21'
 
       - name: Sync Capacitor Android project
         run: npx cap sync android
