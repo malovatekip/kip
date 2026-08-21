@@ -44,7 +44,12 @@ jobs:
       - name: Build web app
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          # Not actually sensitive (a public API endpoint) — hardcoded here
+          # rather than routed through a repo secret that was never created,
+          # which silently built every prior APK with an empty API URL
+          # (falling back to a same-origin '/api' that doesn't exist inside
+          # the Capacitor WebView, breaking every network request).
+          VITE_API_URL: https://kip-pdng.onrender.com/api
 
       - uses: actions/setup-java@v4
         with:
