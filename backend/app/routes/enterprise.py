@@ -7,7 +7,6 @@ import json
 import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import text as sqlt
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
@@ -27,50 +26,6 @@ def _require_premium(user: User):
     Kept as a no-op call site so re-introducing a paid tier later is a
     one-line change here instead of touching every call site again."""
     pass
-
-
-def _ensure_tables(db: Session):
-    db.execute(sqlt("""
-        CREATE TABLE IF NOT EXISTS enterprise_businesses (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
-            owner_user_id   INTEGER NOT NULL,
-            name            TEXT    NOT NULL,
-            description     TEXT,
-            industry        TEXT,
-            headquarters    TEXT,
-            branch_count    INTEGER DEFAULT 0,
-            is_active       INTEGER DEFAULT 1,
-            created_at      TEXT    DEFAULT CURRENT_TIMESTAMP,
-            updated_at      TEXT    DEFAULT CURRENT_TIMESTAMP
-        )
-    """))
-    db.execute(sqlt("""
-        CREATE TABLE IF NOT EXISTS enterprise_branches (
-            id                      INTEGER PRIMARY KEY AUTOINCREMENT,
-            enterprise_id           INTEGER NOT NULL,
-            plan_id                 INTEGER,
-            branch_name             TEXT    NOT NULL,
-            location                TEXT,
-            specialty               TEXT,
-            branch_manager_user_id  INTEGER,
-            manager_email           TEXT,
-            monthly_target          REAL,
-            is_active               INTEGER DEFAULT 1,
-            created_at              TEXT    DEFAULT CURRENT_TIMESTAMP
-        )
-    """))
-    db.execute(sqlt("""
-        CREATE TABLE IF NOT EXISTS branch_notifications (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id       INTEGER NOT NULL,
-            enterprise_id INTEGER NOT NULL,
-            branch_id     INTEGER NOT NULL,
-            message       TEXT    NOT NULL,
-            is_read       INTEGER DEFAULT 0,
-            created_at    TEXT    DEFAULT CURRENT_TIMESTAMP
-        )
-    """))
-    db.commit()
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -106,7 +61,6 @@ async def create_enterprise(
 ):
     """Create a new enterprise. Premium only."""
     # _require_premium(current_user)
-    _ensure_tables(db)
 
     enterprise = EnterpriseBusiness(
         owner_user_id=current_user.id,
@@ -133,7 +87,6 @@ def get_my_enterprises(
     db: Session = Depends(get_db)
 ):
     """Get all enterprises owned by this user."""
-    _ensure_tables(db)
     enterprises = db.query(EnterpriseBusiness).filter(
         EnterpriseBusiness.owner_user_id == current_user.id,
         EnterpriseBusiness.is_active == True
@@ -164,7 +117,6 @@ def get_enterprise(
     db: Session = Depends(get_db)
 ):
     """Get enterprise details — owner only."""
-    _ensure_tables(db)
     enterprise = db.query(EnterpriseBusiness).filter(
         EnterpriseBusiness.id == enterprise_id,
         EnterpriseBusiness.owner_user_id == current_user.id
@@ -239,7 +191,6 @@ async def add_branch(
     db: Session = Depends(get_db)
 ):
     """Add a branch to an enterprise. Owner only."""
-    _ensure_tables(db)
 
     enterprise = db.query(EnterpriseBusiness).filter(
         EnterpriseBusiness.id == req.enterprise_id,
@@ -338,7 +289,6 @@ def update_branch_target(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    _ensure_tables(db)
     branch = db.query(EnterpriseBranch).filter(
         EnterpriseBranch.id == req.branch_id
     ).first()
@@ -366,7 +316,6 @@ def get_my_managed_branches(
     db: Session = Depends(get_db)
 ):
     """Get branches where current user is the branch manager."""
-    _ensure_tables(db)
     branches = db.query(EnterpriseBranch).filter(
         EnterpriseBranch.branch_manager_user_id == current_user.id,
         EnterpriseBranch.is_active == True
@@ -403,7 +352,6 @@ def get_notifications(
     db: Session = Depends(get_db)
 ):
     """Get unread branch notifications for current user."""
-    _ensure_tables(db)
     notifs = db.query(BranchNotification).filter(
         BranchNotification.user_id == current_user.id,
         BranchNotification.is_read == False
@@ -427,7 +375,6 @@ def mark_notification_read(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    _ensure_tables(db)
     notif = db.query(BranchNotification).filter(
         BranchNotification.id == notif_id,
         BranchNotification.user_id == current_user.id
@@ -450,7 +397,6 @@ async def get_kip_analysis(
     Ask KIP to analyse all branches and identify
     best performer, underperformer, and strategic recommendations.
     """
-    _ensure_tables(db)
     enterprise = db.query(EnterpriseBusiness).filter(
         EnterpriseBusiness.id == enterprise_id,
         EnterpriseBusiness.owner_user_id == current_user.id
