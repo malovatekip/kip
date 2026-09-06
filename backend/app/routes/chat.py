@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/send", response_model=ChatResponse)
-async def send_message(
+def send_message(
     payload: ChatMessage,
     request: Request,
     current_user: User = Depends(get_current_user),
@@ -49,7 +49,7 @@ async def send_message(
     history = list(reversed(history))
 
     # Call K-BIG-1
-    reply, idea_detected = await generate_kip_response(
+    reply, idea_detected = generate_kip_response(
         user_message=payload.message,
         history=history[:-1],
         user=current_user,

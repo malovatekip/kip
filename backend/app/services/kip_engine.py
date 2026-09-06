@@ -113,7 +113,7 @@ def _extract_text_from_response(response) -> str:
     return "\n".join(text_parts).strip()
 
 
-async def generate_kip_response(
+def generate_kip_response(
     user_message: str,
     history: list,
     user,

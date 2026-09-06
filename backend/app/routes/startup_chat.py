@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/send", response_model=StartupChatResponse)
-async def send_startup_message(
+def send_startup_message(
     payload: StartupChatMessage,
     request: Request,
     current_user: User = Depends(get_current_user),
@@ -53,7 +53,7 @@ async def send_startup_message(
     if payload.step_context:
         engine_message = f"{payload.step_context}\n\nFounder's question: {payload.message}"
 
-    reply, _ = await generate_kip_response(
+    reply, _ = generate_kip_response(
         user_message=engine_message,
         history=history[:-1],
         user=current_user,

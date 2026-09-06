@@ -42,7 +42,7 @@ def get_my_ideas(
 
 
 @router.post("/generate", response_model=IdeaGenerateResponse)
-async def generate_idea(
+def generate_idea(
     payload: IdeaGenerateRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -59,7 +59,7 @@ async def generate_idea(
         "assets": payload.assets,
     }
     try:
-        results = await kip_engine_v2.generate_structured_ideas(profile, current_user, db)
+        results = kip_engine_v2.generate_structured_ideas(profile, current_user, db)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
     return {"ideas": results}

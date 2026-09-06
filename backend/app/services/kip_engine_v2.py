@@ -68,7 +68,7 @@ def _idea_intrinsic_scores(idea: dict) -> dict:
     }
 
 
-async def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
+def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
     """
     profile: {
         "capital_available": float | None,   # None == limitless
