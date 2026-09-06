@@ -197,3 +197,27 @@ def resolve_location(location_string: str):
     if best_key:
         return best_key, TOWN_COORDS[best_key]
     return None, None
+
+def nearest_town(lat: float, lon: float):
+    """
+    Given raw GPS coordinates (e.g. from the New Idea wizard's "Use my
+    location" button), find the closest entry in TOWN_COORDS via the
+    haversine formula. Returns (town_key, coord_dict, distance_km) or
+    (None, None, None) if TOWN_COORDS is somehow empty.
+    """
+    import math
+
+    def _haversine_km(lat1, lon1, lat2, lon2):
+        R = 6371.0
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+        return 2 * R * math.asin(math.sqrt(a))
+
+    best_key, best_coord, best_dist = None, None, None
+    for key, coord in TOWN_COORDS.items():
+        dist = _haversine_km(lat, lon, coord["lat"], coord["lon"])
+        if best_dist is None or dist < best_dist:
+            best_key, best_coord, best_dist = key, coord, dist
+    return best_key, best_coord, best_dist

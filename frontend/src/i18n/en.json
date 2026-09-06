@@ -58,7 +58,8 @@
     "per_month": "per month",
     "per_year": "per year",
     "free": "Free",
-    "premium": "Premium"
+    "premium": "Premium",
+    "done": "Done"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -384,7 +385,11 @@
     "error_load_course": "Could not load course lessons.",
     "page_desc": "Interactive courses built on the Bank of Zambia's FinScope 2025 framework. Learn financial literacy, financial health, and entrepreneurship — earn badges when you score 70%+.",
     "page_desc_prefix": "Interactive courses built on the Bank of Zambia's FinScope 2025 framework. Learn ",
-    "page_desc_items": ["financial literacy", "financial health", "entrepreneurship"],
+    "page_desc_items": [
+      "financial literacy",
+      "financial health",
+      "entrepreneurship"
+    ],
     "page_desc_suffix": " — earn badges when you score 70%+.",
     "lessons_header": "Lessons",
     "includes_quiz": "Includes quiz",
@@ -629,7 +634,12 @@
     "data_note": "All data is anonymised and aggregated from KIP user surveys. Individual responses cannot be traced. Figures are indicative — always verify locally before making business decisions.",
     "page_desc": "Real, crowd-sourced market data from KIP users across Zambia. Prices, rents, competition levels, and market gaps — by town.",
     "page_desc_prefix": "Real, crowd-sourced market data from KIP users across Zambia. ",
-    "page_desc_items": ["Prices", "Rents", "Competition levels", "Market gaps"],
+    "page_desc_items": [
+      "Prices",
+      "Rents",
+      "Competition levels",
+      "Market gaps"
+    ],
     "page_desc_suffix": " — by town.",
     "empty_title": "No market data yet",
     "empty_desc": "Market intelligence grows as KIP users submit area surveys. Be the first to add data for your town.",
@@ -673,7 +683,11 @@
     "delete_my_account": "Delete my account",
     "subtitle": "Manage your KIP account, language, and preferences.",
     "subtitle_prefix": "Manage your KIP ",
-    "subtitle_items": ["account", "language", "preferences"],
+    "subtitle_items": [
+      "account",
+      "language",
+      "preferences"
+    ],
     "subtitle_suffix": ".",
     "profile_title": "Profile",
     "email_address_label": "Email address",
@@ -718,7 +732,11 @@
   "news": {
     "title": "Economic News",
     "subtitle": "Live rates, Zambian news, and KIP's plain-English explanations",
-    "subtitle_items": ["Live rates", "Zambian news", "KIP's plain-English explanations"],
+    "subtitle_items": [
+      "Live rates",
+      "Zambian news",
+      "KIP's plain-English explanations"
+    ],
     "refreshing": "Refreshing…",
     "tab_feed": "News Feed",
     "tab_explains": "KIP Explains",
@@ -796,7 +814,10 @@
     "add_my_business": "Add My Business",
     "no_ideas_title": "No ideas yet",
     "no_ideas_desc": "Ask KIP for a business idea, or add a business you're already running.",
-    "ask_kip_now": "Ask KIP Now"
+    "ask_kip_now": "Ask KIP Now",
+    "new_idea": "New Idea",
+    "export_dataset": "Export Dataset (Admin)",
+    "export_failed": "Could not export the dataset."
   },
   "templates": {
     "tab_all": "All",
@@ -842,7 +863,12 @@
     "download_pdf": "Download PDF",
     "title": "Templates & Documents",
     "subtitle": "Government forms, AI letters, business plans, and startup registration documents",
-    "subtitle_items": ["Government forms", "AI letters", "Business plans", "Startup registration documents"],
+    "subtitle_items": [
+      "Government forms",
+      "AI letters",
+      "Business plans",
+      "Startup registration documents"
+    ],
     "search_placeholder": "Search forms by name — e.g. \"PACRA Form 2\", \"NAPSA\", \"loan letter\"…",
     "official_forms_banner": "Official registration forms from PACRA, ZRA, NAPSA, NHIMA, WCFCB, NCC and ZDA",
     "official_forms_desc": "See these forms in the context of a full registration roadmap on the Startup page.",
@@ -1004,7 +1030,11 @@
     "title": "Market Intelligence Survey",
     "subtitle": "Help KIP understand your local market. This makes your business recommendations, daily coaching, and ML predictions far more accurate.",
     "subtitle_prefix": "Help KIP understand your local market. This makes your ",
-    "subtitle_items": ["business recommendations", "daily coaching", "ML predictions"],
+    "subtitle_items": [
+      "business recommendations",
+      "daily coaching",
+      "ML predictions"
+    ],
     "subtitle_suffix": " far more accurate.",
     "for_business": "For: {name}",
     "info_banner": "Your answers are used only to improve KIP's advice for you. No section is mandatory — fill in what you know. You can update this survey any time.",
@@ -1283,7 +1313,14 @@
     "hero_title": "Start Your Business in Zambia",
     "hero_desc": "Step-by-step compliance guidance for every startup type. KIP walks you through every registration body — PACRA, ZRA, NAPSA, NHIMA, WCFCB, and sector-specific licences — so nothing gets missed.",
     "hero_desc_prefix": "Step-by-step compliance guidance for every startup type. KIP walks you through every registration body — ",
-    "hero_desc_items": ["PACRA", "ZRA", "NAPSA", "NHIMA", "WCFCB", "Sector-specific licences"],
+    "hero_desc_items": [
+      "PACRA",
+      "ZRA",
+      "NAPSA",
+      "NHIMA",
+      "WCFCB",
+      "Sector-specific licences"
+    ],
     "hero_desc_suffix": " — so nothing gets missed.",
     "choose_type_title": "What kind of startup are you building?",
     "choose_type_desc": "Select your startup type to get a tailored registration roadmap.",
@@ -1385,5 +1422,65 @@
     "input_placeholder_with_step": "Ask KIP about {title}…",
     "input_placeholder_default": "Ask about registering a business in Zambia…",
     "disclaimer": "KIP's answers are informational — always verify with the official body before submitting documents."
+  },
+  "new_idea_wizard": {
+    "title": "New Idea",
+    "step_label": "Step {current} of {total}",
+    "capital_question": "How much capital is available?",
+    "capital_helper": "Amount in Zambian Kwacha. If you're not sure yet, you can skip this.",
+    "capital_skip": "Skip -- I don't have a fixed amount yet",
+    "loan_question": "Would you get a loan or grant in the future, and in what amount range?",
+    "loan_min_placeholder": "Min amount (K)",
+    "loan_max_placeholder": "Max amount (K)",
+    "capital_limitless_confirmed": "No problem -- KIP will treat your available capital as open-ended for now.",
+    "location_question": "Where would you like to operate your business from?",
+    "location_helper": "Province, district, area -- e.g. \"Lusaka, Kabulonga\".",
+    "location_placeholder": "e.g. Lusaka, Kabulonga",
+    "use_my_location": "Use my location",
+    "locating": "Locating...",
+    "geolocation_unsupported": "Your browser doesn't support location access -- please type it in instead.",
+    "location_permission_denied": "Couldn't access your location -- please type it in instead.",
+    "location_lookup_failed": "Couldn't match your location to a known area -- please type it in instead.",
+    "skills_question": "Do you have any skills?",
+    "skills_helper": "Select all that apply.",
+    "assets_question": "Which of these assets do you already have?",
+    "assets_helper": "Select all that apply.",
+    "asset_group_physical": "Physical assets",
+    "asset_group_digital": "Digital assets",
+    "asset_group_business": "Business assets",
+    "generate_button": "Generate Ideas",
+    "generating_title": "KIP is generating your ideas...",
+    "generating_desc": "Analysing your capital, location, skills and assets against the K-BIG-2 viability model.",
+    "generate_failed": "Could not generate ideas. Please try again.",
+    "results_ready": "{count} ideas ranked by viability",
+    "skill_selling_and_marketing": "Selling and marketing",
+    "skill_operations_and_management": "Operations and management",
+    "skill_digital_and_creative": "Digital and creative",
+    "skill_food_and_catering": "Food and catering",
+    "skill_agriculture": "Agriculture",
+    "skill_trades_and_repairs": "Trades and repairs",
+    "skill_services_and_care": "Services and care",
+    "skill_finance_and_administration": "Finance and administration",
+    "skill_transport_and_logistics": "Transport and logistics",
+    "asset_vehicle": "Vehicle",
+    "asset_land": "Land",
+    "asset_shop_space": "Shop space",
+    "asset_furniture": "Furniture",
+    "asset_equipment": "Equipment",
+    "asset_tools": "Tools",
+    "asset_storage": "Storage",
+    "asset_stock": "Stock",
+    "asset_smartphone": "Smartphone",
+    "asset_laptop": "Laptop",
+    "asset_internet_access": "Internet access",
+    "asset_website": "Website",
+    "asset_social_media_following": "Social media following",
+    "asset_payment_tools": "Payment tools",
+    "asset_business_registration": "Business registration",
+    "asset_license": "License",
+    "asset_supplier_contacts": "Supplier contacts",
+    "asset_existing_customers": "Existing customers",
+    "asset_brand": "Brand",
+    "asset_staff": "Staff"
   }
 }

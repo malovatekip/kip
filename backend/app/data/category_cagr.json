@@ -1,0 +1,23 @@
+{
+  "_comment": "Compound annual growth rate (g) per business category, used in the k-big-2 Demand formula D = N*Q*P*(1+g)^t. Update manually on a monthly cadence as better Zambian sector data becomes available. Values are illustrative estimates, not audited figures -- flagged as a methodology assumption in the investor documentation.",
+  "_updated": "2026-09-05",
+  "categories": {
+    "food_and_catering": 0.09,
+    "agriculture": 0.06,
+    "retail_and_trade": 0.07,
+    "digital_and_creative": 0.18,
+    "trades_and_repairs": 0.05,
+    "services_and_care": 0.08,
+    "finance_and_administration": 0.06,
+    "transport_and_logistics": 0.10,
+    "manufacturing": 0.05,
+    "tourism_and_hospitality": 0.08,
+    "construction_and_real_estate": 0.06,
+    "education_and_training": 0.07,
+    "default": 0.06
+  },
+  "_demand_normalization": {
+    "_comment": "D = N*Q*P*(1+g)^t is a raw Kwacha-scale number, but the viability formula weights it alongside six 0-10 sub-scores. We log-scale D against `reference_max` (an annual-demand figure considered 'excellent' for a Zambian micro/small business) to produce a comparable 0-10 demand_score: score = min(10, log10(D+1) / log10(reference_max) * 10). This constant is the primary lever for recalibrating demand scoring across the whole dataset.",
+    "reference_max": 5000000
+  }
+}

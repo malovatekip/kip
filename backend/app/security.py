@@ -121,3 +121,15 @@ def get_current_user(
                 detail="This session has been signed out. Please log in again.",
             )
     return user
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    """
+    Dependency: same as get_current_user, plus a platform-admin check. Used
+    to gate admin-only endpoints (e.g. the k-big-2 dataset export). There is
+    no in-app admin-management UI -- the only way to grant this is
+    backend/scripts/set_admin.py.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    return current_user

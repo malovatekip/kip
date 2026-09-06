@@ -39,7 +39,8 @@
     "per_month": "pa mweshi",
     "per_year": "pa mwaka",
     "free": "Free",
-    "premium": "Premium"
+    "premium": "Premium",
+    "done": "Napwa"
   },
   "nav": {
     "dashboard": "Dashibodi",
@@ -365,7 +366,11 @@
     "error_load_course": "Tacaishilepo ukusanga amasambililo ya ici course.",
     "page_desc": "Amasambililo ayapangilwe pa musango wa Banki ya Zambia uwa FinScope 2025. Sambilileni ifya ndalama, ubumi bwa ndalama, no bukwebo — poka amabaji ilyo mwasanga 70%+.",
     "page_desc_prefix": "Amasambililo ayapangilwe pa musango wa Banki ya Zambia uwa FinScope 2025. Sambilileni ",
-    "page_desc_items": ["ifya ndalama", "ubumi bwa ndalama", "ubukwebo"],
+    "page_desc_items": [
+      "ifya ndalama",
+      "ubumi bwa ndalama",
+      "ubukwebo"
+    ],
     "page_desc_suffix": " — poka amabaji ilyo mwasanga 70%+.",
     "lessons_header": "Amasambililo",
     "includes_quiz": "Kukwata ica kwesha",
@@ -610,7 +615,12 @@
     "data_note": "Ifyebo fyonse tafilelanga muntu, kabili fyalonganikwa ukufuma ku fya kufwaya fya bakabomfya ba KIP. Ifyasuko fya muntu umo tafingasangwa. Amanambala yalilangilila fye — moneni pa incende ilyo mwilalanga ukupinga businesi.",
     "page_desc": "Ifyebo fya maliketi ifya cine, ifyapeelwa na bakabomfya ba KIP ukupitila mu Zambia. Imitengo, ma renti, icipimo ca kucimfyanya, ne fyafwaikwa mu maliketi — ukulingana na matauni.",
     "page_desc_prefix": "Ifyebo fya maliketi ifya cine, ifyapeelwa na bakabomfya ba KIP ukupitila mu Zambia. ",
-    "page_desc_items": ["Imitengo", "Ma renti", "Icipimo ca kucimfyanya", "Ifyafwaikwa mu maliketi"],
+    "page_desc_items": [
+      "Imitengo",
+      "Ma renti",
+      "Icipimo ca kucimfyanya",
+      "Ifyafwaikwa mu maliketi"
+    ],
     "page_desc_suffix": " — ukulingana na matauni.",
     "empty_title": "Tapali ifyebo fya maliketi",
     "empty_desc": "Ifyebo fya maliketi filakula ilyo bakabomfya ba KIP batuma ifya kufwaya fya cisankano. Mube abakubalilapo ukubika ifyebo fya itauni lyenu.",
@@ -654,7 +664,11 @@
     "delete_my_account": "Futeni akaunti yandi",
     "subtitle": "Teyanyeni akaunti yenu iya KIP, ululimi, ne fyo mulefwaya.",
     "subtitle_prefix": "Teyanyeni ",
-    "subtitle_items": ["akaunti yenu iya KIP", "ululimi", "ifyo mulefwaya"],
+    "subtitle_items": [
+      "akaunti yenu iya KIP",
+      "ululimi",
+      "ifyo mulefwaya"
+    ],
     "subtitle_suffix": ".",
     "profile_title": "Ifyebo Fyenu",
     "email_address_label": "Keyala ya imelo",
@@ -699,7 +713,11 @@
   "news": {
     "title": "Amashiwi ya Bunonshi",
     "subtitle": "Imitengo ya nomba line, amashiwi ya Zambia, ne fyalondololwa na KIP mu mashiwi ayangapubulwa",
-    "subtitle_items": ["Imitengo ya nomba line", "Amashiwi ya Zambia", "Ifyalondololwa na KIP mu mashiwi ayangapubulwa"],
+    "subtitle_items": [
+      "Imitengo ya nomba line",
+      "Amashiwi ya Zambia",
+      "Ifyalondololwa na KIP mu mashiwi ayangapubulwa"
+    ],
     "refreshing": "Ukupuupuutula…",
     "tab_feed": "Amashiwi",
     "tab_explains": "KIP Alondolola",
@@ -777,7 +795,10 @@
     "add_my_business": "Lundako Businesi Yandi",
     "no_ideas_title": "Tapali amatontonkanyo",
     "no_ideas_desc": "Ipusheni KIP pa mwenzo wa businesi, nangu lundako businesi ilyo mulebomba kale.",
-    "ask_kip_now": "Ipusheni KIP Nomba"
+    "ask_kip_now": "Ipusheni KIP Nomba",
+    "new_idea": "New Idea",
+    "export_dataset": "Export Dataset (Admin)",
+    "export_failed": "Could not export the dataset."
   },
   "templates": {
     "tab_all": "Fyonse",
@@ -823,7 +844,12 @@
     "download_pdf": "Kopolola PDF",
     "title": "Ifya Kumwenako na Maapepala",
     "subtitle": "Amafomu ya buteko, amakalata ya AI, amapulani ya businesi, ne fyebo fya kulembesha businesi",
-    "subtitle_items": ["Amafomu ya buteko", "Amakalata ya AI", "Amapulani ya businesi", "Ifyebo fya kulembesha businesi"],
+    "subtitle_items": [
+      "Amafomu ya buteko",
+      "Amakalata ya AI",
+      "Amapulani ya businesi",
+      "Ifyebo fya kulembesha businesi"
+    ],
     "search_placeholder": "Fwayeni amafomu ku shina — ku ca kumwenako \"PACRA Form 2\", \"NAPSA\", \"loan letter\"…",
     "official_forms_banner": "Amafomu ya kulembesha ukufuma ku PACRA, ZRA, NAPSA, NHIMA, WCFCB, NCC na ZDA",
     "official_forms_desc": "Moneni aya mafomu mu nshila yonse ya kulembesha pa ipeji lya Kutendeka.",
@@ -985,7 +1011,11 @@
     "title": "Ica Kufwaya ca Maliketi",
     "subtitle": "Afweni KIP ukwishiba maliketi yenu ya cifulo. Ici cilenga ukutungulula, ukukansha kwa cila bushiku, ne fyakupima fya ML ukuba ifyalungeme sana.",
     "subtitle_prefix": "Afweni KIP ukwishiba maliketi yenu ya cifulo. Ici cilenga ",
-    "subtitle_items": ["ukutungulula", "ukukansha kwa cila bushiku", "ifyakupima fya ML"],
+    "subtitle_items": [
+      "ukutungulula",
+      "ukukansha kwa cila bushiku",
+      "ifyakupima fya ML"
+    ],
     "subtitle_suffix": " ukuba ifyalungeme sana.",
     "for_business": "Kuli: {name}",
     "info_banner": "Amasuko yenu yalabomfiwa fye pa kuwamya ukutungulula kwa KIP kuli imwe. Tapali iciputulwa icilazi — isusheni ico mwaishiba. Kuti mwalungika ici ca kufwaya inshita iili yonse.",
@@ -1264,7 +1294,14 @@
     "hero_title": "Tampeni Businesi Yenu mu Zambia",
     "hero_desc": "Ukutungulula ukwa cila cabala pa kukonka amafunde ku musango onse uwa kutendeka. KIP alemitungulula ukupitila mu bakalamba bonse ba kulembeshiwa — PACRA, ZRA, NAPSA, NHIMA, WCFCB, na layisensi sha musango — pa kuti tapali icishalwa.",
     "hero_desc_prefix": "Ukutungulula ukwa cila cabala pa kukonka amafunde ku musango onse uwa kutendeka. KIP alemitungulula ukupitila mu bakalamba bonse ba kulembeshiwa — ",
-    "hero_desc_items": ["PACRA", "ZRA", "NAPSA", "NHIMA", "WCFCB", "Layisensi sha musango"],
+    "hero_desc_items": [
+      "PACRA",
+      "ZRA",
+      "NAPSA",
+      "NHIMA",
+      "WCFCB",
+      "Layisensi sha musango"
+    ],
     "hero_desc_suffix": " — pa kuti tapali icishalwa.",
     "choose_type_title": "Ni musango nshi wa businesi ulo mulepanga?",
     "choose_type_desc": "Saleni umusango wa businesi yenu pa kupoka inshila ya kulembeshiwa iyapangilwe kuli imwe.",
@@ -1366,5 +1403,65 @@
     "input_placeholder_with_step": "Ipusheni KIP pa {title}…",
     "input_placeholder_default": "Ipusheni pa kulembesha businesi mu Zambia…",
     "disclaimer": "Amasuko ya KIP ya kwishiba fye — moneni lyonse na umukalamba wa buteko ubwakubalilapo ukutuma amapepala."
+  },
+  "new_idea_wizard": {
+    "title": "New Idea",
+    "step_label": "Step {current} of {total}",
+    "capital_question": "How much capital is available?",
+    "capital_helper": "Amount in Zambian Kwacha. If you're not sure yet, you can skip this.",
+    "capital_skip": "Skip -- I don't have a fixed amount yet",
+    "loan_question": "Would you get a loan or grant in the future, and in what amount range?",
+    "loan_min_placeholder": "Min amount (K)",
+    "loan_max_placeholder": "Max amount (K)",
+    "capital_limitless_confirmed": "No problem -- KIP will treat your available capital as open-ended for now.",
+    "location_question": "Where would you like to operate your business from?",
+    "location_helper": "Province, district, area -- e.g. \"Lusaka, Kabulonga\".",
+    "location_placeholder": "e.g. Lusaka, Kabulonga",
+    "use_my_location": "Use my location",
+    "locating": "Locating...",
+    "geolocation_unsupported": "Your browser doesn't support location access -- please type it in instead.",
+    "location_permission_denied": "Couldn't access your location -- please type it in instead.",
+    "location_lookup_failed": "Couldn't match your location to a known area -- please type it in instead.",
+    "skills_question": "Do you have any skills?",
+    "skills_helper": "Select all that apply.",
+    "assets_question": "Which of these assets do you already have?",
+    "assets_helper": "Select all that apply.",
+    "asset_group_physical": "Physical assets",
+    "asset_group_digital": "Digital assets",
+    "asset_group_business": "Business assets",
+    "generate_button": "Generate Ideas",
+    "generating_title": "KIP is generating your ideas...",
+    "generating_desc": "Analysing your capital, location, skills and assets against the K-BIG-2 viability model.",
+    "generate_failed": "Could not generate ideas. Please try again.",
+    "results_ready": "{count} ideas ranked by viability",
+    "skill_selling_and_marketing": "Selling and marketing",
+    "skill_operations_and_management": "Operations and management",
+    "skill_digital_and_creative": "Digital and creative",
+    "skill_food_and_catering": "Food and catering",
+    "skill_agriculture": "Agriculture",
+    "skill_trades_and_repairs": "Trades and repairs",
+    "skill_services_and_care": "Services and care",
+    "skill_finance_and_administration": "Finance and administration",
+    "skill_transport_and_logistics": "Transport and logistics",
+    "asset_vehicle": "Vehicle",
+    "asset_land": "Land",
+    "asset_shop_space": "Shop space",
+    "asset_furniture": "Furniture",
+    "asset_equipment": "Equipment",
+    "asset_tools": "Tools",
+    "asset_storage": "Storage",
+    "asset_stock": "Stock",
+    "asset_smartphone": "Smartphone",
+    "asset_laptop": "Laptop",
+    "asset_internet_access": "Internet access",
+    "asset_website": "Website",
+    "asset_social_media_following": "Social media following",
+    "asset_payment_tools": "Payment tools",
+    "asset_business_registration": "Business registration",
+    "asset_license": "License",
+    "asset_supplier_contacts": "Supplier contacts",
+    "asset_existing_customers": "Existing customers",
+    "asset_brand": "Brand",
+    "asset_staff": "Staff"
   }
 }

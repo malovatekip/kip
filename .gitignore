@@ -53,3 +53,6 @@ htmlcov/
 loadtest/results/
 loadtest/report/
 loadtest/tokens.json
+
+# ── Investor doc generation (build artifacts — see backend/scripts/generate_investor_doc.py) ─
+backend/scripts/_doc_assets/

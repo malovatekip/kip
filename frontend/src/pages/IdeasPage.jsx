@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Lightbulb, MapPin, DollarSign, CheckCircle, XCircle,
          Clock, ThumbsUp, ThumbsDown, Rocket, Plus, Building2,
-         Bell, X, ArrowRight } from 'lucide-react'
+         Bell, X, ArrowRight, Download, Gauge } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
 import AddBusinessModal from '../components/AddBusinessModal'
+import NewIdeaWizard from '../components/NewIdeaWizard'
 import KipMarkdown from '../components/KipMarkdown'
 import api from '../lib/api'
+import { useAuth } from '../hooks/useAuth'
 import { useT } from '../context/TranslationContext'
 
 /* ── Branch manager notification banner ──────────────── */
@@ -117,6 +119,11 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
                   {t('ideas.my_business_badge')}
                 </span>
               )}
+              {idea.category && (
+                <span style={{ fontSize: 9, fontFamily: 'Syne', fontWeight: 700, color: 'var(--blue-bright)', background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.25)', borderRadius: 20, padding: '2px 7px', textTransform: 'capitalize' }}>
+                  {idea.category.replace(/_/g, ' ')}
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {idea.location && (
@@ -127,6 +134,11 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
               {idea.capital_amount && (
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <DollarSign size={10} /> K{Number(idea.capital_amount).toLocaleString()}
+                </span>
+              )}
+              {typeof idea.viability_score === 'number' && (
+                <span style={{ fontSize: 11, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 700 }}>
+                  <Gauge size={10} /> {idea.viability_score.toFixed(1)}/10
                 </span>
               )}
             </div>
@@ -219,11 +231,33 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
 /* ── Main ────────────────────────────────────────────── */
 export default function IdeasPage() {
   const { t } = useT()
+  const { user } = useAuth()
   const [ideas,       setIdeas]       = useState([])
   const [loading,     setLoading]     = useState(true)
   const [startingId,  setStartingId]  = useState(null)
   const [showAddModal,setShowAddModal]= useState(false)
+  const [showWizard,  setShowWizard]  = useState(false)
+  const [exporting,   setExporting]   = useState(false)
   const navigate = useNavigate()
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const res = await api.get('/ideas/export', { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `kip_kbig2_dataset_${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      toast.error(err.response?.data?.detail || t('ideas.export_failed'))
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const fetchIdeas = async () => {
     try {
@@ -267,6 +301,13 @@ export default function IdeasPage() {
         />
       )}
 
+      {showWizard && (
+        <NewIdeaWizard
+          onClose={() => setShowWizard(false)}
+          onGenerated={fetchIdeas}
+        />
+      )}
+
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '24px 16px', position: 'relative', zIndex: 1 }}>
 
         {/* Header */}
@@ -279,9 +320,19 @@ export default function IdeasPage() {
               {t('ideas.subtitle')}
             </p>
           </div>
-          <button onClick={() => setShowAddModal(true)} className="kip-btn kip-btn-copper" style={{ fontSize: 13, padding: '10px 18px' }}>
-            <Building2 size={15} /> {t('ideas.add_my_business')}
-          </button>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button onClick={() => setShowWizard(true)} className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '10px 18px' }}>
+              <Plus size={15} /> {t('ideas.new_idea')}
+            </button>
+            <button onClick={() => setShowAddModal(true)} className="kip-btn kip-btn-copper" style={{ fontSize: 13, padding: '10px 18px' }}>
+              <Building2 size={15} /> {t('ideas.add_my_business')}
+            </button>
+            {user?.is_admin && (
+              <button onClick={handleExport} disabled={exporting} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '10px 18px', opacity: exporting ? 0.6 : 1 }}>
+                <Download size={15} /> {t('ideas.export_dataset')}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Branch manager notifications */}
@@ -302,7 +353,10 @@ export default function IdeasPage() {
               {t('ideas.no_ideas_desc')}
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/chat" className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>{t('ideas.ask_kip_now')}</Link>
+              <button onClick={() => setShowWizard(true)} className="kip-btn kip-btn-primary" style={{ fontSize: 13 }}>
+                <Plus size={14} /> {t('ideas.new_idea')}
+              </button>
+              <Link to="/chat" className="kip-btn kip-btn-ghost" style={{ fontSize: 13 }}>{t('ideas.ask_kip_now')}</Link>
               <button onClick={() => setShowAddModal(true)} className="kip-btn kip-btn-copper" style={{ fontSize: 13 }}>
                 <Building2 size={14} /> {t('ideas.add_my_business')}
               </button>
