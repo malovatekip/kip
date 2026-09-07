@@ -186,7 +186,10 @@
     "history_label": "Ifyapitapo",
     "chat_with_kip": "Lanshanyeni na KIP",
     "empty_state_desc": "Njebeni ndalama shenu, incende, ne fyo mwaishiba ukucita — nkasanga businesi iyalingene na imwe.",
-    "input_placeholder": "Ipusheni KIP"
+    "input_placeholder": "Ipusheni KIP",
+    "input_hint": "Enter pa mulongo ubupya · Ctrl+Enter pa kutuma",
+    "response_stopped": "Ukwasuka kwaimikwa.",
+    "scroll_to_latest": "Yeni ku fyapya"
   },
   "daily_log": {
     "title": "Ifyalembwa pa bukwebo ifya cila bushiku",

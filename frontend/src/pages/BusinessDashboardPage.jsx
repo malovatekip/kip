@@ -3,11 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, BookOpen, ClipboardList, MapPin,
   ArrowLeft, Calendar, DollarSign, Users, Zap,
-  ChevronDown, ChevronUp, MessageSquare, Send,
+  ChevronDown, ChevronUp, MessageSquare, Send, Square,
   Sparkles, RotateCcw, CheckCircle, XCircle, History
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
+import KipThinking from '../components/KipThinking'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { useT } from '../context/TranslationContext'
@@ -65,11 +66,17 @@ function BusinessChat({ planId, businessName }) {
   const [suggestions,  setSuggestions]  = useState([])
   const [pendingUpdate,setPendingUpdate]= useState(null) // {summary}
   const [planUpdated,  setPlanUpdated]  = useState(false)
-  const bottomRef = useRef(null)
-  const inputRef  = useRef(null)
+  const [showJump,     setShowJump]     = useState(false)
+  const bottomRef  = useRef(null)
+  const inputRef   = useRef(null)
+  const abortRef   = useRef(null)
+  const scrollRef  = useRef(null)
+  const pinnedRef  = useRef(true) // whether the view should auto-follow new messages
 
   // Load persistent history on mount
   useEffect(() => {
+    pinnedRef.current = true
+    setShowJump(false)
     Promise.all([
       api.get(`/business-chat/history/${planId}`),
       api.get(`/business-chat/suggestions/${planId}`),
@@ -87,8 +94,32 @@ function BusinessChat({ planId, businessName }) {
   }, [planId])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (pinnedRef.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
+
+  // Track scroll position for the "jump to latest" helper
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    const atBottom = distanceFromBottom < 80
+    pinnedRef.current = atBottom
+    setShowJump(!atBottom)
+  }
+
+  const jumpToBottom = () => {
+    pinnedRef.current = true
+    setShowJump(false)
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+    }
+  }, [input])
 
   const send = async (text) => {
     const msg = (text || input).trim()
@@ -100,11 +131,14 @@ function BusinessChat({ planId, businessName }) {
     const optimistic = { role: 'user', content: msg, _temp: true }
     setMessages(prev => [...prev, optimistic])
 
+    const controller = new AbortController()
+    abortRef.current = controller
+
     try {
       const { data } = await api.post('/business-chat/chat', {
         plan_id: parseInt(planId),
         message: msg,
-      })
+      }, { signal: controller.signal })
 
       setMessages(prev => [
         ...prev.filter(m => !m._temp),
@@ -124,14 +158,21 @@ function BusinessChat({ planId, businessName }) {
         toast.success(t('business_dashboard.plan_updated_success'))
         setTimeout(() => setPlanUpdated(false), 4000)
       }
-    } catch {
-      setMessages(prev => prev.filter(m => !m._temp))
-      toast.error(t('business_dashboard.chat_error'))
+    } catch (err) {
+      if (err.code === 'ERR_CANCELED') {
+        toast(t('chat.response_stopped'), { icon: '⏹️' })
+      } else {
+        setMessages(prev => prev.filter(m => !m._temp))
+        toast.error(t('business_dashboard.chat_error'))
+      }
     } finally {
       setLoading(false)
+      abortRef.current = null
       inputRef.current?.focus()
     }
   }
+
+  const stopSending = () => abortRef.current?.abort()
 
   const handleConfirm = () => {
     setPendingUpdate(null)
@@ -147,6 +188,8 @@ function BusinessChat({ planId, businessName }) {
     setMessages([])
     setPendingUpdate(null)
     setSuggestions(s => [...s])
+    pinnedRef.current = true
+    setShowJump(false)
   }
 
   return (
@@ -166,7 +209,7 @@ function BusinessChat({ planId, businessName }) {
       )}
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 8 }}>
+      <div ref={scrollRef} onScroll={handleScroll} style={{ position: 'relative', flex: 1, overflowY: 'auto', paddingBottom: 8 }}>
 
         {histLoading && (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -259,22 +302,27 @@ function BusinessChat({ planId, businessName }) {
 
           {/* Typing */}
           {loading && (
-            <div className="animate-fade-in" style={{ display: 'flex', gap: 9, alignItems: 'flex-end' }}>
-              <div style={{ width: 26, height: 26, borderRadius: 8, background: 'linear-gradient(135deg, var(--blue), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Sparkles size={12} color="#fff" />
-              </div>
-              <div className="bubble-kip" style={{ padding: '12px 16px' }}>
-                <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                  {[0,1,2].map(i => (
-                    <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ease-in-out ${i*0.2}s infinite` }} />
-                  ))}
-                  <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 8, fontStyle: 'italic' }}>{t('business_dashboard.kip_thinking')}</span>
-                </div>
-              </div>
+            <div className="animate-fade-in" style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
+              <KipThinking size={26} />
             </div>
           )}
         </div>
         <div ref={bottomRef} />
+
+        {/* Scroll-to-latest helper */}
+        {showJump && (
+          <button onClick={jumpToBottom} title={t('chat.scroll_to_latest')}
+            style={{
+              position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 20,
+              background: 'rgba(8,11,16,0.92)', border: '1px solid rgba(43,127,255,0.35)',
+              color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 11,
+              boxShadow: '0 4px 18px rgba(0,0,0,0.35)', zIndex: 5,
+            }}
+            className="animate-fade-in">
+            <ChevronDown size={13} /> {t('chat.scroll_to_latest')}
+          </button>
+        )}
       </div>
 
       {/* Pending update banner */}
@@ -299,24 +347,36 @@ function BusinessChat({ planId, businessName }) {
           </div>
         )}
         <div style={{ display: 'flex', gap: 8 }}>
-          <input
+          <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send() }
+              // Plain Enter now just inserts a newline (default textarea behavior).
+            }}
             placeholder={pendingUpdate ? t('business_dashboard.confirm_cancel_placeholder') : t('business_dashboard.ask_kip_placeholder', { name: businessName })}
+            rows={1}
             className="kip-input"
-            style={{ flex: 1, fontSize: 13, borderColor: pendingUpdate ? 'rgba(26,224,110,0.4)' : undefined }}
+            style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 13, lineHeight: 1.5, minHeight: 48, maxHeight: 120, borderColor: pendingUpdate ? 'rgba(26,224,110,0.4)' : undefined }}
             disabled={loading}
           />
-          <button onClick={() => send()} disabled={!input.trim() || loading}
-            className="kip-btn kip-btn-primary"
-            style={{ padding: '0 16px', flexShrink: 0, borderRadius: 10, minHeight: 48 }}>
-            <Send size={16} />
-          </button>
+          {loading ? (
+            <button onClick={stopSending} title={t('chat.stop')}
+              className="kip-btn"
+              style={{ padding: '0 16px', flexShrink: 0, borderRadius: 10, minHeight: 48, background: 'rgba(224,38,62,0.12)', border: '1px solid rgba(224,38,62,0.3)', color: 'var(--red)' }}>
+              <Square size={14} fill="currentColor" />
+            </button>
+          ) : (
+            <button onClick={() => send()} disabled={!input.trim()}
+              className="kip-btn kip-btn-primary"
+              style={{ padding: '0 16px', flexShrink: 0, borderRadius: 10, minHeight: 48 }}>
+              <Send size={16} />
+            </button>
+          )}
         </div>
         <p style={{ fontSize: 10, color: 'var(--faint)', margin: 0 }}>
-          {t('business_dashboard.suggest_hint')}
+          {t('chat.input_hint')} · {t('business_dashboard.suggest_hint')}
         </p>
       </div>
     </div>

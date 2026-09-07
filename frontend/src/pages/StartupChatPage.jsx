@@ -21,10 +21,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
   Send, Plus, Trash2, ArrowLeft, MessageSquare,
-  Rocket, Zap, ChevronRight, X, AlertCircle,
+  Rocket, Zap, ChevronRight, ChevronDown, X, AlertCircle, Square,
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
+import KipThinking from '../components/KipThinking'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { useT } from '../context/TranslationContext'
@@ -217,9 +218,13 @@ export default function StartupChatPage() {
   const [loadingMsgs,   setLoadingMsgs]   = useState(false)
   const [showConvList,  setShowConvList]  = useState(false)
   const [chatError,     setChatError]     = useState(null)
+  const [showJump,      setShowJump]      = useState(false)
 
-  const bottomRef = useRef(null)
-  const inputRef  = useRef(null)
+  const bottomRef  = useRef(null)
+  const inputRef   = useRef(null)
+  const abortRef   = useRef(null)
+  const scrollRef  = useRef(null)
+  const pinnedRef  = useRef(true) // whether the view should auto-follow new messages
 
   const suggestions = suggestionsForStep(stepContext, t)
 
@@ -238,10 +243,26 @@ export default function StartupChatPage() {
 
   useEffect(() => { loadConversations() }, [loadConversations])
 
-  // ── Scroll to bottom on new messages ──
+  // ── Scroll to bottom on new messages (unless the user scrolled up to read) ──
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (pinnedRef.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, sending])
+
+  // ── Track scroll position for the "jump to latest" helper ──
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    const atBottom = distanceFromBottom < 80
+    pinnedRef.current = atBottom
+    setShowJump(!atBottom)
+  }
+
+  const jumpToBottom = () => {
+    pinnedRef.current = true
+    setShowJump(false)
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   // ── Auto-resize textarea ──
   useEffect(() => {
@@ -256,6 +277,8 @@ export default function StartupChatPage() {
     setActiveConvId(conv.id)
     setLoadingMsgs(true)
     setShowConvList(false)
+    pinnedRef.current = true
+    setShowJump(false)
     try {
       const { data } = await api.get(`/startup-chat/conversations/${conv.id}`)
       setMessages(data.messages || [])
@@ -272,6 +295,8 @@ export default function StartupChatPage() {
     setMessages([])
     setInput('')
     setShowConvList(false)
+    pinnedRef.current = true
+    setShowJump(false)
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
@@ -301,6 +326,9 @@ export default function StartupChatPage() {
     const optimistic = { id: `temp-${Date.now()}`, role: 'user', content: msg, _temp: true }
     setMessages(prev => [...prev, optimistic])
 
+    const controller = new AbortController()
+    abortRef.current = controller
+
     try {
       const payload = {
         message:         msg,
@@ -311,7 +339,7 @@ export default function StartupChatPage() {
           : null,
       }
 
-      const { data } = await api.post('/startup-chat/send', payload)
+      const { data } = await api.post('/startup-chat/send', payload, { signal: controller.signal })
 
       // If this was a new conversation, record its ID and reload list
       if (!activeConvId && data.conversation_id) {
@@ -325,17 +353,23 @@ export default function StartupChatPage() {
         { id: Date.now() + 1, role: 'assistant', content: data.reply },
       ])
     } catch (err) {
-      setMessages(prev => prev.filter(m => !m._temp))
-      const detail = err.response?.data?.detail
-      if (err.response?.status === 404) {
-        // /startup-chat endpoint doesn't exist yet — fall back to main /chat/send
-        // with the startup system prompt injected as a prefix
-        setChatError('startup_chat_not_ready')
+      if (err.code === 'ERR_CANCELED') {
+        // User-initiated stop — keep their message visible, just stop waiting.
+        toast(t('chat.response_stopped'), { icon: '⏹️' })
       } else {
-        toast.error(detail || t('startup_chat.error_generic_send'))
+        setMessages(prev => prev.filter(m => !m._temp))
+        const detail = err.response?.data?.detail
+        if (err.response?.status === 404) {
+          // /startup-chat endpoint doesn't exist yet — fall back to main /chat/send
+          // with the startup system prompt injected as a prefix
+          setChatError('startup_chat_not_ready')
+        } else {
+          toast.error(detail || t('startup_chat.error_generic_send'))
+        }
       }
     } finally {
       setSending(false)
+      abortRef.current = null
       setTimeout(() => inputRef.current?.focus(), 50)
     }
   }
@@ -356,13 +390,16 @@ export default function StartupChatPage() {
     const optimistic = { id: `temp-${Date.now()}`, role: 'user', content: msg, _temp: true }
     setMessages(prev => [...prev, optimistic])
 
+    const controller = new AbortController()
+    abortRef.current = controller
+
     try {
       const { data } = await api.post('/chat/send', {
         message:         messages.length === 0
           ? `${systemPrefix}${msg}`
           : msg,
         conversation_id: activeConvId || null,
-      })
+      }, { signal: controller.signal })
 
       if (!activeConvId && data.conversation_id) setActiveConvId(data.conversation_id)
 
@@ -371,14 +408,21 @@ export default function StartupChatPage() {
         { id: Date.now(),     role: 'user',      content: msg        },
         { id: Date.now() + 1, role: 'assistant', content: data.reply },
       ])
-    } catch {
-      setMessages(prev => prev.filter(m => !m._temp))
-      toast.error(t('startup_chat.error_send_fallback'))
+    } catch (err) {
+      if (err.code === 'ERR_CANCELED') {
+        toast(t('chat.response_stopped'), { icon: '⏹️' })
+      } else {
+        setMessages(prev => prev.filter(m => !m._temp))
+        toast.error(t('startup_chat.error_send_fallback'))
+      }
     } finally {
       setSending(false)
+      abortRef.current = null
       setTimeout(() => inputRef.current?.focus(), 50)
     }
   }
+
+  const stopSending = () => abortRef.current?.abort()
 
   const handleSend = (text) => {
     if (chatError === 'startup_chat_not_ready') {
@@ -525,7 +569,7 @@ export default function StartupChatPage() {
             </div>
 
             {/* Messages area */}
-            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
+            <div ref={scrollRef} onScroll={handleScroll} style={{ position: 'relative', flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
               {loadingMsgs ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid rgba(43,127,255,0.2)', borderTopColor: 'var(--blue)', animation: 'spinSlow 0.8s linear infinite' }} />
@@ -621,16 +665,8 @@ export default function StartupChatPage() {
                   {/* Typing indicator */}
                   {sending && (
                     <div style={{ width: '100%', background: 'rgba(255,255,255,0.018)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <div style={{ maxWidth: 860, margin: '0 auto', padding: '14px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg, var(--blue), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Rocket size={13} color="#fff" />
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, paddingTop: 6 }}>
-                          {[0, 1, 2].map(i => (
-                            <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--blue-bright)', opacity: 0.7, animation: `pulse 1.4s ${i * 0.2}s ease-in-out infinite` }} />
-                          ))}
-                          <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6, fontStyle: 'italic' }}>{t('startup_chat.advisor_thinking')}</span>
-                        </div>
+                      <div style={{ maxWidth: 860, margin: '0 auto', padding: '14px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
+                        <KipThinking />
                       </div>
                     </div>
                   )}
@@ -652,6 +688,21 @@ export default function StartupChatPage() {
               )}
 
               <div ref={bottomRef} />
+
+              {/* Scroll-to-latest helper */}
+              {showJump && (
+                <button onClick={jumpToBottom} title={t('chat.scroll_to_latest')}
+                  style={{
+                    position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)',
+                    display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20,
+                    background: 'rgba(8,11,16,0.92)', border: '1px solid rgba(43,127,255,0.35)',
+                    color: 'var(--blue-bright)', cursor: 'pointer', fontFamily: 'Syne', fontWeight: 700, fontSize: 12,
+                    boxShadow: '0 4px 18px rgba(0,0,0,0.35)', zIndex: 5,
+                  }}
+                  className="animate-fade-in">
+                  <ChevronDown size={14} /> {t('chat.scroll_to_latest')}
+                </button>
+              )}
             </div>
 
             {/* Input bar */}
@@ -661,7 +712,10 @@ export default function StartupChatPage() {
                   ref={inputRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSend() }
+                    // Plain Enter now just inserts a newline (default textarea behavior).
+                  }}
                   placeholder={
                     stepContext
                       ? t('startup_chat.input_placeholder_with_step', { title: stepContext.title })
@@ -672,17 +726,28 @@ export default function StartupChatPage() {
                   style={{ flex: 1, resize: 'none', overflow: 'hidden', fontSize: 14, lineHeight: 1.5, minHeight: 48, maxHeight: 120 }}
                   disabled={sending}
                 />
-                <button
-                  onClick={() => handleSend()}
-                  disabled={!input.trim() || sending}
-                  className="kip-btn kip-btn-primary"
-                  style={{ padding: '0 16px', borderRadius: 12, minWidth: 48, minHeight: 48, flexShrink: 0 }}
-                >
-                  <Send size={17} />
-                </button>
+                {sending ? (
+                  <button
+                    onClick={stopSending}
+                    title={t('chat.stop')}
+                    className="kip-btn"
+                    style={{ padding: '0 16px', borderRadius: 12, minWidth: 48, minHeight: 48, flexShrink: 0, background: 'rgba(224,38,62,0.12)', border: '1px solid rgba(224,38,62,0.3)', color: 'var(--red)' }}
+                  >
+                    <Square size={15} fill="currentColor" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleSend()}
+                    disabled={!input.trim()}
+                    className="kip-btn kip-btn-primary"
+                    style={{ padding: '0 16px', borderRadius: 12, minWidth: 48, minHeight: 48, flexShrink: 0 }}
+                  >
+                    <Send size={17} />
+                  </button>
+                )}
               </div>
               <p style={{ fontSize: 10, color: 'var(--faint)', textAlign: 'center', marginTop: 6, marginBottom: 0 }}>
-                {t('startup_chat.disclaimer')}
+                {t('chat.input_hint')} · {t('startup_chat.disclaimer')}
               </p>
             </div>
           </div>

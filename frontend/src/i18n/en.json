@@ -205,7 +205,10 @@
     "history_label": "History",
     "chat_with_kip": "Chat with KIP",
     "empty_state_desc": "Tell me your capital, location, and skills — I'll find the right business for you.",
-    "input_placeholder": "Ask Kip"
+    "input_placeholder": "Ask Kip",
+    "input_hint": "Enter for a new line · Ctrl+Enter to send",
+    "response_stopped": "Response stopped.",
+    "scroll_to_latest": "Jump to latest"
   },
   "daily_log": {
     "title": "Daily Business Log",

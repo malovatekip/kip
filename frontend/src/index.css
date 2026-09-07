@@ -481,6 +481,42 @@ h1, h2, h3, h4, h5, .font-display { font-family: 'Syne', sans-serif; }
 .animate-pulse-soft { animation: pulse 2.5s ease-in-out infinite; }
 .animate-logo-glow  { animation: logoGlow 3s ease-in-out infinite; }
 
+/* ─── KipThinking — "AI is responding" indicator, built from the real logo ── */
+@keyframes kipThinkSpin  { to { transform: rotate(360deg); } }
+@keyframes kipThinkPulse {
+  0%, 100% { transform: scale(1);     filter: drop-shadow(0 0 4px rgba(143,255,224,0.35)); }
+  50%      { transform: scale(1.08);  filter: drop-shadow(0 0 11px rgba(143,255,224,0.85)); }
+}
+.kip-thinking {
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.kip-thinking::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--blue), var(--teal), var(--blue));
+  animation: kipThinkSpin 1.4s linear infinite;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+}
+.kip-thinking-logo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  animation: kipThinkPulse 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kip-thinking::before, .kip-thinking-logo { animation: none !important; }
+}
+
 /* ─── Rotating list words (RotatingWords component) ────── */
 .kip-rw-enter { animation: rwIn  .38s cubic-bezier(0.4,0,0.2,1) both; }
 .kip-rw-exit  { animation: rwOut .32s cubic-bezier(0.4,0,0.2,1) both; }
