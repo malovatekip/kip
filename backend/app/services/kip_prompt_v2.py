@@ -28,16 +28,18 @@ placeholder or rounded-for-looks numbers. All money is in ZMW.
 For the four qualitative sub-scores, self-assess strictly against these
 bands (verbatim from the K-BIG-2 methodology):
 
-EXECUTION FIT (execution_fit_score) -- personal alignment between the
+ASSET AND EXECUTION FIT (execution_fit_score) -- personal alignment between the
 business's operational requirements and the user's time, network, and skills:
   9-10 Perfect alignment. The user already possesses the technical skills,
-       holds the exact industry network, and has the spare time to run it
+       holds the exact industry network, has the exact assets required, and has the spare time to run it
        smoothly.
   5-8  Learning curve. The user understands the business but will need to
-       hire or delegate key operational roles, or sacrifice significant
-       personal time.
+       hire or delegate key operational roles, do not have the assets but can afford them without 
+        affecting the overall capital, or sacrifice significant
+       personal time. 
   1-4  Mismatch. The business requires specialized engineering, legal
-       knowledge, or a time commitment the user does not have.
+       knowledge, or a time commitment the user does not have. User does not have the assets and cannot afford
+       them or the required assets are not available in the region.
 
 COMPETITIVE POSITION (competitive_position_score) -- active local competitors
 and the height of the economic moat:
@@ -52,16 +54,16 @@ and the height of the economic moat:
 REGULATORY & OPERATIONAL RISK (regulatory_risk_score) -- government
 compliance, licensing, supply chain fragility, currency exposure:
   9-10 Low risk. No complex licenses needed. Operates entirely online or via
-       simple local commercial rules.
+       simple local commercial rules. No severe risks that might affect the business operations.
   5-8  Regulated but manageable. Requires standard council permits, health
-       inspections, or standard environmental compliance.
+       inspections, or standard environmental compliance. uncertainities do not  HEAVILY affect the business.
   1-4  Extreme exposure. Relies heavily on volatile import exchange rates,
        highly restrictive government licensing, or single-source suppliers
-       prone to disruption.
+       prone to disruption. Sudden risks can destroy the business.
 
-ASSET & LOCATION ADVANTAGE (asset_location_score) -- unfair advantage from a
+LOCATION ADVANTAGE (asset_location_score) -- unfair advantage from a
 physical location, community ties, real estate, or owned infrastructure:
-  9-10 Massive anchor. The user owns the land, sits directly on a
+  9-10 Massive anchor. The user sits directly on a
        high-foot-traffic corridor, or operates in a tax-free special economic
        zone.
   5-8  Neutral/good footprint. Standard commercial leasing options apply, or
@@ -105,7 +107,7 @@ IDEA_SCHEMA = {
         "recommended_capital_min": {"type": "number"},
         "recommended_capital_max": {"type": "number"},
         "required_skills": {"type": "array", "items": {"type": "string"}},
-        "required_assets": {"type": "array", "items": {"type": "string"}, "description": "Physical/digital/business assets this idea needs (e.g. shop space, smartphone, business registration)."},
+        "required_assets": {"type": "array", "items": {"type": "string"}, "description": "Physical/digital/business assets this idea needs (e.g. shop space, popcon machine, business registration)."},
         "risk_level": {"type": "string", "description": "low | medium | high"},
         "training_required": {"type": "boolean"},
 
@@ -154,7 +156,7 @@ IDEA_SCHEMA = {
             "description": "3-5 sentences covering: target customer segment, equipment/inventory/logistics needs, supplier dependency, seasonality, health & safety or age-restriction notes, and the idea's brand/cross-sell/upsell/scalability potential beyond what the structured fields above already capture.",
         },
 
-        # Viability sub-scores (LLM self-assessed; D/F/C computed separately)
+        # Qualitative scores (LLM self-assessed; D/F/C computed separately)
         "execution_fit_score": _SCORE_ENUM,
         "competitive_position_score": _SCORE_ENUM,
         "regulatory_risk_score": _SCORE_ENUM,
