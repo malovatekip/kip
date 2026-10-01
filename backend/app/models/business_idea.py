@@ -41,28 +41,24 @@ class BusinessIdea(Base):
     category            = Column(String(100), nullable=True, index=True)
     structured_data     = Column(JSON, nullable=True)
 
-    # Viability formula (V = 0.25D + 0.20F + 0.15C + 0.15E + 0.10R + 0.10S + 0.05A)
-    # sub-scores, each on a 0-10 scale, plus the final weighted score.
-    viability_score        = Column(Float, nullable=True, index=True)
-    demand_score           = Column(Float, nullable=True)
-    financial_score        = Column(Float, nullable=True)
-    capital_fit_score      = Column(Float, nullable=True)
-    execution_fit_score    = Column(Float, nullable=True)
-    regulatory_score       = Column(Float, nullable=True)
-    competitive_score      = Column(Float, nullable=True)
-    asset_location_score   = Column(Float, nullable=True)
+    # This table is the PUBLIC dataset (admin export). It holds NO user-specific
+    # data and NO viability score -- viability depends on the requester and is
+    # computed per request from idea_global_factors (D, F) and the temporary
+    # user_session_factors (C, E, R, S, A). See idea_factors.py.
 
     # Capital fields promoted for quick filtering/CSV export
     min_capital                = Column(Float, nullable=True)
     recommended_capital_min    = Column(Float, nullable=True)
     recommended_capital_max    = Column(Float, nullable=True)
 
-    # Snapshot of the requester's profile at generation time (slides 1-4 of
-    # the New Idea wizard) — used to recompute capital-fit/execution-fit/
-    # asset-location scores for this idea against a *different* requester's
-    # profile later, without needing a separate user-profile table.
-    capital_available_at_generation = Column(Float, nullable=True)
-    skills_at_generation            = Column(JSON, nullable=True)
-    assets_at_generation            = Column(JSON, nullable=True)
+    # External/operational risks of the business (e.g. floods, animal disease)
+    operational_risks   = Column(JSON, nullable=True)
+
+    # pending | accepted | declined -- set by the user's Accept/Decline click.
+    # `accepted` (bool) is kept in sync for older code paths.
+    status              = Column(String(20), nullable=False, default="pending", server_default="pending")
+    # K-BIG-2 stores all 3 generated ideas but shows the requester only the
+    # winner; the other two are False so they stay out of that user's list.
+    shown_to_user       = Column(Boolean, nullable=False, default=True, server_default="1")
 
     user = relationship("User", back_populates="business_ideas")

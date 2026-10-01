@@ -20,6 +20,7 @@ from app.schemas import (
 from app.security import get_current_user, get_current_admin
 from app.services import kip_engine_v2
 from app.services.kip_prompt_v2 import IDEA_SCHEMA
+from app.services.kip_engine_v2 import USER_SCORE_FIELDS
 from app.data.town_coordinates import nearest_town
 
 router = APIRouter()
@@ -36,7 +37,9 @@ def get_my_ideas(
 ):
     """Return all business ideas generated for this user."""
     ideas = db.query(BusinessIdea).filter(
-        BusinessIdea.user_id == current_user.id
+        BusinessIdea.user_id == current_user.id,
+        BusinessIdea.shown_to_user == True,  # noqa: E712 -- K-BIG-2 non-winners stay hidden
+        BusinessIdea.status != "declined",
     ).order_by(BusinessIdea.created_at.desc()).all()
     return ideas
 
@@ -49,8 +52,8 @@ def generate_idea(
 ):
     """
     K-BIG-2: run the New Idea wizard's structured profile through the
-    generate-3-ideas -> add-to-shared-dataset -> re-rank-entire-dataset
-    pipeline (kip_engine_v2.py) and return the top-viability results.
+    generate-3-ideas -> 3-table viability pipeline (kip_engine_v2.py) and
+    return the single highest-viability idea.
     """
     profile = {
         "capital_available": payload.capital_available,
@@ -86,18 +89,16 @@ def export_dataset(
         .all()
     )
 
+    # Public dataset: no user-specific data, no viability score.
     core_fields = [
-        "id", "idea_name", "category", "viability_score", "demand_score",
-        "financial_score", "capital_fit_score", "execution_fit_score",
-        "regulatory_score", "competitive_score", "asset_location_score",
-        "min_capital", "recommended_capital_min", "recommended_capital_max",
-        "created_at",
+        "id", "idea_name", "category", "min_capital", "recommended_capital_min",
+        "recommended_capital_max", "status", "decline_reason", "created_at",
     ]
-    # A handful of structured-schema field names duplicate a promoted core
-    # column (category, min_capital, recommended_capital_min/max) -- skip
-    # those to avoid emitting the same value twice under two column headers.
-    extra_structured_fields = [f for f in STRUCTURED_FIELDS if f not in core_fields]
-    header = core_fields + extra_structured_fields
+    # Structured fields that duplicate a core column, or that are
+    # requester-dependent scores, are not exported.
+    skip = set(core_fields) | set(USER_SCORE_FIELDS) | {"operational_risks"}
+    extra_structured_fields = [f for f in STRUCTURED_FIELDS if f not in skip]
+    header = core_fields + ["operational_risks"] + extra_structured_fields
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
@@ -108,6 +109,7 @@ def export_dataset(
         for field in core_fields:
             value = getattr(idea, field, "")
             row.append(value.isoformat() if isinstance(value, datetime) else value)
+        row.append("; ".join(str(v) for v in (idea.operational_risks or [])))
         for field in extra_structured_fields:
             value = data.get(field, "")
             if isinstance(value, list):
@@ -180,6 +182,7 @@ def submit_feedback(
     if not idea:
         raise HTTPException(status_code=404, detail="Idea not found.")
     idea.accepted = feedback.accepted
+    idea.status = "accepted" if feedback.accepted else "declined"
     if not feedback.accepted and feedback.decline_reason:
         idea.decline_reason = feedback.decline_reason
     db.commit()

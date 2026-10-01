@@ -124,7 +124,7 @@ class IdeaOut(BaseModel):
     accepted: Optional[bool]
     created_at: datetime
     category: Optional[str] = None
-    viability_score: Optional[float] = None
+    status: Optional[str] = None
     class Config:
         from_attributes = True
 
@@ -168,14 +168,8 @@ class IdeaDetailOut(BaseModel):
     created_at: datetime
     category: Optional[str] = None
     structured_data: Optional[dict] = None
-    viability_score: Optional[float] = None
-    demand_score: Optional[float] = None
-    financial_score: Optional[float] = None
-    capital_fit_score: Optional[float] = None
-    execution_fit_score: Optional[float] = None
-    regulatory_score: Optional[float] = None
-    competitive_score: Optional[float] = None
-    asset_location_score: Optional[float] = None
+    status: Optional[str] = None
+    operational_risks: Optional[list] = None
     min_capital: Optional[float] = None
     recommended_capital_min: Optional[float] = None
     recommended_capital_max: Optional[float] = None

@@ -72,6 +72,14 @@ physical location, community ties, real estate, or owned infrastructure:
        commercial rental costs, or restricted spatial access to target
        customers.
 
+ENVIRONMENTAL RISK (environmental_risk_score) -- exposure of the business to
+EXTERNAL / ENVIRONMENTAL hazards in its location and sector: floods, drought,
+animal or crop disease, pests, power or water outages, road/transport
+disruption, seasonality. NOTE the direction: 1 = barely exposed, 10 = severely
+exposed (HIGHER = MORE RISK, unlike the four scores above). List the concrete
+hazards for this specific business in operational_risks (2-5 short items).
+This is independent of the requester and of regulatory risk.
+
 D (Demand), F (Financial viability), and C (Capital fit) are computed
 separately from the numeric fields you provide (total_target_buyers,
 consumption_frequency_per_year, average_unit_price, monthly_revenue_estimate,
@@ -156,6 +164,10 @@ IDEA_SCHEMA = {
             "description": "3-5 sentences covering: target customer segment, equipment/inventory/logistics needs, supplier dependency, seasonality, health & safety or age-restriction notes, and the idea's brand/cross-sell/upsell/scalability potential beyond what the structured fields above already capture.",
         },
 
+        # External/environmental risk (global, not requester-specific)
+        "operational_risks": {"type": "array", "items": {"type": "string"}, "description": "2-5 concrete external/environmental risks for this business (e.g. flooding of stock, animal disease outbreak, drought, load-shedding)."},
+        "environmental_risk_score": _SCORE_ENUM,
+
         # Qualitative scores (LLM self-assessed; D/F/C computed separately)
         "execution_fit_score": _SCORE_ENUM,
         "competitive_position_score": _SCORE_ENUM,
@@ -177,6 +189,7 @@ IDEA_SCHEMA = {
         "data_confidence", "evidence_quality", "narrative",
         "execution_fit_score", "competitive_position_score",
         "regulatory_risk_score", "asset_location_score",
+        "operational_risks", "environmental_risk_score",
     ],
     "additionalProperties": False,
 }

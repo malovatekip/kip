@@ -10,6 +10,7 @@ from app.database import engine, Base, SessionLocal
 from app.models import user, conversation
 from app.models import business_dashboard
 from app.models import business_idea
+from app.models import idea_factors
 from app.models import enhanced_logs
 from app.models import startup_chat as startup_chat_models
 from app.models import token_blocklist

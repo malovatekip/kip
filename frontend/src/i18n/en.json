@@ -1455,7 +1455,7 @@
     "generating_title": "KIP is generating your ideas...",
     "generating_desc": "Analysing your capital, location, skills and assets against the K-BIG-2 viability model.",
     "generate_failed": "Could not generate ideas. Please try again.",
-    "results_ready": "{count} ideas ranked by viability",
+    "results_ready": "Your most viable idea",
     "skill_selling_and_marketing": "Selling and marketing",
     "skill_operations_and_management": "Operations and management",
     "skill_digital_and_creative": "Digital and creative",

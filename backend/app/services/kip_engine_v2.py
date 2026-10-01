@@ -1,22 +1,21 @@
 """
 K-BIG-2 -- KIP Business Idea Generation Engine v2 (structured, viability-scored)
 =================================================================================
-Implements the sprint's 3-step generation flow:
-  1. Generate 3 business ideas using the k-big-1 method (same Zambia-context
-     building blocks as kip_engine.py -- knowledge base RAG, town profile,
-     the k-big-1 identity/economic constants -- packaged for structured
-     JSON output instead of a single markdown reply).
-  2. Add these ideas to the shared dataset (BusinessIdea rows, visible to
-     every future k-big-2 request, not just this user).
-  3. Open the entire dataset of ideas to look for the most viable match for
-     *this* requester's profile (see viability_engine.py + the module
-     docstring there for how D/F/S/R vs C/E/A are split between
-     idea-intrinsic and requester-specific).
+Flow (3-table isolation):
+  1. Claude generates 3 ideas (k-big-1 method) with qualitative scores.
+  2. Table 2 (idea_global_factors, permanent) gets the global factors plus the
+     engine-computed D and F; Table 3 (business_ideas, the public dataset)
+     gets the idea with NO user data and NO viability score; Table 1
+     (user_session_factors) temporarily holds this requester's factors.
+  3. The viability engine combines D, F (Table 2) with C, E, R, S, A (Table 1)
+     per idea; only the highest-V idea is returned. V is never stored.
+  4. Table 1 rows are deleted at the end of the request.
 
 k-big-1's own kip_engine.py / kip_prompt.py are not modified by this file.
 """
 import json
 import os
+import uuid
 
 import anthropic
 
@@ -30,10 +29,15 @@ from app.services import viability_engine as ve
 from app.data.town_profiles import get_town_profile
 from app.services.map_service import get_map_context
 from app.models.business_idea import BusinessIdea
+from app.models.idea_factors import IdeaGlobalFactors, UserSessionFactors
 
 MODEL = "claude-sonnet-5"
-TOP_N_RESULTS = 6
-MAX_RESCAN_ROWS = 500  # cap how many historical ideas get re-scored per request
+# Qualitative scores that depend on the requester: used for the viability
+# calculation (Table 1) but never written to the public dataset.
+USER_SCORE_FIELDS = (
+    "execution_fit_score", "competitive_position_score",
+    "regulatory_risk_score", "asset_location_score",
+)
 
 
 def _extract_json_text(response) -> str:
@@ -41,31 +45,6 @@ def _extract_json_text(response) -> str:
         if getattr(block, "type", None) == "text":
             return block.text
     return ""
-
-
-def _idea_intrinsic_scores(idea: dict) -> dict:
-    """D, F computed from the idea's own numeric fields; C is intentionally
-    NOT computed here since capital fit depends on the requester, not the
-    idea. S/R come straight from the model's own self-assessment (they're
-    market-intrinsic, not requester-specific, so they're safe to reuse
-    as-is for every future requester)."""
-    demand_score, raw_demand = ve.calculate_demand(
-        total_target_buyers=idea.get("total_target_buyers"),
-        consumption_frequency_per_year=idea.get("consumption_frequency_per_year"),
-        average_unit_price=idea.get("average_unit_price"),
-        category=idea.get("category"),
-    )
-    financial_score = ve.calculate_financial(
-        total_revenue=idea.get("monthly_revenue_estimate"),
-        cost_of_goods_sold=idea.get("cost_of_goods_sold_monthly"),
-    )
-    return {
-        "demand_score": demand_score,
-        "raw_demand": raw_demand,
-        "financial_score": financial_score,
-        "competitive_score": float(idea.get("competitive_position_score", 5)),
-        "regulatory_score": float(idea.get("regulatory_risk_score", 5)),
-    }
 
 
 def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
@@ -76,7 +55,7 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
         "skills": list[str],
         "assets": list[str],
     }
-    Returns the ranked list (new + rescanned dataset) as plain dicts, ready
+    Returns a one-element list holding the single highest-viability idea, ready
     for the API response -- see routes/ideas.py::generate_idea.
     """
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -133,96 +112,118 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
     parsed = json.loads(raw_text)
     new_ideas_data = (parsed.get("ideas") or [])[:3]
 
-    # ── Step 2: persist the 3 new ideas ──────────────────────────────────
-    new_rows: list[BusinessIdea] = []
-    for idea in new_ideas_data:
-        scores = _idea_intrinsic_scores(idea)
-        capital_available = profile.get("capital_available")
-        capital_required = idea.get("min_capital") or idea.get("recommended_capital_min")
-        capital_fit_score = ve.calculate_capital_fit(capital_available, capital_required)
-        execution_fit_score = float(idea.get("execution_fit_score", 5))
-        asset_location_score = float(idea.get("asset_location_score", 5))
+    # ── Steps 2-3: Table 2 (global) + Table 1 (temporary) + Table 3 (public) ─
+    request_id = str(uuid.uuid4())
+    try:
+        return _score_and_store(new_ideas_data, profile, user, db, request_id)
+    finally:
+        # Table 1 is per-request: always delete it, even on failure.
+        db.rollback()
+        db.query(UserSessionFactors).filter(UserSessionFactors.request_id == request_id).delete()
+        db.commit()
 
-        viability_score = ve.calculate_viability(
-            D=scores["demand_score"],
-            F=scores["financial_score"],
-            C=capital_fit_score,
-            E=execution_fit_score,
-            R=scores["regulatory_score"],
-            S=scores["competitive_score"],
-            A=asset_location_score,
+
+def _public_structured_data(idea: dict) -> dict:
+    """Strip requester-dependent qualitative scores before the idea goes into
+    the public dataset (E and A depend on the user; R/S are kept out too so the
+    public table never carries a per-request score)."""
+    return {k: v for k, v in idea.items() if k not in USER_SCORE_FIELDS}
+
+
+def _score_and_store(ideas: list[dict], profile: dict, user, db, request_id: str) -> list[dict]:
+    location = profile.get("location") or ""
+    skills = profile.get("skills") or []
+    assets = profile.get("assets") or []
+    capital_available = profile.get("capital_available")
+
+    candidates = []  # (idea_row, D, F, C, E, R, S, A)
+    for idea in ideas:
+        capital_required = idea.get("min_capital") or idea.get("recommended_capital_min")
+        D, _raw = ve.calculate_demand(
+            total_target_buyers=idea.get("total_target_buyers"),
+            consumption_frequency_per_year=idea.get("consumption_frequency_per_year"),
+            average_unit_price=idea.get("average_unit_price"),
+            category=idea.get("category"),
+        )
+        F = ve.calculate_financial(
+            total_revenue=idea.get("monthly_revenue_estimate"),
+            cost_of_goods_sold=idea.get("cost_of_goods_sold_monthly"),
         )
 
+        # Table 3 -- public dataset row: no user data, no viability score.
         row = BusinessIdea(
-            user_id=user.id,
+            user_id=user.id,  # private ownership link only; never exported
             idea_name=idea.get("name", "Untitled Business Idea")[:255],
             idea_summary=(idea.get("description") or "")[:2000],
-            full_response=json.dumps(idea),
-            location=location or None,
-            capital_amount=capital_available,
-            skills=", ".join(skills) if skills else None,
+            full_response=json.dumps(_public_structured_data(idea)),
             generated_by_kip=True,
             accepted=None,
+            status="pending",
+            shown_to_user=False,  # flipped to True for the winner below
             category=idea.get("category"),
-            structured_data=idea,
-            viability_score=viability_score,
-            demand_score=scores["demand_score"],
-            financial_score=scores["financial_score"],
-            capital_fit_score=capital_fit_score,
-            execution_fit_score=execution_fit_score,
-            regulatory_score=scores["regulatory_score"],
-            competitive_score=scores["competitive_score"],
-            asset_location_score=asset_location_score,
+            structured_data=_public_structured_data(idea),
             min_capital=idea.get("min_capital"),
             recommended_capital_min=idea.get("recommended_capital_min"),
             recommended_capital_max=idea.get("recommended_capital_max"),
-            capital_available_at_generation=capital_available,
-            skills_at_generation=skills,
-            assets_at_generation=profile.get("assets") or [],
+            operational_risks=idea.get("operational_risks") or [],
         )
         db.add(row)
-        new_rows.append(row)
+        db.flush()  # assigns row.id
 
+        # Table 2 -- global factors plus D and F.
+        db.add(IdeaGlobalFactors(
+            idea_id=row.id,
+            capital_required=capital_required,
+            total_target_buyers=idea.get("total_target_buyers"),
+            consumption_frequency_per_year=idea.get("consumption_frequency_per_year"),
+            average_unit_price=idea.get("average_unit_price"),
+            monthly_revenue_estimate=idea.get("monthly_revenue_estimate"),
+            cost_of_goods_sold_monthly=idea.get("cost_of_goods_sold_monthly"),
+            break_even_months=idea.get("break_even_months"),
+            environmental_risk_score=float(idea.get("environmental_risk_score", 5)),
+            demand_score=D,
+            financial_score=F,
+        ))
+
+        # Table 1 -- temporary user/local factors for this request.
+        C = ve.calculate_capital_fit(capital_available, capital_required)
+        E = float(idea.get("execution_fit_score", 5))
+        R = float(idea.get("regulatory_risk_score", 5))
+        S = float(idea.get("competitive_position_score", 5))
+        A = float(idea.get("asset_location_score", 5))
+        db.add(UserSessionFactors(
+            request_id=request_id, user_id=user.id, idea_id=row.id,
+            capital_available=capital_available, skills=skills, assets=assets,
+            location=location or None,
+            capital_fit_score=C, execution_fit_score=E, regulatory_score=R,
+            competitive_position_score=S, asset_location_score=A,
+        ))
+        candidates.append(row)
     db.commit()
-    for row in new_rows:
-        db.refresh(row)
-    new_ids = {row.id for row in new_rows}
 
-    # ── Step 3: open the entire dataset, re-rank for this requester ─────
-    ranked = [_row_to_result(row, row.viability_score, is_new=True) for row in new_rows]
-
-    existing_query = db.query(BusinessIdea).filter(
-        BusinessIdea.generated_by_kip == True,  # noqa: E712
-        BusinessIdea.structured_data.isnot(None),
-    )
-    if new_ids:
-        existing_query = existing_query.filter(~BusinessIdea.id.in_(new_ids))
-    existing = existing_query.order_by(BusinessIdea.created_at.desc()).limit(MAX_RESCAN_ROWS).all()
-
-    for row in existing:
-        data = row.structured_data or {}
-        capital_required = row.min_capital or row.recommended_capital_min
-        recomputed_capital_fit = ve.calculate_capital_fit(profile.get("capital_available"), capital_required)
-        recomputed_execution_fit = ve.estimate_execution_fit(data.get("required_skills"), skills)
-        recomputed_asset_location = ve.estimate_asset_location_fit(
-            data.get("required_assets"), profile.get("assets"), data.get("location_fit"), location
+    # ── Viability engine: D, F from Table 2; C, E, R, S, A from Table 1 ─────
+    scored = []
+    for row in candidates:
+        g = db.query(IdeaGlobalFactors).filter(IdeaGlobalFactors.idea_id == row.id).one()
+        u = (
+            db.query(UserSessionFactors)
+            .filter(UserSessionFactors.request_id == request_id, UserSessionFactors.idea_id == row.id)
+            .one()
         )
-        recomputed_viability = ve.calculate_viability(
-            D=row.demand_score or 0,
-            F=row.financial_score or 0,
-            C=recomputed_capital_fit,
-            E=recomputed_execution_fit,
-            R=row.regulatory_score or 0,
-            S=row.competitive_score or 0,
-            A=recomputed_asset_location,
+        v = ve.calculate_viability(
+            D=g.demand_score, F=g.financial_score,
+            C=u.capital_fit_score, E=u.execution_fit_score, R=u.regulatory_score,
+            S=u.competitive_position_score, A=u.asset_location_score,
         )
-        # Recomputed scores are used only for this response's ranking --
-        # the row's own stored scores (reflecting its original requester)
-        # are never overwritten here.
-        ranked.append(_row_to_result(row, recomputed_viability, is_new=False))
+        scored.append((v, row))  # V lives in memory only -- never persisted
 
-    ranked.sort(key=lambda r: r["viability_score"], reverse=True)
-    return ranked[:TOP_N_RESULTS]
+    if not scored:
+        return []
+    best_v, winner = max(scored, key=lambda t: t[0])
+    winner.shown_to_user = True
+    db.commit()
+    db.refresh(winner)
+    return [_row_to_result(winner, best_v, is_new=True)]
 
 
 def _row_to_result(row: BusinessIdea, viability_score: float, is_new: bool) -> dict:

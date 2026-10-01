@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Lightbulb, MapPin, DollarSign, CheckCircle, XCircle,
          Clock, ThumbsUp, ThumbsDown, Rocket, Plus, Building2,
-         Bell, X, ArrowRight, Download, Gauge } from 'lucide-react'
+         Bell, X, ArrowRight, Download } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
@@ -134,11 +134,6 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
               {idea.capital_amount && (
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <DollarSign size={10} /> K{Number(idea.capital_amount).toLocaleString()}
-                </span>
-              )}
-              {typeof idea.viability_score === 'number' && (
-                <span style={{ fontSize: 11, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 700 }}>
-                  <Gauge size={10} /> {idea.viability_score.toFixed(1)}/10
                 </span>
               )}
             </div>
