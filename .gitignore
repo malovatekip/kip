@@ -56,3 +56,9 @@ loadtest/tokens.json
 
 # ── Investor doc generation (build artifacts — see backend/scripts/generate_investor_doc.py) ─
 backend/scripts/_doc_assets/
+
+# Build artifacts & scratch files
+0_build.txt
+android-build-logs_*.zip
+*.apk
+pract.py
