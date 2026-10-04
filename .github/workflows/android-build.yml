@@ -49,7 +49,7 @@ jobs:
           # which silently built every prior APK with an empty API URL
           # (falling back to a same-origin '/api' that doesn't exist inside
           # the Capacitor WebView, breaking every network request).
-          VITE_API_URL: https://kip-pdng.onrender.com/api
+          VITE_API_URL: https://kip-backend-v2.onrender.com/api
 
       - uses: actions/setup-java@v4
         with:
