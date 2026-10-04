@@ -54,6 +54,16 @@ class BusinessIdea(Base):
     # External/operational risks of the business (e.g. floods, animal disease)
     operational_risks   = Column(JSON, nullable=True)
 
+    # Simulation engine lookup: 4 complement products that can be mixed with the
+    # main product. JSON list; each element has four keys read instantly by the
+    # simulation's product-mix lever / M_mix law:
+    #   sub_product_name        -- display name
+    #   base_cost               -- wholesale cost per unit (ZMW)
+    #   suggested_price         -- retail selling price per unit (ZMW)
+    #   demand_expansion_factor -- decimal booster for how much adding this
+    #                              product expands total target customers (N)
+    allowed_sub_products = Column(JSON, nullable=True)
+
     # pending | accepted | declined -- set by the user's Accept/Decline click.
     # `accepted` (bool) is kept in sync for older code paths.
     status              = Column(String(20), nullable=False, default="pending", server_default="pending")

@@ -6,10 +6,12 @@ Flow (3-table isolation):
   2. Table 2 (idea_global_factors, permanent) gets the global factors plus the
      engine-computed D and F; Table 3 (business_ideas, the public dataset)
      gets the idea with NO user data and NO viability score; Table 1
-     (user_session_factors) temporarily holds this requester's factors.
+     (user_session_factors) holds this requester's factors.
   3. The viability engine combines D, F (Table 2) with C, E, R, S, A (Table 1)
      per idea; only the highest-V idea is returned. V is never stored.
-  4. Table 1 rows are deleted at the end of the request.
+  4. The winner's Table 1 row PERSISTS -- the simulation engine later reads its
+     C/E/R/S/A static baseline alongside D/F. Only the two losing (unshown)
+     candidates' Table 1 rows are deleted; on request failure all are deleted.
 
 k-big-1's own kip_engine.py / kip_prompt.py are not modified by this file.
 """
@@ -112,15 +114,20 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
     parsed = json.loads(raw_text)
     new_ideas_data = (parsed.get("ideas") or [])[:3]
 
-    # ── Steps 2-3: Table 2 (global) + Table 1 (temporary) + Table 3 (public) ─
+    # ── Steps 2-3: Table 2 (global) + Table 1 (session) + Table 3 (public) ───
     request_id = str(uuid.uuid4())
     try:
+        # _score_and_store keeps the winner's Table 1 row and deletes the two
+        # losing candidates' rows itself.
         return _score_and_store(new_ideas_data, profile, user, db, request_id)
-    finally:
-        # Table 1 is per-request: always delete it, even on failure.
+    except Exception:
+        # On failure, leave nothing behind: drop every Table 1 row for this
+        # request (rollback first so a half-written transaction can't block the
+        # delete), then re-raise.
         db.rollback()
         db.query(UserSessionFactors).filter(UserSessionFactors.request_id == request_id).delete()
         db.commit()
+        raise
 
 
 def _public_structured_data(idea: dict) -> dict:
@@ -166,6 +173,9 @@ def _score_and_store(ideas: list[dict], profile: dict, user, db, request_id: str
             recommended_capital_min=idea.get("recommended_capital_min"),
             recommended_capital_max=idea.get("recommended_capital_max"),
             operational_risks=idea.get("operational_risks") or [],
+            # Global/public simulation lookup -- exactly 4 complements; clip if
+            # the model returned more/fewer (array size isn't schema-enforced).
+            allowed_sub_products=(idea.get("allowed_sub_products") or [])[:4],
         )
         db.add(row)
         db.flush()  # assigns row.id
@@ -221,6 +231,12 @@ def _score_and_store(ideas: list[dict], profile: dict, user, db, request_id: str
         return []
     best_v, winner = max(scored, key=lambda t: t[0])
     winner.shown_to_user = True
+    # Keep the winner's Table 1 row permanently (the simulation engine reads its
+    # C/E/R/S/A baseline); discard the two unshown losing candidates' rows.
+    db.query(UserSessionFactors).filter(
+        UserSessionFactors.request_id == request_id,
+        UserSessionFactors.idea_id != winner.id,
+    ).delete(synchronize_session=False)
     db.commit()
     db.refresh(winner)
     return [_row_to_result(winner, best_v, is_new=True)]

@@ -92,6 +92,22 @@ compute those scores yourself, only report accurate underlying numbers.
 _SCORE_ENUM = {"type": "integer", "enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
 _LEVEL_ENUM = ["low", "medium", "high"]
 
+# One complement product the simulation's product-mix lever can blend into the
+# main product. minItems/maxItems aren't used (structured outputs reject array
+# size constraints, same as numeric min/max above) -- "exactly 4" is enforced
+# in the array description and clipped in code if the model returns more/fewer.
+_SUB_PRODUCT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "sub_product_name": {"type": "string", "description": "Display name of the complement product."},
+        "base_cost": {"type": "number", "description": "Wholesale cost per unit in ZMW."},
+        "suggested_price": {"type": "number", "description": "Retail selling price per unit in ZMW (> base_cost)."},
+        "demand_expansion_factor": {"type": "number", "description": "Decimal (e.g. 0.10) for how much adding this product expands total target buyers N."},
+    },
+    "required": ["sub_product_name", "base_cost", "suggested_price", "demand_expansion_factor"],
+    "additionalProperties": False,
+}
+
 # NOTE on schema size: the sprint doc's full field list (~70 fields) compiles
 # to a strict-JSON grammar too large for the API ("The compiled grammar is
 # too large" 400) once wrapped in a 3-item array -- confirmed empirically,
@@ -168,6 +184,9 @@ IDEA_SCHEMA = {
         "operational_risks": {"type": "array", "items": {"type": "string"}, "description": "2-5 concrete external/environmental risks for this business (e.g. flooding of stock, animal disease outbreak, drought, load-shedding)."},
         "environmental_risk_score": _SCORE_ENUM,
 
+        # Simulation complement products (global, not requester-specific)
+        "allowed_sub_products": {"type": "array", "items": _SUB_PRODUCT_SCHEMA, "description": "Exactly 4 complement products that naturally mix with / cross-sell alongside the main product."},
+
         # Qualitative scores (LLM self-assessed; D/F/C computed separately)
         "execution_fit_score": _SCORE_ENUM,
         "competitive_position_score": _SCORE_ENUM,
@@ -190,6 +209,7 @@ IDEA_SCHEMA = {
         "execution_fit_score", "competitive_position_score",
         "regulatory_risk_score", "asset_location_score",
         "operational_risks", "environmental_risk_score",
+        "allowed_sub_products",
     ],
     "additionalProperties": False,
 }

@@ -32,7 +32,7 @@ import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
 import CapitalAccessPage from './pages/CapitalAccessPage'
 import MarketIntelligencePage from './pages/MarketIntelligencePage'
 import LearnPage from './pages/LearnPage'
-import BizSimPage from './pages/BizSimPage'
+import SimulatePage from './pages/SimulatePage'
 
 // ── NEW: Startup guidance page (CTO addition — business registration roadmap) ──
 import StartupPage     from './pages/StartupPage'
@@ -96,7 +96,7 @@ function AppRoutes() {
         <Route path="/capital" element={<Protected><CapitalAccessPage /></Protected>} />
         <Route path="/market" element={<Protected><MarketIntelligencePage /></Protected>} />
         <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
-        <Route path="/bizsim" element={<Protected><BizSimPage /></Protected>} />
+        <Route path="/simulate/:ideaId" element={<Protected><SimulatePage /></Protected>} />
         <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
 
         {/* ── NEW: Startup guidance — protected, business registration roadmap ── */}

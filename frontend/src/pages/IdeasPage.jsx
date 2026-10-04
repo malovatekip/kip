@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Lightbulb, MapPin, DollarSign, CheckCircle, XCircle,
          Clock, ThumbsUp, ThumbsDown, Rocket, Plus, Building2,
-         Bell, X, ArrowRight, Download } from 'lucide-react'
+         Bell, X, ArrowRight, Download, Activity } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
@@ -69,6 +69,7 @@ function BranchNotificationBanner() {
 /* ── Idea card ───────────────────────────────────────── */
 function IdeaCard({ idea, onFeedback, onStart, startingId }) {
   const { t } = useT()
+  const navigate = useNavigate()
   const [declining, setDeclining] = useState(false)
   const [reason,    setReason]    = useState('')
   const isStarting = startingId === idea.id
@@ -159,6 +160,16 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
 
       {/* Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        {/* Simulate — runs the multi-week simulation engine on this idea */}
+        <button onClick={() => navigate(`/simulate/${idea.id}`)} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+          padding: '10px 0', borderRadius: 10, cursor: 'pointer',
+          fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--blue-bright)',
+          background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.35)',
+        }}>
+          <Activity size={13} /> {t('ideas.simulate') || 'Simulate'}
+        </button>
+
         {idea.plan_id && (
           <Link to={`/business/${idea.plan_id}`} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,

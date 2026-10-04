@@ -29,7 +29,6 @@ export default function Layout({ children }) {
     { to: '/startup',    icon: Rocket,          label: t('nav.startup')    },
     { to: '/templates',  icon: FileText,        label: t('nav.templates')  },
     { to: '/learn',      icon: BookOpen,        label: t('nav.learn')      },
-    { to: '/bizsim',     icon: Gamepad2,        label: t('nav.bizsim')     },
     // { to: '/capital', icon: DollarSign, label: t('nav.capital') },
     { to: '/market',     icon: BarChart2,       label: t('nav.market')     },
     { to: '/survey',     icon: Globe,           label: t('nav.survey')     },

@@ -117,10 +117,13 @@ def main():
                 backfilled += 1
 
             clean = {k: v for k, v in data.items() if k not in USER_SCORE_KEYS}
+            clean_json = json.dumps(clean)
+            # Separate params: Postgres can't deduce one type for a JSON and a TEXT column.
+            sd_expr = ":s" if IS_SQLITE else "CAST(:s AS JSON)"
             conn.execute(
-                text("UPDATE business_ideas SET structured_data = :s, full_response = :s, "
+                text(f"UPDATE business_ideas SET structured_data = {sd_expr}, full_response = :f, "
                      "location = NULL, capital_amount = NULL, skills = NULL WHERE id = :i"),
-                {"s": json.dumps(clean), "i": idea_id},
+                {"s": clean_json, "f": clean_json, "i": idea_id},
             )
 
         for col in LEGACY_COLUMNS:

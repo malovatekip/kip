@@ -11,6 +11,7 @@ from app.models import user, conversation
 from app.models import business_dashboard
 from app.models import business_idea
 from app.models import idea_factors
+from app.models import simulation
 from app.models import enhanced_logs
 from app.models import startup_chat as startup_chat_models
 from app.models import token_blocklist
@@ -38,7 +39,7 @@ from app.routes import add_own_business
 
 from app.routes import capital_access
 from app.routes import learn
-from app.routes import bizsim_routes
+from app.routes import simulation_routes
 
 from app.routes.briefings import router as briefings_router
 from app.routes import i18n_routes
@@ -148,7 +149,7 @@ app.include_router(enterprise.router,      prefix="/api/enterprise",     tags=["
 app.include_router(add_own_business.router,prefix="/api/business",       tags=["Business"])
 app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital"])
 app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
-app.include_router(bizsim_routes.router, prefix="/api/bizsim", tags=["BizSim"])
+app.include_router(simulation_routes.router, prefix="/api/simulation", tags=["Simulation"])
 
 app.include_router(briefings_router, prefix="/api/news", tags=["briefings"])
 

@@ -1,0 +1,115 @@
+{
+  "_comment": "Component lookup layer for the simulation engine (sprint PART 1). Structural industry constants, NOT hardcoded in engine functions. Keys are normalized to the lowercase snake_case category slugs the app uses (see kip_prompt_v2.IDEA_SCHEMA.category); the sprint doc's smart-quoted / typo'd keys (e.g. 'Education-and_trainind') are corrected here. '_default' is used when an idea's category is missing or unknown.",
+  "food_and_catering": {
+    "base_elasticity": 1.5,
+    "diminishing_returns_marketing_scale_k": 150.0,
+    "base_worker_throughput_weekly": 1000,
+    "fixed_weekly_rent_baseline": 150.0,
+    "weekly_wage_per_worker": 350.0,
+    "unsold_waste_penalty_per_unit": 0.50
+  },
+  "agriculture": {
+    "base_elasticity": 0.7,
+    "diminishing_returns_marketing_scale_k": 500.0,
+    "base_worker_throughput_weekly": 500,
+    "fixed_weekly_rent_baseline": 300.0,
+    "weekly_wage_per_worker": 400.0,
+    "unsold_waste_penalty_per_unit": 2.00
+  },
+  "retail_and_trade": {
+    "base_elasticity": 1.20,
+    "diminishing_returns_marketing_scale_k": 250.0,
+    "base_worker_throughput_weekly": 750,
+    "fixed_weekly_rent_baseline": 200.0,
+    "weekly_wage_per_worker": 350.0,
+    "unsold_waste_penalty_per_unit": 0.25
+  },
+  "arts_and_entertainment": {
+    "base_elasticity": 1.8,
+    "diminishing_returns_marketing_scale_k": 800.0,
+    "base_worker_throughput_weekly": 1200,
+    "fixed_weekly_rent_baseline": 1500.0,
+    "weekly_wage_per_worker": 500.0,
+    "unsold_waste_penalty_per_unit": 0.00
+  },
+  "trades_and_repairs": {
+    "base_elasticity": 1.10,
+    "diminishing_returns_marketing_scale_k": 180.0,
+    "base_worker_throughput_weekly": 40,
+    "fixed_weekly_rent_baseline": 120.0,
+    "weekly_wage_per_worker": 450.0,
+    "unsold_waste_penalty_per_unit": 1.50
+  },
+  "digital_and_creative": {
+    "base_elasticity": 1.80,
+    "diminishing_returns_marketing_scale_k": 600.0,
+    "base_worker_throughput_weekly": 25,
+    "fixed_weekly_rent_baseline": 80.0,
+    "weekly_wage_per_worker": 650.0,
+    "unsold_waste_penalty_per_unit": 0.00
+  },
+  "services_and_care": {
+    "base_elasticity": 0.65,
+    "diminishing_returns_marketing_scale_k": 200.0,
+    "base_worker_throughput_weekly": 60,
+    "fixed_weekly_rent_baseline": 100.0,
+    "weekly_wage_per_worker": 450.0,
+    "unsold_waste_penalty_per_unit": 0.00
+  },
+  "finance_and_administration": {
+    "base_elasticity": 0.75,
+    "diminishing_returns_marketing_scale_k": 350.0,
+    "base_worker_throughput_weekly": 80,
+    "fixed_weekly_rent_baseline": 250.0,
+    "weekly_wage_per_worker": 750.0,
+    "unsold_waste_penalty_per_unit": 0.00
+  },
+  "transport_and_logistics": {
+    "base_elasticity": 0.90,
+    "diminishing_returns_marketing_scale_k": 400.0,
+    "base_worker_throughput_weekly": 300,
+    "fixed_weekly_rent_baseline": 350.0,
+    "weekly_wage_per_worker": 480.0,
+    "unsold_waste_penalty_per_unit": 0.75
+  },
+  "manufacturing": {
+    "base_elasticity": 1.00,
+    "diminishing_returns_marketing_scale_k": 450.0,
+    "base_worker_throughput_weekly": 600,
+    "fixed_weekly_rent_baseline": 500.0,
+    "weekly_wage_per_worker": 520.0,
+    "unsold_waste_penalty_per_unit": 3.00
+  },
+  "tourism_and_hospitality": {
+    "base_elasticity": 1.40,
+    "diminishing_returns_marketing_scale_k": 700.0,
+    "base_worker_throughput_weekly": 120,
+    "fixed_weekly_rent_baseline": 800.0,
+    "weekly_wage_per_worker": 400.0,
+    "unsold_waste_penalty_per_unit": 1.20
+  },
+  "construction_and_real_estate": {
+    "base_elasticity": 0.80,
+    "diminishing_returns_marketing_scale_k": 550.0,
+    "base_worker_throughput_weekly": 35,
+    "fixed_weekly_rent_baseline": 600.0,
+    "weekly_wage_per_worker": 580.0,
+    "unsold_waste_penalty_per_unit": 5.00
+  },
+  "education_and_training": {
+    "base_elasticity": 1.30,
+    "diminishing_returns_marketing_scale_k": 300.0,
+    "base_worker_throughput_weekly": 50,
+    "fixed_weekly_rent_baseline": 175.0,
+    "weekly_wage_per_worker": 600.0,
+    "unsold_waste_penalty_per_unit": 0.00
+  },
+  "_default": {
+    "base_elasticity": 1.00,
+    "diminishing_returns_marketing_scale_k": 300.0,
+    "base_worker_throughput_weekly": 200,
+    "fixed_weekly_rent_baseline": 250.0,
+    "weekly_wage_per_worker": 450.0,
+    "unsold_waste_penalty_per_unit": 0.50
+  }
+}

@@ -5,10 +5,12 @@ from app.database import Base
 
 class UserSessionFactors(Base):
     """
-    K-BIG-2 Table 1 -- TEMPORARY, user-specific factors for ONE generation
-    request. Rows are deleted at the end of the request (see
-    kip_engine_v2.generate_structured_ideas). Never exported and never holds a
-    viability score.
+    K-BIG-2 Table 1 -- user-specific factors (C/E/R/S/A) for ONE generation
+    request. The winning idea's row PERSISTS so the simulation engine can read
+    this requester's static baseline later; the two losing (unshown) candidates'
+    rows are deleted at the end of the request, and on request failure all rows
+    for the request are deleted (see kip_engine_v2.generate_structured_ideas).
+    Never exported and never holds a viability score.
     """
     __tablename__ = "user_session_factors"
 
