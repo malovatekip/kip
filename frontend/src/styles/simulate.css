@@ -118,7 +118,15 @@
   background: var(--bubble-kip-bg); border-left: 1px solid var(--bubble-kip-border); border-bottom: 1px solid var(--bubble-kip-border);
   transform: rotate(45deg);
 }
-.sim-bubble-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; color: var(--blue); margin-bottom: 3px; }
+.sim-bubble-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; color: var(--blue); margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sim-audio-btn {
+  flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; border-radius: 7px; cursor: pointer;
+  color: var(--blue); background: transparent; border: 1px solid var(--border-h);
+  transition: background .15s, color .15s;
+}
+.sim-audio-btn:hover { background: var(--blue-dim); }
+.sim-audio-btn[aria-pressed="false"] { color: var(--muted); }
 .sim-bubble p { margin: 0; }
 .sim-bubble p + p { margin-top: 5px; }
 .sim-caret { display: inline-block; width: 7px; height: 13px; margin-left: 2px; vertical-align: -2px; background: var(--blue); animation: simBlink .8s steps(1) infinite; }

@@ -30,6 +30,8 @@ export function makeSimulationApi(ideaId, { demo = false } = {}) {
       },
       async restart() { played = 0; return clone(demoSession.start) },
       async past() { return [pastRow] },
+      // No backend in demo: fall back to the week's rule-based advice.
+      async advice() { return null },
     }
   }
 
@@ -54,6 +56,10 @@ export function makeSimulationApi(ideaId, { demo = false } = {}) {
     async past() {
       const { data } = await api.get(`/simulation/idea/${ideaId}/sessions`)
       return data || []
+    },
+    async advice(sessionId) {
+      const { data } = await api.post(`/simulation/sessions/${sessionId}/advice`)
+      return data   // { week, problem, solution }
     },
   }
 }

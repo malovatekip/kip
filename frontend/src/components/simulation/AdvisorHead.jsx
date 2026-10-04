@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 
 /* Illustrated mentor head. Skin and hair are fixed illustration colours (the
    same person in both themes); clothing and glasses follow the theme tokens. */
@@ -75,7 +76,8 @@ function useTypewriter(lines, key) {
  *  tips   [{kind, text}] — rule-based now, AI-written later
  *  name   advisor display name
  */
-export default function AdvisorHead({ tips = [], name, intro, compact = false, collapsed = false, onToggle }) {
+export default function AdvisorHead({ tips = [], name, intro, compact = false, collapsed = false, onToggle,
+  audioOn, onToggleAudio, muteLabel, unmuteLabel }) {
   const lines = tips.length ? tips.map(t => t.text) : [intro]
   const [shown, typing] = useTypewriter(lines, tips.map(t => t.kind).join('|'))
   return (
@@ -84,7 +86,17 @@ export default function AdvisorHead({ tips = [], name, intro, compact = false, c
       onKeyDown={onToggle ? (e => (e.key === 'Enter' || e.key === ' ') && onToggle()) : undefined}>
       <AdvisorFace talking={typing} size={compact ? 44 : 62} />
       <div className="sim-bubble" aria-live="polite">
-        <div className="sim-bubble-name">{name}</div>
+        <div className="sim-bubble-name">
+          <span>{name}</span>
+          {onToggleAudio && (
+            <button type="button" className="sim-audio-btn"
+              onClick={(e) => { e.stopPropagation(); onToggleAudio() }}
+              aria-pressed={!!audioOn} aria-label={audioOn ? muteLabel : unmuteLabel}
+              title={audioOn ? muteLabel : unmuteLabel}>
+              {audioOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+            </button>
+          )}
+        </div>
         {shown.map((line, i) => (
           <p key={i}>{line}{typing && i === shown.length - 1 && <span className="sim-caret" />}</p>
         ))}

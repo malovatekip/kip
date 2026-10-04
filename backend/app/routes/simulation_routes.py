@@ -4,6 +4,7 @@ KIP Simulation Routes -- FastAPI endpoints for the week-by-week simulation.
 POST /api/simulation/sessions                    -- start a session for an idea
 GET  /api/simulation/sessions/{session_id}       -- resume / reload a session
 POST /api/simulation/sessions/{session_id}/weeks -- play the next week with this week's levers
+POST /api/simulation/sessions/{session_id}/advice -- Kip's AI read of the last played week
 GET  /api/simulation/idea/{idea_id}/sessions     -- past sessions for an idea (newest first)
 POST /api/simulation/run                         -- one-shot run with fixed levers (kept for scripts/tests)
 
@@ -74,6 +75,13 @@ def get_session(session_id: int, current_user: User = Depends(get_current_user),
 def play_week(session_id: int, req: WeekRequest, current_user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
     return _call(svc.play_week, db, current_user.id, session_id, req.levers.model_dump())
+
+
+@router.post("/sessions/{session_id}/advice")
+def week_advice(session_id: int, current_user: User = Depends(get_current_user),
+                db: Session = Depends(get_db)):
+    sess = _call(svc.get_session, db, current_user.id, session_id)
+    return svc.week_advice(db, sess)
 
 
 @router.get("/idea/{idea_id}/sessions")

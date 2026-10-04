@@ -20,6 +20,20 @@ const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 const lerp = (a, b, f) => a + (b - a) * f
 const sum = (xs) => xs.reduce((s, x) => s + (Number(x) || 0), 0)
 
+const AUDIO_KEY = 'kip_sim_audio'
+const audioPref = () => { try { return localStorage.getItem(AUDIO_KEY) !== 'off' } catch { return true } }
+function speakAdvice(text) {
+  try {
+    const synth = window.speechSynthesis
+    if (!synth || !text) return
+    synth.cancel()
+    const u = new SpeechSynthesisUtterance(String(text))
+    u.rate = 1; u.pitch = 1; u.lang = 'en-GB'
+    synth.speak(u)
+  } catch { /* speech synthesis unsupported */ }
+}
+const stopSpeaking = () => { try { window.speechSynthesis?.cancel() } catch { /* ignore */ } }
+
 /* Server lever shape <-> editable shape ({ mix: { name: units } }). */
 function toEditable(def = {}) {
   const mix = {}
@@ -88,8 +102,11 @@ export default function SimulatePage({ demo = false }) {
   const [mtab, setMtab] = useState('play')
   const [advisorOpen, setAdvisorOpen] = useState(false)
   const [newHorizon, setNewHorizon] = useState(4)
+  const [aiAdvice, setAiAdvice] = useState(null)   // Kip's AI read of the last week: { week, problem, solution }
+  const [audioOn, setAudioOn] = useState(audioPref) // speak advice aloud by default
   const busy = awaiting || playback.playing
   const sceneRef = useRef(null)
+  const spokenKeyRef = useRef(null)                 // week number Kip has already spoken for
 
   const load = useCallback(async () => {
     setLoadError(null)
@@ -97,6 +114,8 @@ export default function SimulatePage({ demo = false }) {
       const { session: s, past: p } = await simApi.load()
       setSession(s)
       setPast(p)
+      setAiAdvice(null)
+      spokenKeyRef.current = null
       setLevers(toEditable(s.default_levers))
     } catch (err) {
       setLoadError(err.response?.data?.detail || err.message || 'error')
@@ -109,6 +128,8 @@ export default function SimulatePage({ demo = false }) {
   const play = async () => {
     if (busy || !session || session.status !== 'in_progress') return
     setAwaiting(true)
+    setAiAdvice(null)
+    stopSpeaking()
     const sent = toApi(levers, subs)
     try {
       const res = await simApi.play(session.session_id, sent)
@@ -117,6 +138,10 @@ export default function SimulatePage({ demo = false }) {
       setPrevSession(session)
       setPending({ ...res, levers: used })
       setAwaiting(false)
+      // Kip reads the week while it animates; advice lands by the time it ends.
+      simApi.advice(session.session_id)
+        .then(a => { if (a && (a.problem || a.solution)) setAiAdvice(a) })
+        .catch(() => {})
       if (window.matchMedia?.('(max-width: 767px)').matches) {
         setMtab('play')
         sceneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -139,6 +164,9 @@ export default function SimulatePage({ demo = false }) {
       setSession(s)
       setLevers(toEditable(s.default_levers))
       setPending(null)
+      setAiAdvice(null)
+      spokenKeyRef.current = null
+      stopSpeaking()
       setMtab('play')
       simApi.past().then(setPast).catch(() => {})
     } catch (err) {
@@ -215,6 +243,27 @@ export default function SimulatePage({ demo = false }) {
     return buildEvents(weeks, history, session?.viability_baseline)
   }, [view, pending, playback.playing, session])
 
+  /* Speak Kip's advice once the week has finished animating (audio on by default). */
+  useEffect(() => {
+    if (!audioOn) { stopSpeaking(); return }
+    if (playback.playing || pending || !aiAdvice) return
+    if (!(aiAdvice.problem || aiAdvice.solution)) return
+    if (spokenKeyRef.current === aiAdvice.week) return
+    spokenKeyRef.current = aiAdvice.week
+    speakAdvice([aiAdvice.problem, aiAdvice.solution].filter(Boolean).join('. '))
+  }, [aiAdvice, audioOn, playback.playing, pending])
+
+  useEffect(() => stopSpeaking, [])  // stop any speech when leaving the page
+
+  const toggleAudio = useCallback(() => {
+    setAudioOn(v => {
+      const next = !v
+      try { localStorage.setItem(AUDIO_KEY, next ? 'on' : 'off') } catch { /* ignore */ }
+      if (!next) stopSpeaking()
+      return next
+    })
+  }, [])
+
   /* ── Loading / error ───────────────────────────────────────────── */
   if (loadError) {
     return (
@@ -252,9 +301,15 @@ export default function SimulatePage({ demo = false }) {
     ad: fmtK(view.metrics.ad),
     revenue: fmtK(view.metrics.revenue),
   }
+  const aiForWeek = !playback.playing && aiAdvice && aiAdvice.week === view.lastWeek?.week ? aiAdvice : null
   const tips = playback.playing
     ? [{ kind: 'watch', text: t('simulate.advisor_watching') }]
-    : (view.lastWeek?.advice?.length ? view.lastWeek.advice : [])
+    : aiForWeek
+      ? [
+          aiForWeek.problem && { kind: 'problem', text: `${t('simulate.advisor_problem')} ${aiForWeek.problem}` },
+          aiForWeek.solution && { kind: 'solution', text: `${t('simulate.advisor_solution')} ${aiForWeek.solution}` },
+        ].filter(Boolean)
+      : (view.lastWeek?.advice?.length ? view.lastWeek.advice : [])
   const deltaV = view.v - session.viability_baseline
   const playLabel = finished ? t('simulate.finished') : busy ? t('simulate.playing') : t('simulate.play_week', { week: weekNumber })
   const renderPlay = (mini) => (
@@ -295,7 +350,9 @@ export default function SimulatePage({ demo = false }) {
               {renderPlay(false)}
             </div>
           </div>
-          <AdvisorHead tips={tips} name={t('simulate.advisor_name')} intro={t('simulate.advisor_intro')} />
+          <AdvisorHead tips={tips} name={t('simulate.advisor_name')} intro={t('simulate.advisor_intro')}
+            audioOn={audioOn} onToggleAudio={toggleAudio}
+            muteLabel={t('simulate.advisor_mute')} unmuteLabel={t('simulate.advisor_unmute')} />
         </div>
         <div className="sim-panel sim-gauge-card">
           <Gauge value={view.v} live={playback.playing} marker={session.viability_baseline} label={t('simulate.gauge_live')}
@@ -333,7 +390,9 @@ export default function SimulatePage({ demo = false }) {
       </header>
       <div className={`sim-panel sim-advisor-strip sim-m-play${advisorOpen ? '' : ' is-collapsed'}`}>
         <AdvisorHead compact tips={tips} name={t('simulate.advisor_name')} intro={t('simulate.advisor_intro')}
-          collapsed={!advisorOpen} onToggle={() => setAdvisorOpen(o => !o)} />
+          collapsed={!advisorOpen} onToggle={() => setAdvisorOpen(o => !o)}
+          audioOn={audioOn} onToggleAudio={toggleAudio}
+          muteLabel={t('simulate.advisor_mute')} unmuteLabel={t('simulate.advisor_unmute')} />
       </div>
 
       {/* ── Body ─────────────────────────────────────────────── */}

@@ -15,6 +15,7 @@ from app.models.business_idea import BusinessIdea
 from app.models.idea_factors import IdeaGlobalFactors, UserSessionFactors
 from app.models.simulation import SimulationSession
 from app.services import viability_engine as ve
+from app.services import simulation_advisor as advisor
 from app.services.simulation_engine import (
     SimulationEngine, SimulationLevers, SimulationState, IdeaBaseline,
     DEFAULT_HORIZON_WEEKS, BASE_STAFF,
@@ -238,6 +239,29 @@ def play_week(db: Session, user_id: int, session_id: int, levers: dict) -> dict:
     db.commit()
     db.refresh(sess)
     return {"week": week, "session": serialize(db, sess)}
+
+
+def week_advice(db: Session, sess: SimulationSession) -> dict:
+    """Kip's AI reading of the latest played week: one problem, one solution.
+
+    Reads the last entry of the server-side weekly_trace, so the client never
+    sends game data back. Returns {week, problem, solution}; falls back to the
+    engine's rule-based tips if the AI call is unavailable (see simulation_advisor).
+    """
+    weeks = list(sess.weekly_trace or [])
+    if not weeks:
+        return {"week": sess.current_week or 0, "problem": "", "solution": ""}
+    week = weeks[-1]
+    idea = db.query(BusinessIdea).filter(BusinessIdea.id == sess.idea_id).first()
+    out = advisor.generate_advice(
+        week,
+        idea_name=idea.idea_name if idea else "your business",
+        category=idea.category if idea else "",
+        running_viability=float(week.get("running_viability") or sess.viability_simulated or 0),
+        baseline_viability=float(sess.viability_baseline or 0),
+    )
+    out["week"] = week.get("week")
+    return out
 
 
 def list_sessions(db: Session, user_id: int, idea_id: int) -> list:
