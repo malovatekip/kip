@@ -167,7 +167,7 @@ function IdeaCard({ idea, onFeedback, onStart, startingId }) {
           fontFamily: 'Syne', fontWeight: 700, fontSize: 12, color: 'var(--blue-bright)',
           background: 'var(--blue-dim)', border: '1px solid rgba(43,127,255,0.35)',
         }}>
-          <Activity size={13} /> {t('ideas.simulate') || 'Simulate'}
+          <Activity size={13} /> {t('ideas.simulate')}
         </button>
 
         {idea.plan_id && (

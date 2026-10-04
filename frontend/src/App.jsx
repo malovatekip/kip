@@ -96,6 +96,8 @@ function AppRoutes() {
         <Route path="/capital" element={<Protected><CapitalAccessPage /></Protected>} />
         <Route path="/market" element={<Protected><MarketIntelligencePage /></Protected>} />
         <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
+        {/* Dev-only replay of a recorded engine session, viewable without the backend. */}
+        {import.meta.env.DEV && <Route path="/simulate/demo" element={<SimulatePage demo />} />}
         <Route path="/simulate/:ideaId" element={<Protected><SimulatePage /></Protected>} />
         <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
 

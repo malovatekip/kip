@@ -1,0 +1,2146 @@
+{
+ "start": {
+  "session_id": 1,
+  "status": "in_progress",
+  "current_week": 0,
+  "horizon_weeks": 4,
+  "idea": {
+   "id": 1,
+   "name": "Kabulonga Green Basket",
+   "category": "agriculture"
+  },
+  "baseline_scores": {
+   "D": 10.0,
+   "F": 6.99,
+   "C": 5.0,
+   "E": 5.0,
+   "R": 5.0,
+   "S": 5.0,
+   "A": 5.0
+  },
+  "viability_baseline": 6.65,
+  "running_scores": {
+   "D": 10.0,
+   "F": 6.99,
+   "C": 5.0,
+   "E": 5.0,
+   "R": 5.0,
+   "S": 5.0,
+   "A": 5.0
+  },
+  "running_viability": 6.65,
+  "economics": {
+   "average_unit_price": 180.0,
+   "core_unit_cost": 54.23,
+   "capital_available": null,
+   "capital_required": 3000.0,
+   "initial_cash": 3000.0,
+   "cash": 3000.0,
+   "staff_count": 1,
+   "inventory": {},
+   "total_target_buyers": 800.0,
+   "consumption_frequency_per_year": 48.0,
+   "weekly_rent": 300.0,
+   "weekly_wage_per_worker": 400.0,
+   "worker_throughput_weekly": 500,
+   "waste_penalty_per_unit": 2.0,
+   "base_elasticity": 0.7,
+   "marketing_scale_k": 500.0,
+   "category_growth_rate": 0.004,
+   "environmental_risk_score": 5.0
+  },
+  "allowed_sub_products": [
+   {
+    "sub_product_name": "Free-range eggs (tray of 30)",
+    "base_cost": 65,
+    "suggested_price": 95,
+    "demand_expansion_factor": 0.12
+   },
+   {
+    "sub_product_name": "Artisan sourdough bread loaf",
+    "base_cost": 25,
+    "suggested_price": 45,
+    "demand_expansion_factor": 0.08
+   },
+   {
+    "sub_product_name": "Cold-pressed sunflower oil (500ml)",
+    "base_cost": 35,
+    "suggested_price": 60,
+    "demand_expansion_factor": 0.07
+   },
+   {
+    "sub_product_name": "Homemade herb-infused honey (350g)",
+    "base_cost": 40,
+    "suggested_price": 70,
+    "demand_expansion_factor": 0.1
+   }
+  ],
+  "next_shock": {
+   "week": 1,
+   "name": "Calm week",
+   "hit_probability": 0.0,
+   "severity": "none"
+  },
+  "weeks": [],
+  "lever_history": [],
+  "default_levers": {
+   "price": 180.0,
+   "ad_spend": 0,
+   "stock_ordered": 42,
+   "staffing_change": 0,
+   "product_mix_selections": []
+  }
+ },
+ "plays": [
+  {
+   "levers": {
+    "price": 180,
+    "ad_spend": 200,
+    "stock_ordered": 42,
+    "staffing_change": 1,
+    "product_mix_selections": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12,
+      "units": 60
+     }
+    ]
+   },
+   "week": {
+    "week": 1,
+    "shock_name": "Calm week",
+    "shock_hit": false,
+    "gross_demand": 966.22,
+    "served_demand": 102.0,
+    "turned_away": 864.22,
+    "staff_count": 2,
+    "staff_capacity": 500.0,
+    "labor_strain_index": 1.932,
+    "revenue": 13260.0,
+    "cogs": 6177.69,
+    "procurement": 6177.69,
+    "net_cash_flow": 5782.31,
+    "net_profit": 5782.31,
+    "cash_balance": 8782.31,
+    "units_lost": 0.0,
+    "unsold": 0.0,
+    "loss_ratio": 0.0,
+    "liquidity_ratio": 6.76,
+    "in_crunch": false,
+    "risk_score": 3.82,
+    "execution_fit": 5.0,
+    "execution_fit_next": 4.77,
+    "running_scores": {
+     "D": 1.06,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.77,
+     "R": 3.82,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 5.61,
+    "daily": [
+     {
+      "day": 1,
+      "demand": 113.46,
+      "served": 11.98,
+      "cash_balance": -1949.22,
+      "profit_to_date": 503.06
+     },
+     {
+      "day": 2,
+      "demand": 123.62,
+      "served": 13.05,
+      "cash_balance": -281.31,
+      "profit_to_date": 1380.6
+     },
+     {
+      "day": 3,
+      "demand": 126.16,
+      "served": 13.32,
+      "cash_balance": 1421.54,
+      "profit_to_date": 2276.8
+     },
+     {
+      "day": 4,
+      "demand": 140.2,
+      "served": 14.8,
+      "cash_balance": 3316.98,
+      "profit_to_date": 3275.86
+     },
+     {
+      "day": 5,
+      "demand": 146.89,
+      "served": 15.51,
+      "cash_balance": 5304.31,
+      "profit_to_date": 4324.01
+     },
+     {
+      "day": 6,
+      "demand": 176.72,
+      "served": 18.66,
+      "cash_balance": 7700.93,
+      "profit_to_date": 5590.76
+     },
+     {
+      "day": 7,
+      "demand": 139.17,
+      "served": 14.69,
+      "cash_balance": 8782.31,
+      "profit_to_date": 5782.31
+     }
+    ],
+    "advice": [
+     {
+      "kind": "burnout",
+      "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+     },
+     {
+      "kind": "shock",
+      "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+     }
+    ]
+   },
+   "session": {
+    "session_id": 1,
+    "status": "in_progress",
+    "current_week": 1,
+    "horizon_weeks": 4,
+    "idea": {
+     "id": 1,
+     "name": "Kabulonga Green Basket",
+     "category": "agriculture"
+    },
+    "baseline_scores": {
+     "D": 10.0,
+     "F": 6.99,
+     "C": 5.0,
+     "E": 5.0,
+     "R": 5.0,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "viability_baseline": 6.65,
+    "running_scores": {
+     "D": 1.06,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.77,
+     "R": 3.82,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 5.61,
+    "economics": {
+     "average_unit_price": 180.0,
+     "core_unit_cost": 54.23,
+     "capital_available": null,
+     "capital_required": 3000.0,
+     "initial_cash": 3000.0,
+     "cash": 8782.31,
+     "staff_count": 2,
+     "inventory": {
+      "__core__": 0.0,
+      "Free-range eggs (tray of 30)": 0.0
+     },
+     "total_target_buyers": 800.0,
+     "consumption_frequency_per_year": 48.0,
+     "weekly_rent": 300.0,
+     "weekly_wage_per_worker": 400.0,
+     "worker_throughput_weekly": 500,
+     "waste_penalty_per_unit": 2.0,
+     "base_elasticity": 0.7,
+     "marketing_scale_k": 500.0,
+     "category_growth_rate": 0.004,
+     "environmental_risk_score": 5.0
+    },
+    "allowed_sub_products": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08
+     },
+     {
+      "sub_product_name": "Cold-pressed sunflower oil (500ml)",
+      "base_cost": 35,
+      "suggested_price": 60,
+      "demand_expansion_factor": 0.07
+     },
+     {
+      "sub_product_name": "Homemade herb-infused honey (350g)",
+      "base_cost": 40,
+      "suggested_price": 70,
+      "demand_expansion_factor": 0.1
+     }
+    ],
+    "next_shock": {
+     "week": 2,
+     "name": "Power outage",
+     "hit_probability": 0.55,
+     "severity": "medium"
+    },
+    "weeks": [
+     {
+      "week": 1,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 966.22,
+      "served_demand": 102.0,
+      "turned_away": 864.22,
+      "staff_count": 2,
+      "staff_capacity": 500.0,
+      "labor_strain_index": 1.932,
+      "revenue": 13260.0,
+      "cogs": 6177.69,
+      "procurement": 6177.69,
+      "net_cash_flow": 5782.31,
+      "net_profit": 5782.31,
+      "cash_balance": 8782.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 6.76,
+      "in_crunch": false,
+      "risk_score": 3.82,
+      "execution_fit": 5.0,
+      "execution_fit_next": 4.77,
+      "running_scores": {
+       "D": 1.06,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.77,
+       "R": 3.82,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 5.61,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 113.46,
+        "served": 11.98,
+        "cash_balance": -1949.22,
+        "profit_to_date": 503.06
+       },
+       {
+        "day": 2,
+        "demand": 123.62,
+        "served": 13.05,
+        "cash_balance": -281.31,
+        "profit_to_date": 1380.6
+       },
+       {
+        "day": 3,
+        "demand": 126.16,
+        "served": 13.32,
+        "cash_balance": 1421.54,
+        "profit_to_date": 2276.8
+       },
+       {
+        "day": 4,
+        "demand": 140.2,
+        "served": 14.8,
+        "cash_balance": 3316.98,
+        "profit_to_date": 3275.86
+       },
+       {
+        "day": 5,
+        "demand": 146.89,
+        "served": 15.51,
+        "cash_balance": 5304.31,
+        "profit_to_date": 4324.01
+       },
+       {
+        "day": 6,
+        "demand": 176.72,
+        "served": 18.66,
+        "cash_balance": 7700.93,
+        "profit_to_date": 5590.76
+       },
+       {
+        "day": 7,
+        "demand": 139.17,
+        "served": 14.69,
+        "cash_balance": 8782.31,
+        "profit_to_date": 5782.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+       }
+      ]
+     }
+    ],
+    "lever_history": [
+     {
+      "price": 180,
+      "ad_spend": 200,
+      "stock_ordered": 42,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 60
+       }
+      ]
+     }
+    ],
+    "default_levers": {
+     "price": 180,
+     "ad_spend": 200,
+     "stock_ordered": 42,
+     "staffing_change": 0,
+     "product_mix_selections": [
+      {
+       "sub_product_name": "Free-range eggs (tray of 30)",
+       "base_cost": 65,
+       "suggested_price": 95,
+       "demand_expansion_factor": 0.12,
+       "units": 60
+      }
+     ]
+    }
+   }
+  },
+  {
+   "levers": {
+    "price": 185,
+    "ad_spend": 400,
+    "stock_ordered": 450,
+    "staffing_change": 1,
+    "product_mix_selections": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12,
+      "units": 80
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08,
+      "units": 60
+     }
+    ]
+   },
+   "week": {
+    "week": 2,
+    "shock_name": "Power outage",
+    "shock_hit": true,
+    "gross_demand": 1124.89,
+    "served_demand": 556.03,
+    "turned_away": 568.86,
+    "staff_count": 3,
+    "staff_capacity": 715.07,
+    "labor_strain_index": 1.573,
+    "revenue": 88163.54,
+    "cogs": 29312.94,
+    "procurement": 31103.85,
+    "net_cash_flow": 55159.69,
+    "net_profit": 55159.69,
+    "cash_balance": 63942.0,
+    "units_lost": 33.97,
+    "unsold": 0.0,
+    "loss_ratio": 0.058,
+    "liquidity_ratio": 33.65,
+    "in_crunch": false,
+    "risk_score": 4.5,
+    "execution_fit": 4.77,
+    "execution_fit_next": 4.71,
+    "running_scores": {
+     "D": 3.15,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.71,
+     "R": 4.16,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.16,
+    "daily": [
+     {
+      "day": 1,
+      "demand": 134.6,
+      "served": 66.53,
+      "cash_balance": -12129.16,
+      "profit_to_date": 4893.92
+     },
+     {
+      "day": 2,
+      "demand": 149.91,
+      "served": 74.1,
+      "cash_balance": -437.16,
+      "profit_to_date": 12679.53
+     },
+     {
+      "day": 3,
+      "demand": 156.1,
+      "served": 77.16,
+      "cash_balance": 11740.33,
+      "profit_to_date": 20789.2
+     },
+     {
+      "day": 4,
+      "demand": 145.91,
+      "served": 72.12,
+      "cash_balance": 23118.57,
+      "profit_to_date": 28365.36
+     },
+     {
+      "day": 5,
+      "demand": 177.67,
+      "served": 87.82,
+      "cash_balance": 36986.61,
+      "profit_to_date": 37603.5
+     },
+     {
+      "day": 6,
+      "demand": 201.95,
+      "served": 99.82,
+      "cash_balance": 52757.0,
+      "profit_to_date": 48111.5
+     },
+     {
+      "day": 7,
+      "demand": 158.75,
+      "served": 78.47,
+      "cash_balance": 63942.0,
+      "profit_to_date": 55159.69
+     }
+    ],
+    "advice": [
+     {
+      "kind": "burnout",
+      "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+     }
+    ]
+   },
+   "session": {
+    "session_id": 1,
+    "status": "in_progress",
+    "current_week": 2,
+    "horizon_weeks": 4,
+    "idea": {
+     "id": 1,
+     "name": "Kabulonga Green Basket",
+     "category": "agriculture"
+    },
+    "baseline_scores": {
+     "D": 10.0,
+     "F": 6.99,
+     "C": 5.0,
+     "E": 5.0,
+     "R": 5.0,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "viability_baseline": 6.65,
+    "running_scores": {
+     "D": 3.15,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.71,
+     "R": 4.16,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.16,
+    "economics": {
+     "average_unit_price": 180.0,
+     "core_unit_cost": 54.23,
+     "capital_available": null,
+     "capital_required": 3000.0,
+     "initial_cash": 3000.0,
+     "cash": 63942.0,
+     "staff_count": 3,
+     "inventory": {
+      "__core__": 0.0,
+      "Free-range eggs (tray of 30)": 0.0,
+      "Artisan sourdough bread loaf": 0.0
+     },
+     "total_target_buyers": 800.0,
+     "consumption_frequency_per_year": 48.0,
+     "weekly_rent": 300.0,
+     "weekly_wage_per_worker": 400.0,
+     "worker_throughput_weekly": 500,
+     "waste_penalty_per_unit": 2.0,
+     "base_elasticity": 0.7,
+     "marketing_scale_k": 500.0,
+     "category_growth_rate": 0.004,
+     "environmental_risk_score": 5.0
+    },
+    "allowed_sub_products": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08
+     },
+     {
+      "sub_product_name": "Cold-pressed sunflower oil (500ml)",
+      "base_cost": 35,
+      "suggested_price": 60,
+      "demand_expansion_factor": 0.07
+     },
+     {
+      "sub_product_name": "Homemade herb-infused honey (350g)",
+      "base_cost": 40,
+      "suggested_price": 70,
+      "demand_expansion_factor": 0.1
+     }
+    ],
+    "next_shock": {
+     "week": 3,
+     "name": "Calm week",
+     "hit_probability": 0.0,
+     "severity": "none"
+    },
+    "weeks": [
+     {
+      "week": 1,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 966.22,
+      "served_demand": 102.0,
+      "turned_away": 864.22,
+      "staff_count": 2,
+      "staff_capacity": 500.0,
+      "labor_strain_index": 1.932,
+      "revenue": 13260.0,
+      "cogs": 6177.69,
+      "procurement": 6177.69,
+      "net_cash_flow": 5782.31,
+      "net_profit": 5782.31,
+      "cash_balance": 8782.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 6.76,
+      "in_crunch": false,
+      "risk_score": 3.82,
+      "execution_fit": 5.0,
+      "execution_fit_next": 4.77,
+      "running_scores": {
+       "D": 1.06,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.77,
+       "R": 3.82,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 5.61,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 113.46,
+        "served": 11.98,
+        "cash_balance": -1949.22,
+        "profit_to_date": 503.06
+       },
+       {
+        "day": 2,
+        "demand": 123.62,
+        "served": 13.05,
+        "cash_balance": -281.31,
+        "profit_to_date": 1380.6
+       },
+       {
+        "day": 3,
+        "demand": 126.16,
+        "served": 13.32,
+        "cash_balance": 1421.54,
+        "profit_to_date": 2276.8
+       },
+       {
+        "day": 4,
+        "demand": 140.2,
+        "served": 14.8,
+        "cash_balance": 3316.98,
+        "profit_to_date": 3275.86
+       },
+       {
+        "day": 5,
+        "demand": 146.89,
+        "served": 15.51,
+        "cash_balance": 5304.31,
+        "profit_to_date": 4324.01
+       },
+       {
+        "day": 6,
+        "demand": 176.72,
+        "served": 18.66,
+        "cash_balance": 7700.93,
+        "profit_to_date": 5590.76
+       },
+       {
+        "day": 7,
+        "demand": 139.17,
+        "served": 14.69,
+        "cash_balance": 8782.31,
+        "profit_to_date": 5782.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+       }
+      ]
+     },
+     {
+      "week": 2,
+      "shock_name": "Power outage",
+      "shock_hit": true,
+      "gross_demand": 1124.89,
+      "served_demand": 556.03,
+      "turned_away": 568.86,
+      "staff_count": 3,
+      "staff_capacity": 715.07,
+      "labor_strain_index": 1.573,
+      "revenue": 88163.54,
+      "cogs": 29312.94,
+      "procurement": 31103.85,
+      "net_cash_flow": 55159.69,
+      "net_profit": 55159.69,
+      "cash_balance": 63942.0,
+      "units_lost": 33.97,
+      "unsold": 0.0,
+      "loss_ratio": 0.058,
+      "liquidity_ratio": 33.65,
+      "in_crunch": false,
+      "risk_score": 4.5,
+      "execution_fit": 4.77,
+      "execution_fit_next": 4.71,
+      "running_scores": {
+       "D": 3.15,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.71,
+       "R": 4.16,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.16,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 134.6,
+        "served": 66.53,
+        "cash_balance": -12129.16,
+        "profit_to_date": 4893.92
+       },
+       {
+        "day": 2,
+        "demand": 149.91,
+        "served": 74.1,
+        "cash_balance": -437.16,
+        "profit_to_date": 12679.53
+       },
+       {
+        "day": 3,
+        "demand": 156.1,
+        "served": 77.16,
+        "cash_balance": 11740.33,
+        "profit_to_date": 20789.2
+       },
+       {
+        "day": 4,
+        "demand": 145.91,
+        "served": 72.12,
+        "cash_balance": 23118.57,
+        "profit_to_date": 28365.36
+       },
+       {
+        "day": 5,
+        "demand": 177.67,
+        "served": 87.82,
+        "cash_balance": 36986.61,
+        "profit_to_date": 37603.5
+       },
+       {
+        "day": 6,
+        "demand": 201.95,
+        "served": 99.82,
+        "cash_balance": 52757.0,
+        "profit_to_date": 48111.5
+       },
+       {
+        "day": 7,
+        "demand": 158.75,
+        "served": 78.47,
+        "cash_balance": 63942.0,
+        "profit_to_date": 55159.69
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     }
+    ],
+    "lever_history": [
+     {
+      "price": 180,
+      "ad_spend": 200,
+      "stock_ordered": 42,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 185,
+      "ad_spend": 400,
+      "stock_ordered": 450,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 80
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 60
+       }
+      ]
+     }
+    ],
+    "default_levers": {
+     "price": 185,
+     "ad_spend": 400,
+     "stock_ordered": 450,
+     "staffing_change": 0,
+     "product_mix_selections": [
+      {
+       "sub_product_name": "Free-range eggs (tray of 30)",
+       "base_cost": 65,
+       "suggested_price": 95,
+       "demand_expansion_factor": 0.12,
+       "units": 80
+      },
+      {
+       "sub_product_name": "Artisan sourdough bread loaf",
+       "base_cost": 25,
+       "suggested_price": 45,
+       "demand_expansion_factor": 0.08,
+       "units": 60
+      }
+     ]
+    }
+   }
+  },
+  {
+   "levers": {
+    "price": 190,
+    "ad_spend": 400,
+    "stock_ordered": 380,
+    "staffing_change": 0,
+    "product_mix_selections": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12,
+      "units": 70
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08,
+      "units": 60
+     }
+    ]
+   },
+   "week": {
+    "week": 3,
+    "shock_name": "Calm week",
+    "shock_hit": false,
+    "gross_demand": 1104.17,
+    "served_demand": 510.0,
+    "turned_away": 594.17,
+    "staff_count": 3,
+    "staff_capacity": 707.24,
+    "labor_strain_index": 1.561,
+    "revenue": 81550.0,
+    "cogs": 26657.69,
+    "procurement": 26657.69,
+    "net_cash_flow": 52992.31,
+    "net_profit": 52992.31,
+    "cash_balance": 116934.31,
+    "units_lost": 0.0,
+    "unsold": 0.0,
+    "loss_ratio": 0.0,
+    "liquidity_ratio": 61.54,
+    "in_crunch": false,
+    "risk_score": 4.82,
+    "execution_fit": 4.71,
+    "execution_fit_next": 4.67,
+    "running_scores": {
+     "D": 3.66,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.67,
+     "R": 4.38,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.3,
+    "daily": [
+     {
+      "day": 1,
+      "demand": 122.23,
+      "served": 56.46,
+      "cash_balance": 45954.94,
+      "profit_to_date": 5719.56
+     },
+     {
+      "day": 2,
+      "demand": 141.96,
+      "served": 65.57,
+      "cash_balance": 56382.39,
+      "profit_to_date": 12719.73
+     },
+     {
+      "day": 3,
+      "demand": 150.95,
+      "served": 69.72,
+      "cash_balance": 67473.67,
+      "profit_to_date": 20166.72
+     },
+     {
+      "day": 4,
+      "demand": 164.52,
+      "served": 75.99,
+      "cash_balance": 79566.99,
+      "profit_to_date": 28288.21
+     },
+     {
+      "day": 5,
+      "demand": 177.32,
+      "served": 81.9,
+      "cash_balance": 92606.19,
+      "profit_to_date": 37046.37
+     },
+     {
+      "day": 6,
+      "demand": 183.07,
+      "served": 84.56,
+      "cash_balance": 106070.23,
+      "profit_to_date": 46090.51
+     },
+     {
+      "day": 7,
+      "demand": 164.12,
+      "served": 75.8,
+      "cash_balance": 116934.31,
+      "profit_to_date": 52992.31
+     }
+    ],
+    "advice": [
+     {
+      "kind": "burnout",
+      "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+     }
+    ]
+   },
+   "session": {
+    "session_id": 1,
+    "status": "in_progress",
+    "current_week": 3,
+    "horizon_weeks": 4,
+    "idea": {
+     "id": 1,
+     "name": "Kabulonga Green Basket",
+     "category": "agriculture"
+    },
+    "baseline_scores": {
+     "D": 10.0,
+     "F": 6.99,
+     "C": 5.0,
+     "E": 5.0,
+     "R": 5.0,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "viability_baseline": 6.65,
+    "running_scores": {
+     "D": 3.66,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.67,
+     "R": 4.38,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.3,
+    "economics": {
+     "average_unit_price": 180.0,
+     "core_unit_cost": 54.23,
+     "capital_available": null,
+     "capital_required": 3000.0,
+     "initial_cash": 3000.0,
+     "cash": 116934.31,
+     "staff_count": 3,
+     "inventory": {
+      "__core__": 0.0,
+      "Free-range eggs (tray of 30)": 0.0,
+      "Artisan sourdough bread loaf": 0.0
+     },
+     "total_target_buyers": 800.0,
+     "consumption_frequency_per_year": 48.0,
+     "weekly_rent": 300.0,
+     "weekly_wage_per_worker": 400.0,
+     "worker_throughput_weekly": 500,
+     "waste_penalty_per_unit": 2.0,
+     "base_elasticity": 0.7,
+     "marketing_scale_k": 500.0,
+     "category_growth_rate": 0.004,
+     "environmental_risk_score": 5.0
+    },
+    "allowed_sub_products": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08
+     },
+     {
+      "sub_product_name": "Cold-pressed sunflower oil (500ml)",
+      "base_cost": 35,
+      "suggested_price": 60,
+      "demand_expansion_factor": 0.07
+     },
+     {
+      "sub_product_name": "Homemade herb-infused honey (350g)",
+      "base_cost": 40,
+      "suggested_price": 70,
+      "demand_expansion_factor": 0.1
+     }
+    ],
+    "next_shock": {
+     "week": 4,
+     "name": "Calm week",
+     "hit_probability": 0.0,
+     "severity": "none"
+    },
+    "weeks": [
+     {
+      "week": 1,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 966.22,
+      "served_demand": 102.0,
+      "turned_away": 864.22,
+      "staff_count": 2,
+      "staff_capacity": 500.0,
+      "labor_strain_index": 1.932,
+      "revenue": 13260.0,
+      "cogs": 6177.69,
+      "procurement": 6177.69,
+      "net_cash_flow": 5782.31,
+      "net_profit": 5782.31,
+      "cash_balance": 8782.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 6.76,
+      "in_crunch": false,
+      "risk_score": 3.82,
+      "execution_fit": 5.0,
+      "execution_fit_next": 4.77,
+      "running_scores": {
+       "D": 1.06,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.77,
+       "R": 3.82,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 5.61,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 113.46,
+        "served": 11.98,
+        "cash_balance": -1949.22,
+        "profit_to_date": 503.06
+       },
+       {
+        "day": 2,
+        "demand": 123.62,
+        "served": 13.05,
+        "cash_balance": -281.31,
+        "profit_to_date": 1380.6
+       },
+       {
+        "day": 3,
+        "demand": 126.16,
+        "served": 13.32,
+        "cash_balance": 1421.54,
+        "profit_to_date": 2276.8
+       },
+       {
+        "day": 4,
+        "demand": 140.2,
+        "served": 14.8,
+        "cash_balance": 3316.98,
+        "profit_to_date": 3275.86
+       },
+       {
+        "day": 5,
+        "demand": 146.89,
+        "served": 15.51,
+        "cash_balance": 5304.31,
+        "profit_to_date": 4324.01
+       },
+       {
+        "day": 6,
+        "demand": 176.72,
+        "served": 18.66,
+        "cash_balance": 7700.93,
+        "profit_to_date": 5590.76
+       },
+       {
+        "day": 7,
+        "demand": 139.17,
+        "served": 14.69,
+        "cash_balance": 8782.31,
+        "profit_to_date": 5782.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+       }
+      ]
+     },
+     {
+      "week": 2,
+      "shock_name": "Power outage",
+      "shock_hit": true,
+      "gross_demand": 1124.89,
+      "served_demand": 556.03,
+      "turned_away": 568.86,
+      "staff_count": 3,
+      "staff_capacity": 715.07,
+      "labor_strain_index": 1.573,
+      "revenue": 88163.54,
+      "cogs": 29312.94,
+      "procurement": 31103.85,
+      "net_cash_flow": 55159.69,
+      "net_profit": 55159.69,
+      "cash_balance": 63942.0,
+      "units_lost": 33.97,
+      "unsold": 0.0,
+      "loss_ratio": 0.058,
+      "liquidity_ratio": 33.65,
+      "in_crunch": false,
+      "risk_score": 4.5,
+      "execution_fit": 4.77,
+      "execution_fit_next": 4.71,
+      "running_scores": {
+       "D": 3.15,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.71,
+       "R": 4.16,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.16,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 134.6,
+        "served": 66.53,
+        "cash_balance": -12129.16,
+        "profit_to_date": 4893.92
+       },
+       {
+        "day": 2,
+        "demand": 149.91,
+        "served": 74.1,
+        "cash_balance": -437.16,
+        "profit_to_date": 12679.53
+       },
+       {
+        "day": 3,
+        "demand": 156.1,
+        "served": 77.16,
+        "cash_balance": 11740.33,
+        "profit_to_date": 20789.2
+       },
+       {
+        "day": 4,
+        "demand": 145.91,
+        "served": 72.12,
+        "cash_balance": 23118.57,
+        "profit_to_date": 28365.36
+       },
+       {
+        "day": 5,
+        "demand": 177.67,
+        "served": 87.82,
+        "cash_balance": 36986.61,
+        "profit_to_date": 37603.5
+       },
+       {
+        "day": 6,
+        "demand": 201.95,
+        "served": 99.82,
+        "cash_balance": 52757.0,
+        "profit_to_date": 48111.5
+       },
+       {
+        "day": 7,
+        "demand": 158.75,
+        "served": 78.47,
+        "cash_balance": 63942.0,
+        "profit_to_date": 55159.69
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     },
+     {
+      "week": 3,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 1104.17,
+      "served_demand": 510.0,
+      "turned_away": 594.17,
+      "staff_count": 3,
+      "staff_capacity": 707.24,
+      "labor_strain_index": 1.561,
+      "revenue": 81550.0,
+      "cogs": 26657.69,
+      "procurement": 26657.69,
+      "net_cash_flow": 52992.31,
+      "net_profit": 52992.31,
+      "cash_balance": 116934.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 61.54,
+      "in_crunch": false,
+      "risk_score": 4.82,
+      "execution_fit": 4.71,
+      "execution_fit_next": 4.67,
+      "running_scores": {
+       "D": 3.66,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.67,
+       "R": 4.38,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.3,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 122.23,
+        "served": 56.46,
+        "cash_balance": 45954.94,
+        "profit_to_date": 5719.56
+       },
+       {
+        "day": 2,
+        "demand": 141.96,
+        "served": 65.57,
+        "cash_balance": 56382.39,
+        "profit_to_date": 12719.73
+       },
+       {
+        "day": 3,
+        "demand": 150.95,
+        "served": 69.72,
+        "cash_balance": 67473.67,
+        "profit_to_date": 20166.72
+       },
+       {
+        "day": 4,
+        "demand": 164.52,
+        "served": 75.99,
+        "cash_balance": 79566.99,
+        "profit_to_date": 28288.21
+       },
+       {
+        "day": 5,
+        "demand": 177.32,
+        "served": 81.9,
+        "cash_balance": 92606.19,
+        "profit_to_date": 37046.37
+       },
+       {
+        "day": 6,
+        "demand": 183.07,
+        "served": 84.56,
+        "cash_balance": 106070.23,
+        "profit_to_date": 46090.51
+       },
+       {
+        "day": 7,
+        "demand": 164.12,
+        "served": 75.8,
+        "cash_balance": 116934.31,
+        "profit_to_date": 52992.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     }
+    ],
+    "lever_history": [
+     {
+      "price": 180,
+      "ad_spend": 200,
+      "stock_ordered": 42,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 185,
+      "ad_spend": 400,
+      "stock_ordered": 450,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 80
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 190,
+      "ad_spend": 400,
+      "stock_ordered": 380,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 70
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 60
+       }
+      ]
+     }
+    ],
+    "default_levers": {
+     "price": 190,
+     "ad_spend": 400,
+     "stock_ordered": 380,
+     "staffing_change": 0,
+     "product_mix_selections": [
+      {
+       "sub_product_name": "Free-range eggs (tray of 30)",
+       "base_cost": 65,
+       "suggested_price": 95,
+       "demand_expansion_factor": 0.12,
+       "units": 70
+      },
+      {
+       "sub_product_name": "Artisan sourdough bread loaf",
+       "base_cost": 25,
+       "suggested_price": 45,
+       "demand_expansion_factor": 0.08,
+       "units": 60
+      }
+     ]
+    }
+   }
+  },
+  {
+   "levers": {
+    "price": 190,
+    "ad_spend": 300,
+    "stock_ordered": 350,
+    "staffing_change": 0,
+    "product_mix_selections": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12,
+      "units": 60
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08,
+      "units": 50
+     },
+     {
+      "sub_product_name": "Homemade herb-infused honey (350g)",
+      "base_cost": 40,
+      "suggested_price": 70,
+      "demand_expansion_factor": 0.1,
+      "units": 30
+     }
+    ]
+   },
+   "week": {
+    "week": 4,
+    "shock_name": "Calm week",
+    "shock_hit": false,
+    "gross_demand": 1141.83,
+    "served_demand": 490.0,
+    "turned_away": 651.83,
+    "staff_count": 3,
+    "staff_capacity": 699.97,
+    "labor_strain_index": 1.631,
+    "revenue": 76550.0,
+    "cogs": 25330.77,
+    "procurement": 25330.77,
+    "net_cash_flow": 49419.23,
+    "net_profit": 49419.23,
+    "cash_balance": 166353.54,
+    "units_lost": 0.0,
+    "unsold": 0.0,
+    "loss_ratio": 0.0,
+    "liquidity_ratio": 92.42,
+    "in_crunch": false,
+    "risk_score": 4.79,
+    "execution_fit": 4.67,
+    "execution_fit_next": 4.59,
+    "running_scores": {
+     "D": 3.82,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.59,
+     "R": 4.48,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.34,
+    "daily": [
+     {
+      "day": 1,
+      "demand": 141.24,
+      "served": 60.61,
+      "cash_balance": 100729.93,
+      "profit_to_date": 5992.97
+     },
+     {
+      "day": 2,
+      "demand": 136.71,
+      "served": 58.67,
+      "cash_balance": 109852.01,
+      "profit_to_date": 12082.33
+     },
+     {
+      "day": 3,
+      "demand": 144.23,
+      "served": 61.89,
+      "cash_balance": 119478.57,
+      "profit_to_date": 18509.23
+     },
+     {
+      "day": 4,
+      "demand": 144.54,
+      "served": 62.03,
+      "cash_balance": 129125.67,
+      "profit_to_date": 24949.87
+     },
+     {
+      "day": 5,
+      "demand": 200.61,
+      "served": 86.09,
+      "cash_balance": 142532.02,
+      "profit_to_date": 33905.82
+     },
+     {
+      "day": 6,
+      "demand": 216.4,
+      "served": 92.86,
+      "cash_balance": 156996.88,
+      "profit_to_date": 43570.01
+     },
+     {
+      "day": 7,
+      "demand": 158.1,
+      "served": 67.85,
+      "cash_balance": 166353.54,
+      "profit_to_date": 49419.23
+     }
+    ],
+    "advice": [
+     {
+      "kind": "burnout",
+      "text": "Your team is overloaded (strain 1.63). Hire at least one more worker or execution will keep falling."
+     }
+    ]
+   },
+   "session": {
+    "session_id": 1,
+    "status": "completed",
+    "current_week": 4,
+    "horizon_weeks": 4,
+    "idea": {
+     "id": 1,
+     "name": "Kabulonga Green Basket",
+     "category": "agriculture"
+    },
+    "baseline_scores": {
+     "D": 10.0,
+     "F": 6.99,
+     "C": 5.0,
+     "E": 5.0,
+     "R": 5.0,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "viability_baseline": 6.65,
+    "running_scores": {
+     "D": 3.82,
+     "F": 10.0,
+     "C": 10.0,
+     "E": 4.59,
+     "R": 4.48,
+     "S": 5.0,
+     "A": 5.0
+    },
+    "running_viability": 6.34,
+    "economics": {
+     "average_unit_price": 180.0,
+     "core_unit_cost": 54.23,
+     "capital_available": null,
+     "capital_required": 3000.0,
+     "initial_cash": 3000.0,
+     "cash": 166353.54,
+     "staff_count": 3,
+     "inventory": {
+      "__core__": 0.0,
+      "Free-range eggs (tray of 30)": 0.0,
+      "Artisan sourdough bread loaf": 0.0,
+      "Homemade herb-infused honey (350g)": 0.0
+     },
+     "total_target_buyers": 800.0,
+     "consumption_frequency_per_year": 48.0,
+     "weekly_rent": 300.0,
+     "weekly_wage_per_worker": 400.0,
+     "worker_throughput_weekly": 500,
+     "waste_penalty_per_unit": 2.0,
+     "base_elasticity": 0.7,
+     "marketing_scale_k": 500.0,
+     "category_growth_rate": 0.004,
+     "environmental_risk_score": 5.0
+    },
+    "allowed_sub_products": [
+     {
+      "sub_product_name": "Free-range eggs (tray of 30)",
+      "base_cost": 65,
+      "suggested_price": 95,
+      "demand_expansion_factor": 0.12
+     },
+     {
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08
+     },
+     {
+      "sub_product_name": "Cold-pressed sunflower oil (500ml)",
+      "base_cost": 35,
+      "suggested_price": 60,
+      "demand_expansion_factor": 0.07
+     },
+     {
+      "sub_product_name": "Homemade herb-infused honey (350g)",
+      "base_cost": 40,
+      "suggested_price": 70,
+      "demand_expansion_factor": 0.1
+     }
+    ],
+    "next_shock": null,
+    "weeks": [
+     {
+      "week": 1,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 966.22,
+      "served_demand": 102.0,
+      "turned_away": 864.22,
+      "staff_count": 2,
+      "staff_capacity": 500.0,
+      "labor_strain_index": 1.932,
+      "revenue": 13260.0,
+      "cogs": 6177.69,
+      "procurement": 6177.69,
+      "net_cash_flow": 5782.31,
+      "net_profit": 5782.31,
+      "cash_balance": 8782.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 6.76,
+      "in_crunch": false,
+      "risk_score": 3.82,
+      "execution_fit": 5.0,
+      "execution_fit_next": 4.77,
+      "running_scores": {
+       "D": 1.06,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.77,
+       "R": 3.82,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 5.61,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 113.46,
+        "served": 11.98,
+        "cash_balance": -1949.22,
+        "profit_to_date": 503.06
+       },
+       {
+        "day": 2,
+        "demand": 123.62,
+        "served": 13.05,
+        "cash_balance": -281.31,
+        "profit_to_date": 1380.6
+       },
+       {
+        "day": 3,
+        "demand": 126.16,
+        "served": 13.32,
+        "cash_balance": 1421.54,
+        "profit_to_date": 2276.8
+       },
+       {
+        "day": 4,
+        "demand": 140.2,
+        "served": 14.8,
+        "cash_balance": 3316.98,
+        "profit_to_date": 3275.86
+       },
+       {
+        "day": 5,
+        "demand": 146.89,
+        "served": 15.51,
+        "cash_balance": 5304.31,
+        "profit_to_date": 4324.01
+       },
+       {
+        "day": 6,
+        "demand": 176.72,
+        "served": 18.66,
+        "cash_balance": 7700.93,
+        "profit_to_date": 5590.76
+       },
+       {
+        "day": 7,
+        "demand": 139.17,
+        "served": 14.69,
+        "cash_balance": 8782.31,
+        "profit_to_date": 5782.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+       }
+      ]
+     },
+     {
+      "week": 2,
+      "shock_name": "Power outage",
+      "shock_hit": true,
+      "gross_demand": 1124.89,
+      "served_demand": 556.03,
+      "turned_away": 568.86,
+      "staff_count": 3,
+      "staff_capacity": 715.07,
+      "labor_strain_index": 1.573,
+      "revenue": 88163.54,
+      "cogs": 29312.94,
+      "procurement": 31103.85,
+      "net_cash_flow": 55159.69,
+      "net_profit": 55159.69,
+      "cash_balance": 63942.0,
+      "units_lost": 33.97,
+      "unsold": 0.0,
+      "loss_ratio": 0.058,
+      "liquidity_ratio": 33.65,
+      "in_crunch": false,
+      "risk_score": 4.5,
+      "execution_fit": 4.77,
+      "execution_fit_next": 4.71,
+      "running_scores": {
+       "D": 3.15,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.71,
+       "R": 4.16,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.16,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 134.6,
+        "served": 66.53,
+        "cash_balance": -12129.16,
+        "profit_to_date": 4893.92
+       },
+       {
+        "day": 2,
+        "demand": 149.91,
+        "served": 74.1,
+        "cash_balance": -437.16,
+        "profit_to_date": 12679.53
+       },
+       {
+        "day": 3,
+        "demand": 156.1,
+        "served": 77.16,
+        "cash_balance": 11740.33,
+        "profit_to_date": 20789.2
+       },
+       {
+        "day": 4,
+        "demand": 145.91,
+        "served": 72.12,
+        "cash_balance": 23118.57,
+        "profit_to_date": 28365.36
+       },
+       {
+        "day": 5,
+        "demand": 177.67,
+        "served": 87.82,
+        "cash_balance": 36986.61,
+        "profit_to_date": 37603.5
+       },
+       {
+        "day": 6,
+        "demand": 201.95,
+        "served": 99.82,
+        "cash_balance": 52757.0,
+        "profit_to_date": 48111.5
+       },
+       {
+        "day": 7,
+        "demand": 158.75,
+        "served": 78.47,
+        "cash_balance": 63942.0,
+        "profit_to_date": 55159.69
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     },
+     {
+      "week": 3,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 1104.17,
+      "served_demand": 510.0,
+      "turned_away": 594.17,
+      "staff_count": 3,
+      "staff_capacity": 707.24,
+      "labor_strain_index": 1.561,
+      "revenue": 81550.0,
+      "cogs": 26657.69,
+      "procurement": 26657.69,
+      "net_cash_flow": 52992.31,
+      "net_profit": 52992.31,
+      "cash_balance": 116934.31,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 61.54,
+      "in_crunch": false,
+      "risk_score": 4.82,
+      "execution_fit": 4.71,
+      "execution_fit_next": 4.67,
+      "running_scores": {
+       "D": 3.66,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.67,
+       "R": 4.38,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.3,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 122.23,
+        "served": 56.46,
+        "cash_balance": 45954.94,
+        "profit_to_date": 5719.56
+       },
+       {
+        "day": 2,
+        "demand": 141.96,
+        "served": 65.57,
+        "cash_balance": 56382.39,
+        "profit_to_date": 12719.73
+       },
+       {
+        "day": 3,
+        "demand": 150.95,
+        "served": 69.72,
+        "cash_balance": 67473.67,
+        "profit_to_date": 20166.72
+       },
+       {
+        "day": 4,
+        "demand": 164.52,
+        "served": 75.99,
+        "cash_balance": 79566.99,
+        "profit_to_date": 28288.21
+       },
+       {
+        "day": 5,
+        "demand": 177.32,
+        "served": 81.9,
+        "cash_balance": 92606.19,
+        "profit_to_date": 37046.37
+       },
+       {
+        "day": 6,
+        "demand": 183.07,
+        "served": 84.56,
+        "cash_balance": 106070.23,
+        "profit_to_date": 46090.51
+       },
+       {
+        "day": 7,
+        "demand": 164.12,
+        "served": 75.8,
+        "cash_balance": 116934.31,
+        "profit_to_date": 52992.31
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     },
+     {
+      "week": 4,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 1141.83,
+      "served_demand": 490.0,
+      "turned_away": 651.83,
+      "staff_count": 3,
+      "staff_capacity": 699.97,
+      "labor_strain_index": 1.631,
+      "revenue": 76550.0,
+      "cogs": 25330.77,
+      "procurement": 25330.77,
+      "net_cash_flow": 49419.23,
+      "net_profit": 49419.23,
+      "cash_balance": 166353.54,
+      "units_lost": 0.0,
+      "unsold": 0.0,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 92.42,
+      "in_crunch": false,
+      "risk_score": 4.79,
+      "execution_fit": 4.67,
+      "execution_fit_next": 4.59,
+      "running_scores": {
+       "D": 3.82,
+       "F": 10.0,
+       "C": 10.0,
+       "E": 4.59,
+       "R": 4.48,
+       "S": 5.0,
+       "A": 5.0
+      },
+      "running_viability": 6.34,
+      "daily": [
+       {
+        "day": 1,
+        "demand": 141.24,
+        "served": 60.61,
+        "cash_balance": 100729.93,
+        "profit_to_date": 5992.97
+       },
+       {
+        "day": 2,
+        "demand": 136.71,
+        "served": 58.67,
+        "cash_balance": 109852.01,
+        "profit_to_date": 12082.33
+       },
+       {
+        "day": 3,
+        "demand": 144.23,
+        "served": 61.89,
+        "cash_balance": 119478.57,
+        "profit_to_date": 18509.23
+       },
+       {
+        "day": 4,
+        "demand": 144.54,
+        "served": 62.03,
+        "cash_balance": 129125.67,
+        "profit_to_date": 24949.87
+       },
+       {
+        "day": 5,
+        "demand": 200.61,
+        "served": 86.09,
+        "cash_balance": 142532.02,
+        "profit_to_date": 33905.82
+       },
+       {
+        "day": 6,
+        "demand": 216.4,
+        "served": 92.86,
+        "cash_balance": 156996.88,
+        "profit_to_date": 43570.01
+       },
+       {
+        "day": 7,
+        "demand": 158.1,
+        "served": 67.85,
+        "cash_balance": 166353.54,
+        "profit_to_date": 49419.23
+       }
+      ],
+      "advice": [
+       {
+        "kind": "burnout",
+        "text": "Your team is overloaded (strain 1.63). Hire at least one more worker or execution will keep falling."
+       }
+      ]
+     }
+    ],
+    "lever_history": [
+     {
+      "price": 180,
+      "ad_spend": 200,
+      "stock_ordered": 42,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 185,
+      "ad_spend": 400,
+      "stock_ordered": 450,
+      "staffing_change": 1,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 80
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 190,
+      "ad_spend": 400,
+      "stock_ordered": 380,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 70
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 60
+       }
+      ]
+     },
+     {
+      "price": 190,
+      "ad_spend": 300,
+      "stock_ordered": 350,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Free-range eggs (tray of 30)",
+        "base_cost": 65,
+        "suggested_price": 95,
+        "demand_expansion_factor": 0.12,
+        "units": 60
+       },
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 50
+       },
+       {
+        "sub_product_name": "Homemade herb-infused honey (350g)",
+        "base_cost": 40,
+        "suggested_price": 70,
+        "demand_expansion_factor": 0.1,
+        "units": 30
+       }
+      ]
+     }
+    ],
+    "default_levers": {
+     "price": 190,
+     "ad_spend": 300,
+     "stock_ordered": 350,
+     "staffing_change": 0,
+     "product_mix_selections": [
+      {
+       "sub_product_name": "Free-range eggs (tray of 30)",
+       "base_cost": 65,
+       "suggested_price": 95,
+       "demand_expansion_factor": 0.12,
+       "units": 60
+      },
+      {
+       "sub_product_name": "Artisan sourdough bread loaf",
+       "base_cost": 25,
+       "suggested_price": 45,
+       "demand_expansion_factor": 0.08,
+       "units": 50
+      },
+      {
+       "sub_product_name": "Homemade herb-infused honey (350g)",
+       "base_cost": 40,
+       "suggested_price": 70,
+       "demand_expansion_factor": 0.1,
+       "units": 30
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

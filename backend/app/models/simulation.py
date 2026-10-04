@@ -22,7 +22,14 @@ class SimulationSession(Base):
     horizon_weeks = Column(Integer, nullable=False, default=4)
     seed          = Column(Integer, nullable=True)   # RNG seed -> reproducible shocks
 
-    # Lever inputs (the 5 levers, product_mix_selections nested in the JSON).
+    # Week-by-week session: in_progress until the last week is played.
+    status         = Column(String(20), nullable=False, default="in_progress", server_default="in_progress")
+    current_week   = Column(Integer, nullable=False, default=0, server_default="0")  # weeks completed
+    state          = Column(JSON, nullable=True)   # SimulationState.to_dict() between weekly calls
+    shock_schedule = Column(JSON, nullable=True)   # named threat per week, revealed before each week
+
+    # Lever inputs: a list with one entry per played week (the 5 levers each,
+    # product_mix_selections nested). One-shot /run sessions store a single dict.
     levers = Column(JSON, nullable=True)
 
     # Compiled sub-scores (each already clamped to [1,10]).
