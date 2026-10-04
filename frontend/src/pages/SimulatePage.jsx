@@ -22,13 +22,33 @@ const sum = (xs) => xs.reduce((s, x) => s + (Number(x) || 0), 0)
 
 const AUDIO_KEY = 'kip_sim_audio'
 const audioPref = () => { try { return localStorage.getItem(AUDIO_KEY) !== 'off' } catch { return true } }
+
+/* Kip speaks with a male voice. Voice names vary by platform, so match known
+   male English voices (and an explicit "male" that isn't "female"); fall back
+   to the default voice with a lower pitch so it still reads as male. */
+const MALE_VOICE = /(david|mark|george|james|daniel|fred|alex|rishi|guy|aaron|arthur|\bmale\b|\bman\b)/i
+function pickMaleVoice() {
+  try {
+    const all = window.speechSynthesis?.getVoices?.() || []
+    if (!all.length) return null
+    const pool = all.filter(v => /^en/i.test(v.lang))
+    const list = pool.length ? pool : all
+    return list.find(v => MALE_VOICE.test(v.name) && !/female/i.test(v.name)) || null
+  } catch { return null }
+}
+// Warm the voice list early (some browsers populate it asynchronously).
+try { window.speechSynthesis?.getVoices?.(); if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => {} } catch { /* ignore */ }
+
 function speakAdvice(text) {
   try {
     const synth = window.speechSynthesis
     if (!synth || !text) return
     synth.cancel()
     const u = new SpeechSynthesisUtterance(String(text))
-    u.rate = 1; u.pitch = 1; u.lang = 'en-GB'
+    const voice = pickMaleVoice()
+    if (voice) { u.voice = voice; u.lang = voice.lang }
+    else { u.lang = 'en-GB'; u.pitch = 0.8 }   // deepen the default when no male voice is available
+    u.rate = 1
     synth.speak(u)
   } catch { /* speech synthesis unsupported */ }
 }
