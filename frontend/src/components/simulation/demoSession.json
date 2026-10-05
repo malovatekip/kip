@@ -47,7 +47,14 @@
    "base_elasticity": 0.7,
    "marketing_scale_k": 500.0,
    "category_growth_rate": 0.004,
-   "environmental_risk_score": 5.0
+   "environmental_risk_score": 5.0,
+   "spoilage_rate_weekly": 0.35,
+   "share_cap": 0.5,
+   "awareness": 0.4,
+   "goodwill": 1.0,
+   "execution_fit": 5.0,
+   "purchase_budget": 2700.0,
+   "forecast_demand": 147.69
   },
   "allowed_sub_products": [
    {
@@ -94,17 +101,17 @@
  "plays": [
   {
    "levers": {
-    "price": 180,
-    "ad_spend": 200,
-    "stock_ordered": 42,
-    "staffing_change": 1,
+    "price": 189,
+    "ad_spend": 140,
+    "stock_ordered": 38,
+    "staffing_change": 0,
     "product_mix_selections": [
      {
-      "sub_product_name": "Free-range eggs (tray of 30)",
-      "base_cost": 65,
-      "suggested_price": 95,
-      "demand_expansion_factor": 0.12,
-      "units": 60
+      "sub_product_name": "Artisan sourdough bread loaf",
+      "base_cost": 25,
+      "suggested_price": 45,
+      "demand_expansion_factor": 0.08,
+      "units": 3
      }
     ]
    },
@@ -112,95 +119,106 @@
     "week": 1,
     "shock_name": "Calm week",
     "shock_hit": false,
-    "gross_demand": 966.22,
-    "served_demand": 102.0,
-    "turned_away": 864.22,
-    "staff_count": 2,
-    "staff_capacity": 500.0,
-    "labor_strain_index": 1.932,
-    "revenue": 13260.0,
-    "cogs": 6177.69,
-    "procurement": 6177.69,
-    "net_cash_flow": 5782.31,
-    "net_profit": 5782.31,
-    "cash_balance": 8782.31,
+    "gross_demand": 159.86,
+    "served_demand": 41.0,
+    "turned_away": 118.86,
+    "reference_demand": 147.69,
+    "staff_count": 1,
+    "staff_capacity": 250.0,
+    "labor_strain_index": 0.639,
+    "revenue": 7317.0,
+    "cogs": 2135.74,
+    "procurement": 2135.74,
+    "net_cash_flow": 4341.26,
+    "net_profit": 4341.26,
+    "cash_balance": 7341.26,
     "units_lost": 0.0,
     "unsold": 0.0,
     "loss_ratio": 0.0,
-    "liquidity_ratio": 6.76,
+    "liquidity_ratio": 8.74,
     "in_crunch": false,
-    "risk_score": 3.82,
+    "risk_score": 6.0,
     "execution_fit": 5.0,
-    "execution_fit_next": 4.77,
+    "execution_fit_next": 4.95,
+    "units_requested": 41.0,
+    "units_bought": 41.0,
+    "order_capped": false,
+    "purchase_budget": 2560.0,
+    "units_spoiled": 0.0,
+    "spoilage_cost": 0.0,
+    "severance": 0.0,
+    "overdrawn": false,
+    "awareness": 0.437,
+    "goodwill": 0.851,
     "running_scores": {
-     "D": 1.06,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.77,
-     "R": 3.82,
-     "S": 5.0,
+     "D": 2.81,
+     "F": 7.08,
+     "C": 6.29,
+     "E": 4.95,
+     "R": 6.0,
+     "S": 4.78,
      "A": 5.0
     },
-    "running_viability": 5.61,
+    "running_viability": 5.13,
     "daily": [
      {
       "day": 1,
-      "demand": 113.46,
-      "served": 11.98,
-      "cash_balance": -1949.22,
-      "profit_to_date": 503.06
+      "demand": 19.67,
+      "served": 5.04,
+      "cash_balance": 1444.44,
+      "profit_to_date": 317.43
      },
      {
       "day": 2,
-      "demand": 123.62,
-      "served": 13.05,
-      "cash_balance": -281.31,
-      "profit_to_date": 1380.6
+      "demand": 17.54,
+      "served": 4.5,
+      "cash_balance": 2227.37,
+      "profit_to_date": 865.99
      },
      {
       "day": 3,
-      "demand": 126.16,
-      "served": 13.32,
-      "cash_balance": 1421.54,
-      "profit_to_date": 2276.8
+      "demand": 19.96,
+      "served": 5.12,
+      "cash_balance": 3121.02,
+      "profit_to_date": 1492.96
      },
      {
       "day": 4,
-      "demand": 140.2,
-      "served": 14.8,
-      "cash_balance": 3316.98,
-      "profit_to_date": 3275.86
+      "demand": 21.46,
+      "served": 5.5,
+      "cash_balance": 4083.29,
+      "profit_to_date": 2168.52
      },
      {
       "day": 5,
-      "demand": 146.89,
-      "served": 15.51,
-      "cash_balance": 5304.31,
-      "profit_to_date": 4324.01
+      "demand": 26.93,
+      "served": 6.91,
+      "cash_balance": 5295.76,
+      "profit_to_date": 3021.25
      },
      {
       "day": 6,
-      "demand": 176.72,
-      "served": 18.66,
-      "cash_balance": 7700.93,
-      "profit_to_date": 5590.76
+      "demand": 29.93,
+      "served": 7.68,
+      "cash_balance": 6645.54,
+      "profit_to_date": 3971.21
      },
      {
       "day": 7,
-      "demand": 139.17,
-      "served": 14.69,
-      "cash_balance": 8782.31,
-      "profit_to_date": 5782.31
+      "demand": 24.38,
+      "served": 6.25,
+      "cash_balance": 7341.26,
+      "profit_to_date": 4341.26
      }
     ],
     "advice": [
      {
-      "kind": "burnout",
-      "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+      "kind": "stockout",
+      "text": "You turned away about 119 customers, and some won't come back. Stock more units next week."
      },
      {
-      "kind": "shock",
-      "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+      "kind": "idle",
+      "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
      }
     ]
    },
@@ -225,26 +243,26 @@
     },
     "viability_baseline": 6.65,
     "running_scores": {
-     "D": 1.06,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.77,
-     "R": 3.82,
-     "S": 5.0,
+     "D": 2.81,
+     "F": 7.08,
+     "C": 6.29,
+     "E": 4.95,
+     "R": 6.0,
+     "S": 4.78,
      "A": 5.0
     },
-    "running_viability": 5.61,
+    "running_viability": 5.13,
     "economics": {
      "average_unit_price": 180.0,
      "core_unit_cost": 54.23,
      "capital_available": null,
      "capital_required": 3000.0,
      "initial_cash": 3000.0,
-     "cash": 8782.31,
-     "staff_count": 2,
+     "cash": 7341.26,
+     "staff_count": 1,
      "inventory": {
       "__core__": 0.0,
-      "Free-range eggs (tray of 30)": 0.0
+      "Artisan sourdough bread loaf": 0.0
      },
      "total_target_buyers": 800.0,
      "consumption_frequency_per_year": 48.0,
@@ -255,7 +273,14 @@
      "base_elasticity": 0.7,
      "marketing_scale_k": 500.0,
      "category_growth_rate": 0.004,
-     "environmental_risk_score": 5.0
+     "environmental_risk_score": 5.0,
+     "spoilage_rate_weekly": 0.35,
+     "share_cap": 0.5,
+     "awareness": 0.4372,
+     "goodwill": 0.8511,
+     "execution_fit": 4.95,
+     "purchase_budget": 7041.26,
+     "forecast_demand": 137.39
     },
     "allowed_sub_products": [
      {
@@ -285,137 +310,148 @@
     ],
     "next_shock": {
      "week": 2,
-     "name": "Power outage",
-     "hit_probability": 0.55,
-     "severity": "medium"
+     "name": "Calm week",
+     "hit_probability": 0.0,
+     "severity": "none"
     },
     "weeks": [
      {
       "week": 1,
       "shock_name": "Calm week",
       "shock_hit": false,
-      "gross_demand": 966.22,
-      "served_demand": 102.0,
-      "turned_away": 864.22,
-      "staff_count": 2,
-      "staff_capacity": 500.0,
-      "labor_strain_index": 1.932,
-      "revenue": 13260.0,
-      "cogs": 6177.69,
-      "procurement": 6177.69,
-      "net_cash_flow": 5782.31,
-      "net_profit": 5782.31,
-      "cash_balance": 8782.31,
+      "gross_demand": 159.86,
+      "served_demand": 41.0,
+      "turned_away": 118.86,
+      "reference_demand": 147.69,
+      "staff_count": 1,
+      "staff_capacity": 250.0,
+      "labor_strain_index": 0.639,
+      "revenue": 7317.0,
+      "cogs": 2135.74,
+      "procurement": 2135.74,
+      "net_cash_flow": 4341.26,
+      "net_profit": 4341.26,
+      "cash_balance": 7341.26,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 6.76,
+      "liquidity_ratio": 8.74,
       "in_crunch": false,
-      "risk_score": 3.82,
+      "risk_score": 6.0,
       "execution_fit": 5.0,
-      "execution_fit_next": 4.77,
+      "execution_fit_next": 4.95,
+      "units_requested": 41.0,
+      "units_bought": 41.0,
+      "order_capped": false,
+      "purchase_budget": 2560.0,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.437,
+      "goodwill": 0.851,
       "running_scores": {
-       "D": 1.06,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.77,
-       "R": 3.82,
-       "S": 5.0,
+       "D": 2.81,
+       "F": 7.08,
+       "C": 6.29,
+       "E": 4.95,
+       "R": 6.0,
+       "S": 4.78,
        "A": 5.0
       },
-      "running_viability": 5.61,
+      "running_viability": 5.13,
       "daily": [
        {
         "day": 1,
-        "demand": 113.46,
-        "served": 11.98,
-        "cash_balance": -1949.22,
-        "profit_to_date": 503.06
+        "demand": 19.67,
+        "served": 5.04,
+        "cash_balance": 1444.44,
+        "profit_to_date": 317.43
        },
        {
         "day": 2,
-        "demand": 123.62,
-        "served": 13.05,
-        "cash_balance": -281.31,
-        "profit_to_date": 1380.6
+        "demand": 17.54,
+        "served": 4.5,
+        "cash_balance": 2227.37,
+        "profit_to_date": 865.99
        },
        {
         "day": 3,
-        "demand": 126.16,
-        "served": 13.32,
-        "cash_balance": 1421.54,
-        "profit_to_date": 2276.8
+        "demand": 19.96,
+        "served": 5.12,
+        "cash_balance": 3121.02,
+        "profit_to_date": 1492.96
        },
        {
         "day": 4,
-        "demand": 140.2,
-        "served": 14.8,
-        "cash_balance": 3316.98,
-        "profit_to_date": 3275.86
+        "demand": 21.46,
+        "served": 5.5,
+        "cash_balance": 4083.29,
+        "profit_to_date": 2168.52
        },
        {
         "day": 5,
-        "demand": 146.89,
-        "served": 15.51,
-        "cash_balance": 5304.31,
-        "profit_to_date": 4324.01
+        "demand": 26.93,
+        "served": 6.91,
+        "cash_balance": 5295.76,
+        "profit_to_date": 3021.25
        },
        {
         "day": 6,
-        "demand": 176.72,
-        "served": 18.66,
-        "cash_balance": 7700.93,
-        "profit_to_date": 5590.76
+        "demand": 29.93,
+        "served": 7.68,
+        "cash_balance": 6645.54,
+        "profit_to_date": 3971.21
        },
        {
         "day": 7,
-        "demand": 139.17,
-        "served": 14.69,
-        "cash_balance": 8782.31,
-        "profit_to_date": 5782.31
+        "demand": 24.38,
+        "served": 6.25,
+        "cash_balance": 7341.26,
+        "profit_to_date": 4341.26
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 119 customers, and some won't come back. Stock more units next week."
        },
        {
-        "kind": "shock",
-        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      }
     ],
     "lever_history": [
      {
-      "price": 180,
-      "ad_spend": 200,
-      "stock_ordered": 42,
-      "staffing_change": 1,
+      "price": 189,
+      "ad_spend": 140,
+      "stock_ordered": 38,
+      "staffing_change": 0,
       "product_mix_selections": [
        {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 60
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 3
        }
       ]
      }
     ],
     "default_levers": {
-     "price": 180,
-     "ad_spend": 200,
-     "stock_ordered": 42,
+     "price": 189,
+     "ad_spend": 140,
+     "stock_ordered": 38,
      "staffing_change": 0,
      "product_mix_selections": [
       {
-       "sub_product_name": "Free-range eggs (tray of 30)",
-       "base_cost": 65,
-       "suggested_price": 95,
-       "demand_expansion_factor": 0.12,
-       "units": 60
+       "sub_product_name": "Artisan sourdough bread loaf",
+       "base_cost": 25,
+       "suggested_price": 45,
+       "demand_expansion_factor": 0.08,
+       "units": 3
       }
      ]
     }
@@ -423,116 +459,124 @@
   },
   {
    "levers": {
-    "price": 185,
-    "ad_spend": 400,
-    "stock_ordered": 450,
-    "staffing_change": 1,
+    "price": 189,
+    "ad_spend": 150,
+    "stock_ordered": 115,
+    "staffing_change": 0,
     "product_mix_selections": [
-     {
-      "sub_product_name": "Free-range eggs (tray of 30)",
-      "base_cost": 65,
-      "suggested_price": 95,
-      "demand_expansion_factor": 0.12,
-      "units": 80
-     },
      {
       "sub_product_name": "Artisan sourdough bread loaf",
       "base_cost": 25,
       "suggested_price": 45,
       "demand_expansion_factor": 0.08,
-      "units": 60
+      "units": 9
      }
     ]
    },
    "week": {
     "week": 2,
-    "shock_name": "Power outage",
-    "shock_hit": true,
-    "gross_demand": 1124.89,
-    "served_demand": 556.03,
-    "turned_away": 568.86,
-    "staff_count": 3,
-    "staff_capacity": 715.07,
-    "labor_strain_index": 1.573,
-    "revenue": 88163.54,
-    "cogs": 29312.94,
-    "procurement": 31103.85,
-    "net_cash_flow": 55159.69,
-    "net_profit": 55159.69,
-    "cash_balance": 63942.0,
-    "units_lost": 33.97,
+    "shock_name": "Calm week",
+    "shock_hit": false,
+    "gross_demand": 148.25,
+    "served_demand": 124.0,
+    "turned_away": 24.25,
+    "reference_demand": 178.72,
+    "staff_count": 1,
+    "staff_capacity": 247.5,
+    "labor_strain_index": 0.599,
+    "revenue": 22140.0,
+    "cogs": 6461.45,
+    "procurement": 6461.45,
+    "net_cash_flow": 14828.55,
+    "net_profit": 14828.55,
+    "cash_balance": 22169.81,
+    "units_lost": 0.0,
     "unsold": 0.0,
-    "loss_ratio": 0.058,
-    "liquidity_ratio": 33.65,
+    "loss_ratio": 0.0,
+    "liquidity_ratio": 26.08,
     "in_crunch": false,
-    "risk_score": 4.5,
-    "execution_fit": 4.77,
-    "execution_fit_next": 4.71,
+    "risk_score": 6.0,
+    "execution_fit": 4.95,
+    "execution_fit_next": 4.9,
+    "units_requested": 124.0,
+    "units_bought": 124.0,
+    "order_capped": false,
+    "purchase_budget": 6891.26,
+    "units_spoiled": 0.0,
+    "spoilage_cost": 0.0,
+    "severance": 0.0,
+    "overdrawn": false,
+    "awareness": 0.526,
+    "goodwill": 0.89,
     "running_scores": {
-     "D": 3.15,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.71,
-     "R": 4.16,
-     "S": 5.0,
+     "D": 6.34,
+     "F": 7.08,
+     "C": 7.0,
+     "E": 4.9,
+     "R": 6.0,
+     "S": 4.83,
      "A": 5.0
     },
-    "running_viability": 6.16,
+    "running_viability": 6.12,
     "daily": [
      {
       "day": 1,
-      "demand": 134.6,
-      "served": 66.53,
-      "cash_balance": -12129.16,
-      "profit_to_date": 4893.92
+      "demand": 19.79,
+      "served": 16.56,
+      "cash_balance": 3514.42,
+      "profit_to_date": 1771.91
      },
      {
       "day": 2,
-      "demand": 149.91,
-      "served": 74.1,
-      "cash_balance": -437.16,
-      "profit_to_date": 12679.53
+      "demand": 17.33,
+      "served": 14.49,
+      "cash_balance": 6081.0,
+      "profit_to_date": 3583.19
      },
      {
       "day": 3,
-      "demand": 156.1,
-      "served": 77.16,
-      "cash_balance": 11740.33,
-      "profit_to_date": 20789.2
+      "demand": 19.29,
+      "served": 16.13,
+      "cash_balance": 8940.4,
+      "profit_to_date": 5601.83
      },
      {
       "day": 4,
-      "demand": 145.91,
-      "served": 72.12,
-      "cash_balance": 23118.57,
-      "profit_to_date": 28365.36
+      "demand": 19.87,
+      "served": 16.62,
+      "cash_balance": 11885.97,
+      "profit_to_date": 7681.5
      },
      {
       "day": 5,
-      "demand": 177.67,
-      "served": 87.82,
-      "cash_balance": 36986.61,
-      "profit_to_date": 37603.5
+      "demand": 24.34,
+      "served": 20.36,
+      "cash_balance": 15499.21,
+      "profit_to_date": 10233.98
      },
      {
       "day": 6,
-      "demand": 201.95,
-      "served": 99.82,
-      "cash_balance": 52757.0,
-      "profit_to_date": 48111.5
+      "demand": 25.94,
+      "served": 21.7,
+      "cash_balance": 19351.8,
+      "profit_to_date": 12955.95
      },
      {
       "day": 7,
-      "demand": 158.75,
-      "served": 78.47,
-      "cash_balance": 63942.0,
-      "profit_to_date": 55159.69
+      "demand": 21.69,
+      "served": 18.14,
+      "cash_balance": 22169.81,
+      "profit_to_date": 14828.55
      }
     ],
     "advice": [
      {
-      "kind": "burnout",
-      "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+      "kind": "stockout",
+      "text": "You turned away about 24 customers, and some won't come back. Stock more units next week."
+     },
+     {
+      "kind": "shock",
+      "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
      }
     ]
    },
@@ -557,26 +601,25 @@
     },
     "viability_baseline": 6.65,
     "running_scores": {
-     "D": 3.15,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.71,
-     "R": 4.16,
-     "S": 5.0,
+     "D": 6.34,
+     "F": 7.08,
+     "C": 7.0,
+     "E": 4.9,
+     "R": 6.0,
+     "S": 4.83,
      "A": 5.0
     },
-    "running_viability": 6.16,
+    "running_viability": 6.12,
     "economics": {
      "average_unit_price": 180.0,
      "core_unit_cost": 54.23,
      "capital_available": null,
      "capital_required": 3000.0,
      "initial_cash": 3000.0,
-     "cash": 63942.0,
-     "staff_count": 3,
+     "cash": 22169.81,
+     "staff_count": 1,
      "inventory": {
       "__core__": 0.0,
-      "Free-range eggs (tray of 30)": 0.0,
       "Artisan sourdough bread loaf": 0.0
      },
      "total_target_buyers": 800.0,
@@ -588,7 +631,14 @@
      "base_elasticity": 0.7,
      "marketing_scale_k": 500.0,
      "category_growth_rate": 0.004,
-     "environmental_risk_score": 5.0
+     "environmental_risk_score": 5.0,
+     "spoilage_rate_weekly": 0.35,
+     "share_cap": 0.5,
+     "awareness": 0.5265,
+     "goodwill": 0.8898,
+     "execution_fit": 4.9,
+     "purchase_budget": 21869.81,
+     "forecast_demand": 172.99
     },
     "allowed_sub_products": [
      {
@@ -618,258 +668,270 @@
     ],
     "next_shock": {
      "week": 3,
-     "name": "Calm week",
-     "hit_probability": 0.0,
-     "severity": "none"
+     "name": "Market flooded with cheap produce",
+     "hit_probability": 0.55,
+     "severity": "medium"
     },
     "weeks": [
      {
       "week": 1,
       "shock_name": "Calm week",
       "shock_hit": false,
-      "gross_demand": 966.22,
-      "served_demand": 102.0,
-      "turned_away": 864.22,
-      "staff_count": 2,
-      "staff_capacity": 500.0,
-      "labor_strain_index": 1.932,
-      "revenue": 13260.0,
-      "cogs": 6177.69,
-      "procurement": 6177.69,
-      "net_cash_flow": 5782.31,
-      "net_profit": 5782.31,
-      "cash_balance": 8782.31,
+      "gross_demand": 159.86,
+      "served_demand": 41.0,
+      "turned_away": 118.86,
+      "reference_demand": 147.69,
+      "staff_count": 1,
+      "staff_capacity": 250.0,
+      "labor_strain_index": 0.639,
+      "revenue": 7317.0,
+      "cogs": 2135.74,
+      "procurement": 2135.74,
+      "net_cash_flow": 4341.26,
+      "net_profit": 4341.26,
+      "cash_balance": 7341.26,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 6.76,
+      "liquidity_ratio": 8.74,
       "in_crunch": false,
-      "risk_score": 3.82,
+      "risk_score": 6.0,
       "execution_fit": 5.0,
-      "execution_fit_next": 4.77,
+      "execution_fit_next": 4.95,
+      "units_requested": 41.0,
+      "units_bought": 41.0,
+      "order_capped": false,
+      "purchase_budget": 2560.0,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.437,
+      "goodwill": 0.851,
       "running_scores": {
-       "D": 1.06,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.77,
-       "R": 3.82,
-       "S": 5.0,
+       "D": 2.81,
+       "F": 7.08,
+       "C": 6.29,
+       "E": 4.95,
+       "R": 6.0,
+       "S": 4.78,
        "A": 5.0
       },
-      "running_viability": 5.61,
+      "running_viability": 5.13,
       "daily": [
        {
         "day": 1,
-        "demand": 113.46,
-        "served": 11.98,
-        "cash_balance": -1949.22,
-        "profit_to_date": 503.06
+        "demand": 19.67,
+        "served": 5.04,
+        "cash_balance": 1444.44,
+        "profit_to_date": 317.43
        },
        {
         "day": 2,
-        "demand": 123.62,
-        "served": 13.05,
-        "cash_balance": -281.31,
-        "profit_to_date": 1380.6
+        "demand": 17.54,
+        "served": 4.5,
+        "cash_balance": 2227.37,
+        "profit_to_date": 865.99
        },
        {
         "day": 3,
-        "demand": 126.16,
-        "served": 13.32,
-        "cash_balance": 1421.54,
-        "profit_to_date": 2276.8
+        "demand": 19.96,
+        "served": 5.12,
+        "cash_balance": 3121.02,
+        "profit_to_date": 1492.96
        },
        {
         "day": 4,
-        "demand": 140.2,
-        "served": 14.8,
-        "cash_balance": 3316.98,
-        "profit_to_date": 3275.86
+        "demand": 21.46,
+        "served": 5.5,
+        "cash_balance": 4083.29,
+        "profit_to_date": 2168.52
        },
        {
         "day": 5,
-        "demand": 146.89,
-        "served": 15.51,
-        "cash_balance": 5304.31,
-        "profit_to_date": 4324.01
+        "demand": 26.93,
+        "served": 6.91,
+        "cash_balance": 5295.76,
+        "profit_to_date": 3021.25
        },
        {
         "day": 6,
-        "demand": 176.72,
-        "served": 18.66,
-        "cash_balance": 7700.93,
-        "profit_to_date": 5590.76
+        "demand": 29.93,
+        "served": 7.68,
+        "cash_balance": 6645.54,
+        "profit_to_date": 3971.21
        },
        {
         "day": 7,
-        "demand": 139.17,
-        "served": 14.69,
-        "cash_balance": 8782.31,
-        "profit_to_date": 5782.31
+        "demand": 24.38,
+        "served": 6.25,
+        "cash_balance": 7341.26,
+        "profit_to_date": 4341.26
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 119 customers, and some won't come back. Stock more units next week."
        },
        {
-        "kind": "shock",
-        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      },
      {
       "week": 2,
-      "shock_name": "Power outage",
-      "shock_hit": true,
-      "gross_demand": 1124.89,
-      "served_demand": 556.03,
-      "turned_away": 568.86,
-      "staff_count": 3,
-      "staff_capacity": 715.07,
-      "labor_strain_index": 1.573,
-      "revenue": 88163.54,
-      "cogs": 29312.94,
-      "procurement": 31103.85,
-      "net_cash_flow": 55159.69,
-      "net_profit": 55159.69,
-      "cash_balance": 63942.0,
-      "units_lost": 33.97,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 148.25,
+      "served_demand": 124.0,
+      "turned_away": 24.25,
+      "reference_demand": 178.72,
+      "staff_count": 1,
+      "staff_capacity": 247.5,
+      "labor_strain_index": 0.599,
+      "revenue": 22140.0,
+      "cogs": 6461.45,
+      "procurement": 6461.45,
+      "net_cash_flow": 14828.55,
+      "net_profit": 14828.55,
+      "cash_balance": 22169.81,
+      "units_lost": 0.0,
       "unsold": 0.0,
-      "loss_ratio": 0.058,
-      "liquidity_ratio": 33.65,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 26.08,
       "in_crunch": false,
-      "risk_score": 4.5,
-      "execution_fit": 4.77,
-      "execution_fit_next": 4.71,
+      "risk_score": 6.0,
+      "execution_fit": 4.95,
+      "execution_fit_next": 4.9,
+      "units_requested": 124.0,
+      "units_bought": 124.0,
+      "order_capped": false,
+      "purchase_budget": 6891.26,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.526,
+      "goodwill": 0.89,
       "running_scores": {
-       "D": 3.15,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.71,
-       "R": 4.16,
-       "S": 5.0,
+       "D": 6.34,
+       "F": 7.08,
+       "C": 7.0,
+       "E": 4.9,
+       "R": 6.0,
+       "S": 4.83,
        "A": 5.0
       },
-      "running_viability": 6.16,
+      "running_viability": 6.12,
       "daily": [
        {
         "day": 1,
-        "demand": 134.6,
-        "served": 66.53,
-        "cash_balance": -12129.16,
-        "profit_to_date": 4893.92
+        "demand": 19.79,
+        "served": 16.56,
+        "cash_balance": 3514.42,
+        "profit_to_date": 1771.91
        },
        {
         "day": 2,
-        "demand": 149.91,
-        "served": 74.1,
-        "cash_balance": -437.16,
-        "profit_to_date": 12679.53
+        "demand": 17.33,
+        "served": 14.49,
+        "cash_balance": 6081.0,
+        "profit_to_date": 3583.19
        },
        {
         "day": 3,
-        "demand": 156.1,
-        "served": 77.16,
-        "cash_balance": 11740.33,
-        "profit_to_date": 20789.2
+        "demand": 19.29,
+        "served": 16.13,
+        "cash_balance": 8940.4,
+        "profit_to_date": 5601.83
        },
        {
         "day": 4,
-        "demand": 145.91,
-        "served": 72.12,
-        "cash_balance": 23118.57,
-        "profit_to_date": 28365.36
+        "demand": 19.87,
+        "served": 16.62,
+        "cash_balance": 11885.97,
+        "profit_to_date": 7681.5
        },
        {
         "day": 5,
-        "demand": 177.67,
-        "served": 87.82,
-        "cash_balance": 36986.61,
-        "profit_to_date": 37603.5
+        "demand": 24.34,
+        "served": 20.36,
+        "cash_balance": 15499.21,
+        "profit_to_date": 10233.98
        },
        {
         "day": 6,
-        "demand": 201.95,
-        "served": 99.82,
-        "cash_balance": 52757.0,
-        "profit_to_date": 48111.5
+        "demand": 25.94,
+        "served": 21.7,
+        "cash_balance": 19351.8,
+        "profit_to_date": 12955.95
        },
        {
         "day": 7,
-        "demand": 158.75,
-        "served": 78.47,
-        "cash_balance": 63942.0,
-        "profit_to_date": 55159.69
+        "demand": 21.69,
+        "served": 18.14,
+        "cash_balance": 22169.81,
+        "profit_to_date": 14828.55
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 24 customers, and some won't come back. Stock more units next week."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
        }
       ]
      }
     ],
     "lever_history": [
      {
-      "price": 180,
-      "ad_spend": 200,
-      "stock_ordered": 42,
-      "staffing_change": 1,
+      "price": 189,
+      "ad_spend": 140,
+      "stock_ordered": 38,
+      "staffing_change": 0,
       "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 60
-       }
-      ]
-     },
-     {
-      "price": 185,
-      "ad_spend": 400,
-      "stock_ordered": 450,
-      "staffing_change": 1,
-      "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 80
-       },
        {
         "sub_product_name": "Artisan sourdough bread loaf",
         "base_cost": 25,
         "suggested_price": 45,
         "demand_expansion_factor": 0.08,
-        "units": 60
+        "units": 3
+       }
+      ]
+     },
+     {
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 115,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 9
        }
       ]
      }
     ],
     "default_levers": {
-     "price": 185,
-     "ad_spend": 400,
-     "stock_ordered": 450,
+     "price": 189,
+     "ad_spend": 150,
+     "stock_ordered": 115,
      "staffing_change": 0,
      "product_mix_selections": [
-      {
-       "sub_product_name": "Free-range eggs (tray of 30)",
-       "base_cost": 65,
-       "suggested_price": 95,
-       "demand_expansion_factor": 0.12,
-       "units": 80
-      },
       {
        "sub_product_name": "Artisan sourdough bread loaf",
        "base_cost": 25,
        "suggested_price": 45,
        "demand_expansion_factor": 0.08,
-       "units": 60
+       "units": 9
       }
      ]
     }
@@ -877,116 +939,124 @@
   },
   {
    "levers": {
-    "price": 190,
-    "ad_spend": 400,
-    "stock_ordered": 380,
+    "price": 189,
+    "ad_spend": 150,
+    "stock_ordered": 171,
     "staffing_change": 0,
     "product_mix_selections": [
-     {
-      "sub_product_name": "Free-range eggs (tray of 30)",
-      "base_cost": 65,
-      "suggested_price": 95,
-      "demand_expansion_factor": 0.12,
-      "units": 70
-     },
      {
       "sub_product_name": "Artisan sourdough bread loaf",
       "base_cost": 25,
       "suggested_price": 45,
       "demand_expansion_factor": 0.08,
-      "units": 60
+      "units": 13
      }
     ]
    },
    "week": {
     "week": 3,
-    "shock_name": "Calm week",
+    "shock_name": "Market flooded with cheap produce",
     "shock_hit": false,
-    "gross_demand": 1104.17,
-    "served_demand": 510.0,
-    "turned_away": 594.17,
-    "staff_count": 3,
-    "staff_capacity": 707.24,
-    "labor_strain_index": 1.561,
-    "revenue": 81550.0,
-    "cogs": 26657.69,
-    "procurement": 26657.69,
-    "net_cash_flow": 52992.31,
-    "net_profit": 52992.31,
-    "cash_balance": 116934.31,
+    "gross_demand": 184.81,
+    "served_demand": 184.0,
+    "turned_away": 0.81,
+    "reference_demand": 211.01,
+    "staff_count": 1,
+    "staff_capacity": 245.0,
+    "labor_strain_index": 0.754,
+    "revenue": 32904.0,
+    "cogs": 9598.33,
+    "procurement": 9598.33,
+    "net_cash_flow": 22455.67,
+    "net_profit": 22455.67,
+    "cash_balance": 44625.48,
     "units_lost": 0.0,
     "unsold": 0.0,
     "loss_ratio": 0.0,
-    "liquidity_ratio": 61.54,
+    "liquidity_ratio": 52.5,
     "in_crunch": false,
-    "risk_score": 4.82,
-    "execution_fit": 4.71,
-    "execution_fit_next": 4.67,
+    "risk_score": 6.0,
+    "execution_fit": 4.9,
+    "execution_fit_next": 4.85,
+    "units_requested": 184.0,
+    "units_bought": 184.0,
+    "order_capped": false,
+    "purchase_budget": 21719.81,
+    "units_spoiled": 0.0,
+    "spoilage_cost": 0.0,
+    "severance": 0.0,
+    "overdrawn": false,
+    "awareness": 0.624,
+    "goodwill": 0.945,
     "running_scores": {
-     "D": 3.66,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.67,
-     "R": 4.38,
-     "S": 5.0,
+     "D": 8.25,
+     "F": 7.08,
+     "C": 7.0,
+     "E": 4.85,
+     "R": 6.0,
+     "S": 4.92,
      "A": 5.0
     },
-    "running_viability": 6.3,
+    "running_viability": 6.6,
     "daily": [
      {
       "day": 1,
-      "demand": 122.23,
-      "served": 56.46,
-      "cash_balance": 45954.94,
-      "profit_to_date": 5719.56
+      "demand": 21.28,
+      "served": 21.18,
+      "cash_balance": 16038.35,
+      "profit_to_date": 2361.79
      },
      {
       "day": 2,
-      "demand": 141.96,
-      "served": 65.57,
-      "cash_balance": 56382.39,
-      "profit_to_date": 12719.73
+      "demand": 20.84,
+      "served": 20.75,
+      "cash_balance": 19726.67,
+      "profit_to_date": 4967.96
      },
      {
       "day": 3,
-      "demand": 150.95,
-      "served": 69.72,
-      "cash_balance": 67473.67,
-      "profit_to_date": 20166.72
+      "demand": 23.29,
+      "served": 23.19,
+      "cash_balance": 23851.59,
+      "profit_to_date": 7883.36
      },
      {
       "day": 4,
-      "demand": 164.52,
-      "served": 75.99,
-      "cash_balance": 79566.99,
-      "profit_to_date": 28288.21
+      "demand": 27.62,
+      "served": 27.5,
+      "cash_balance": 28747.83,
+      "profit_to_date": 11345.08
      },
      {
       "day": 5,
-      "demand": 177.32,
-      "served": 81.9,
-      "cash_balance": 92606.19,
-      "profit_to_date": 37046.37
+      "demand": 32.25,
+      "served": 32.1,
+      "cash_balance": 34467.61,
+      "profit_to_date": 15390.11
      },
      {
       "day": 6,
-      "demand": 183.07,
-      "served": 84.56,
-      "cash_balance": 106070.23,
-      "profit_to_date": 46090.51
+      "demand": 32.16,
+      "served": 32.02,
+      "cash_balance": 40172.4,
+      "profit_to_date": 19424.52
      },
      {
       "day": 7,
-      "demand": 164.12,
-      "served": 75.8,
-      "cash_balance": 116934.31,
-      "profit_to_date": 52992.31
+      "demand": 27.38,
+      "served": 27.26,
+      "cash_balance": 44625.48,
+      "profit_to_date": 22455.67
      }
     ],
     "advice": [
      {
-      "kind": "burnout",
-      "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+      "kind": "shock",
+      "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
+     },
+     {
+      "kind": "idle",
+      "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
      }
     ]
    },
@@ -1011,26 +1081,25 @@
     },
     "viability_baseline": 6.65,
     "running_scores": {
-     "D": 3.66,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.67,
-     "R": 4.38,
-     "S": 5.0,
+     "D": 8.25,
+     "F": 7.08,
+     "C": 7.0,
+     "E": 4.85,
+     "R": 6.0,
+     "S": 4.92,
      "A": 5.0
     },
-    "running_viability": 6.3,
+    "running_viability": 6.6,
     "economics": {
      "average_unit_price": 180.0,
      "core_unit_cost": 54.23,
      "capital_available": null,
      "capital_required": 3000.0,
      "initial_cash": 3000.0,
-     "cash": 116934.31,
-     "staff_count": 3,
+     "cash": 44625.48,
+     "staff_count": 1,
      "inventory": {
       "__core__": 0.0,
-      "Free-range eggs (tray of 30)": 0.0,
       "Artisan sourdough bread loaf": 0.0
      },
      "total_target_buyers": 800.0,
@@ -1042,7 +1111,14 @@
      "base_elasticity": 0.7,
      "marketing_scale_k": 500.0,
      "category_growth_rate": 0.004,
-     "environmental_risk_score": 5.0
+     "environmental_risk_score": 5.0,
+     "spoilage_rate_weekly": 0.35,
+     "share_cap": 0.5,
+     "awareness": 0.6238,
+     "goodwill": 0.9449,
+     "execution_fit": 4.85,
+     "purchase_budget": 44325.48,
+     "forecast_demand": 217.67
     },
     "allowed_sub_products": [
      {
@@ -1072,372 +1148,392 @@
     ],
     "next_shock": {
      "week": 4,
-     "name": "Calm week",
-     "hit_probability": 0.0,
-     "severity": "none"
+     "name": "Market flooded with cheap produce",
+     "hit_probability": 0.55,
+     "severity": "medium"
     },
     "weeks": [
      {
       "week": 1,
       "shock_name": "Calm week",
       "shock_hit": false,
-      "gross_demand": 966.22,
-      "served_demand": 102.0,
-      "turned_away": 864.22,
-      "staff_count": 2,
-      "staff_capacity": 500.0,
-      "labor_strain_index": 1.932,
-      "revenue": 13260.0,
-      "cogs": 6177.69,
-      "procurement": 6177.69,
-      "net_cash_flow": 5782.31,
-      "net_profit": 5782.31,
-      "cash_balance": 8782.31,
+      "gross_demand": 159.86,
+      "served_demand": 41.0,
+      "turned_away": 118.86,
+      "reference_demand": 147.69,
+      "staff_count": 1,
+      "staff_capacity": 250.0,
+      "labor_strain_index": 0.639,
+      "revenue": 7317.0,
+      "cogs": 2135.74,
+      "procurement": 2135.74,
+      "net_cash_flow": 4341.26,
+      "net_profit": 4341.26,
+      "cash_balance": 7341.26,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 6.76,
+      "liquidity_ratio": 8.74,
       "in_crunch": false,
-      "risk_score": 3.82,
+      "risk_score": 6.0,
       "execution_fit": 5.0,
-      "execution_fit_next": 4.77,
+      "execution_fit_next": 4.95,
+      "units_requested": 41.0,
+      "units_bought": 41.0,
+      "order_capped": false,
+      "purchase_budget": 2560.0,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.437,
+      "goodwill": 0.851,
       "running_scores": {
-       "D": 1.06,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.77,
-       "R": 3.82,
-       "S": 5.0,
+       "D": 2.81,
+       "F": 7.08,
+       "C": 6.29,
+       "E": 4.95,
+       "R": 6.0,
+       "S": 4.78,
        "A": 5.0
       },
-      "running_viability": 5.61,
+      "running_viability": 5.13,
       "daily": [
        {
         "day": 1,
-        "demand": 113.46,
-        "served": 11.98,
-        "cash_balance": -1949.22,
-        "profit_to_date": 503.06
+        "demand": 19.67,
+        "served": 5.04,
+        "cash_balance": 1444.44,
+        "profit_to_date": 317.43
        },
        {
         "day": 2,
-        "demand": 123.62,
-        "served": 13.05,
-        "cash_balance": -281.31,
-        "profit_to_date": 1380.6
+        "demand": 17.54,
+        "served": 4.5,
+        "cash_balance": 2227.37,
+        "profit_to_date": 865.99
        },
        {
         "day": 3,
-        "demand": 126.16,
-        "served": 13.32,
-        "cash_balance": 1421.54,
-        "profit_to_date": 2276.8
+        "demand": 19.96,
+        "served": 5.12,
+        "cash_balance": 3121.02,
+        "profit_to_date": 1492.96
        },
        {
         "day": 4,
-        "demand": 140.2,
-        "served": 14.8,
-        "cash_balance": 3316.98,
-        "profit_to_date": 3275.86
+        "demand": 21.46,
+        "served": 5.5,
+        "cash_balance": 4083.29,
+        "profit_to_date": 2168.52
        },
        {
         "day": 5,
-        "demand": 146.89,
-        "served": 15.51,
-        "cash_balance": 5304.31,
-        "profit_to_date": 4324.01
+        "demand": 26.93,
+        "served": 6.91,
+        "cash_balance": 5295.76,
+        "profit_to_date": 3021.25
        },
        {
         "day": 6,
-        "demand": 176.72,
-        "served": 18.66,
-        "cash_balance": 7700.93,
-        "profit_to_date": 5590.76
+        "demand": 29.93,
+        "served": 7.68,
+        "cash_balance": 6645.54,
+        "profit_to_date": 3971.21
        },
        {
         "day": 7,
-        "demand": 139.17,
-        "served": 14.69,
-        "cash_balance": 8782.31,
-        "profit_to_date": 5782.31
+        "demand": 24.38,
+        "served": 6.25,
+        "cash_balance": 7341.26,
+        "profit_to_date": 4341.26
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 119 customers, and some won't come back. Stock more units next week."
        },
        {
-        "kind": "shock",
-        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      },
      {
       "week": 2,
-      "shock_name": "Power outage",
-      "shock_hit": true,
-      "gross_demand": 1124.89,
-      "served_demand": 556.03,
-      "turned_away": 568.86,
-      "staff_count": 3,
-      "staff_capacity": 715.07,
-      "labor_strain_index": 1.573,
-      "revenue": 88163.54,
-      "cogs": 29312.94,
-      "procurement": 31103.85,
-      "net_cash_flow": 55159.69,
-      "net_profit": 55159.69,
-      "cash_balance": 63942.0,
-      "units_lost": 33.97,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 148.25,
+      "served_demand": 124.0,
+      "turned_away": 24.25,
+      "reference_demand": 178.72,
+      "staff_count": 1,
+      "staff_capacity": 247.5,
+      "labor_strain_index": 0.599,
+      "revenue": 22140.0,
+      "cogs": 6461.45,
+      "procurement": 6461.45,
+      "net_cash_flow": 14828.55,
+      "net_profit": 14828.55,
+      "cash_balance": 22169.81,
+      "units_lost": 0.0,
       "unsold": 0.0,
-      "loss_ratio": 0.058,
-      "liquidity_ratio": 33.65,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 26.08,
       "in_crunch": false,
-      "risk_score": 4.5,
-      "execution_fit": 4.77,
-      "execution_fit_next": 4.71,
+      "risk_score": 6.0,
+      "execution_fit": 4.95,
+      "execution_fit_next": 4.9,
+      "units_requested": 124.0,
+      "units_bought": 124.0,
+      "order_capped": false,
+      "purchase_budget": 6891.26,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.526,
+      "goodwill": 0.89,
       "running_scores": {
-       "D": 3.15,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.71,
-       "R": 4.16,
-       "S": 5.0,
+       "D": 6.34,
+       "F": 7.08,
+       "C": 7.0,
+       "E": 4.9,
+       "R": 6.0,
+       "S": 4.83,
        "A": 5.0
       },
-      "running_viability": 6.16,
+      "running_viability": 6.12,
       "daily": [
        {
         "day": 1,
-        "demand": 134.6,
-        "served": 66.53,
-        "cash_balance": -12129.16,
-        "profit_to_date": 4893.92
+        "demand": 19.79,
+        "served": 16.56,
+        "cash_balance": 3514.42,
+        "profit_to_date": 1771.91
        },
        {
         "day": 2,
-        "demand": 149.91,
-        "served": 74.1,
-        "cash_balance": -437.16,
-        "profit_to_date": 12679.53
+        "demand": 17.33,
+        "served": 14.49,
+        "cash_balance": 6081.0,
+        "profit_to_date": 3583.19
        },
        {
         "day": 3,
-        "demand": 156.1,
-        "served": 77.16,
-        "cash_balance": 11740.33,
-        "profit_to_date": 20789.2
+        "demand": 19.29,
+        "served": 16.13,
+        "cash_balance": 8940.4,
+        "profit_to_date": 5601.83
        },
        {
         "day": 4,
-        "demand": 145.91,
-        "served": 72.12,
-        "cash_balance": 23118.57,
-        "profit_to_date": 28365.36
+        "demand": 19.87,
+        "served": 16.62,
+        "cash_balance": 11885.97,
+        "profit_to_date": 7681.5
        },
        {
         "day": 5,
-        "demand": 177.67,
-        "served": 87.82,
-        "cash_balance": 36986.61,
-        "profit_to_date": 37603.5
+        "demand": 24.34,
+        "served": 20.36,
+        "cash_balance": 15499.21,
+        "profit_to_date": 10233.98
        },
        {
         "day": 6,
-        "demand": 201.95,
-        "served": 99.82,
-        "cash_balance": 52757.0,
-        "profit_to_date": 48111.5
+        "demand": 25.94,
+        "served": 21.7,
+        "cash_balance": 19351.8,
+        "profit_to_date": 12955.95
        },
        {
         "day": 7,
-        "demand": 158.75,
-        "served": 78.47,
-        "cash_balance": 63942.0,
-        "profit_to_date": 55159.69
+        "demand": 21.69,
+        "served": 18.14,
+        "cash_balance": 22169.81,
+        "profit_to_date": 14828.55
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 24 customers, and some won't come back. Stock more units next week."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
        }
       ]
      },
      {
       "week": 3,
-      "shock_name": "Calm week",
+      "shock_name": "Market flooded with cheap produce",
       "shock_hit": false,
-      "gross_demand": 1104.17,
-      "served_demand": 510.0,
-      "turned_away": 594.17,
-      "staff_count": 3,
-      "staff_capacity": 707.24,
-      "labor_strain_index": 1.561,
-      "revenue": 81550.0,
-      "cogs": 26657.69,
-      "procurement": 26657.69,
-      "net_cash_flow": 52992.31,
-      "net_profit": 52992.31,
-      "cash_balance": 116934.31,
+      "gross_demand": 184.81,
+      "served_demand": 184.0,
+      "turned_away": 0.81,
+      "reference_demand": 211.01,
+      "staff_count": 1,
+      "staff_capacity": 245.0,
+      "labor_strain_index": 0.754,
+      "revenue": 32904.0,
+      "cogs": 9598.33,
+      "procurement": 9598.33,
+      "net_cash_flow": 22455.67,
+      "net_profit": 22455.67,
+      "cash_balance": 44625.48,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 61.54,
+      "liquidity_ratio": 52.5,
       "in_crunch": false,
-      "risk_score": 4.82,
-      "execution_fit": 4.71,
-      "execution_fit_next": 4.67,
+      "risk_score": 6.0,
+      "execution_fit": 4.9,
+      "execution_fit_next": 4.85,
+      "units_requested": 184.0,
+      "units_bought": 184.0,
+      "order_capped": false,
+      "purchase_budget": 21719.81,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.624,
+      "goodwill": 0.945,
       "running_scores": {
-       "D": 3.66,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.67,
-       "R": 4.38,
-       "S": 5.0,
+       "D": 8.25,
+       "F": 7.08,
+       "C": 7.0,
+       "E": 4.85,
+       "R": 6.0,
+       "S": 4.92,
        "A": 5.0
       },
-      "running_viability": 6.3,
+      "running_viability": 6.6,
       "daily": [
        {
         "day": 1,
-        "demand": 122.23,
-        "served": 56.46,
-        "cash_balance": 45954.94,
-        "profit_to_date": 5719.56
+        "demand": 21.28,
+        "served": 21.18,
+        "cash_balance": 16038.35,
+        "profit_to_date": 2361.79
        },
        {
         "day": 2,
-        "demand": 141.96,
-        "served": 65.57,
-        "cash_balance": 56382.39,
-        "profit_to_date": 12719.73
+        "demand": 20.84,
+        "served": 20.75,
+        "cash_balance": 19726.67,
+        "profit_to_date": 4967.96
        },
        {
         "day": 3,
-        "demand": 150.95,
-        "served": 69.72,
-        "cash_balance": 67473.67,
-        "profit_to_date": 20166.72
+        "demand": 23.29,
+        "served": 23.19,
+        "cash_balance": 23851.59,
+        "profit_to_date": 7883.36
        },
        {
         "day": 4,
-        "demand": 164.52,
-        "served": 75.99,
-        "cash_balance": 79566.99,
-        "profit_to_date": 28288.21
+        "demand": 27.62,
+        "served": 27.5,
+        "cash_balance": 28747.83,
+        "profit_to_date": 11345.08
        },
        {
         "day": 5,
-        "demand": 177.32,
-        "served": 81.9,
-        "cash_balance": 92606.19,
-        "profit_to_date": 37046.37
+        "demand": 32.25,
+        "served": 32.1,
+        "cash_balance": 34467.61,
+        "profit_to_date": 15390.11
        },
        {
         "day": 6,
-        "demand": 183.07,
-        "served": 84.56,
-        "cash_balance": 106070.23,
-        "profit_to_date": 46090.51
+        "demand": 32.16,
+        "served": 32.02,
+        "cash_balance": 40172.4,
+        "profit_to_date": 19424.52
        },
        {
         "day": 7,
-        "demand": 164.12,
-        "served": 75.8,
-        "cash_balance": 116934.31,
-        "profit_to_date": 52992.31
+        "demand": 27.38,
+        "served": 27.26,
+        "cash_balance": 44625.48,
+        "profit_to_date": 22455.67
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+        "kind": "shock",
+        "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
+       },
+       {
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      }
     ],
     "lever_history": [
      {
-      "price": 180,
-      "ad_spend": 200,
-      "stock_ordered": 42,
-      "staffing_change": 1,
-      "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 60
-       }
-      ]
-     },
-     {
-      "price": 185,
-      "ad_spend": 400,
-      "stock_ordered": 450,
-      "staffing_change": 1,
-      "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 80
-       },
-       {
-        "sub_product_name": "Artisan sourdough bread loaf",
-        "base_cost": 25,
-        "suggested_price": 45,
-        "demand_expansion_factor": 0.08,
-        "units": 60
-       }
-      ]
-     },
-     {
-      "price": 190,
-      "ad_spend": 400,
-      "stock_ordered": 380,
+      "price": 189,
+      "ad_spend": 140,
+      "stock_ordered": 38,
       "staffing_change": 0,
       "product_mix_selections": [
        {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 70
-       },
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 3
+       }
+      ]
+     },
+     {
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 115,
+      "staffing_change": 0,
+      "product_mix_selections": [
        {
         "sub_product_name": "Artisan sourdough bread loaf",
         "base_cost": 25,
         "suggested_price": 45,
         "demand_expansion_factor": 0.08,
-        "units": 60
+        "units": 9
+       }
+      ]
+     },
+     {
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 171,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 13
        }
       ]
      }
     ],
     "default_levers": {
-     "price": 190,
-     "ad_spend": 400,
-     "stock_ordered": 380,
+     "price": 189,
+     "ad_spend": 150,
+     "stock_ordered": 171,
      "staffing_change": 0,
      "product_mix_selections": [
-      {
-       "sub_product_name": "Free-range eggs (tray of 30)",
-       "base_cost": 65,
-       "suggested_price": 95,
-       "demand_expansion_factor": 0.12,
-       "units": 70
-      },
       {
        "sub_product_name": "Artisan sourdough bread loaf",
        "base_cost": 25,
        "suggested_price": 45,
        "demand_expansion_factor": 0.08,
-       "units": 60
+       "units": 13
       }
      ]
     }
@@ -1445,123 +1541,120 @@
   },
   {
    "levers": {
-    "price": 190,
-    "ad_spend": 300,
-    "stock_ordered": 350,
+    "price": 189,
+    "ad_spend": 150,
+    "stock_ordered": 213,
     "staffing_change": 0,
     "product_mix_selections": [
-     {
-      "sub_product_name": "Free-range eggs (tray of 30)",
-      "base_cost": 65,
-      "suggested_price": 95,
-      "demand_expansion_factor": 0.12,
-      "units": 60
-     },
      {
       "sub_product_name": "Artisan sourdough bread loaf",
       "base_cost": 25,
       "suggested_price": 45,
       "demand_expansion_factor": 0.08,
-      "units": 50
-     },
-     {
-      "sub_product_name": "Homemade herb-infused honey (350g)",
-      "base_cost": 40,
-      "suggested_price": 70,
-      "demand_expansion_factor": 0.1,
-      "units": 30
+      "units": 17
      }
     ]
    },
    "week": {
     "week": 4,
-    "shock_name": "Calm week",
-    "shock_hit": false,
-    "gross_demand": 1141.83,
-    "served_demand": 490.0,
-    "turned_away": 651.83,
-    "staff_count": 3,
-    "staff_capacity": 699.97,
-    "labor_strain_index": 1.631,
-    "revenue": 76550.0,
-    "cogs": 25330.77,
-    "procurement": 25330.77,
-    "net_cash_flow": 49419.23,
-    "net_profit": 49419.23,
-    "cash_balance": 166353.54,
-    "units_lost": 0.0,
+    "shock_name": "Market flooded with cheap produce",
+    "shock_hit": true,
+    "gross_demand": 230.78,
+    "served_demand": 212.58,
+    "turned_away": 18.21,
+    "reference_demand": 242.69,
+    "staff_count": 1,
+    "staff_capacity": 242.5,
+    "labor_strain_index": 0.952,
+    "revenue": 37914.59,
+    "cogs": 11068.81,
+    "procurement": 11975.99,
+    "net_cash_flow": 25088.6,
+    "net_profit": 25088.6,
+    "cash_balance": 69714.08,
+    "units_lost": 17.42,
     "unsold": 0.0,
-    "loss_ratio": 0.0,
-    "liquidity_ratio": 92.42,
+    "loss_ratio": 0.076,
+    "liquidity_ratio": 82.02,
     "in_crunch": false,
-    "risk_score": 4.79,
-    "execution_fit": 4.67,
-    "execution_fit_next": 4.59,
+    "risk_score": 5.88,
+    "execution_fit": 4.85,
+    "execution_fit_next": 5.05,
+    "units_requested": 230.0,
+    "units_bought": 230.0,
+    "order_capped": false,
+    "purchase_budget": 44175.48,
+    "units_spoiled": 0.0,
+    "spoilage_cost": 0.0,
+    "severance": 0.0,
+    "overdrawn": false,
+    "awareness": 0.711,
+    "goodwill": 0.976,
     "running_scores": {
-     "D": 3.82,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.59,
-     "R": 4.48,
-     "S": 5.0,
+     "D": 8.82,
+     "F": 6.99,
+     "C": 7.0,
+     "E": 5.05,
+     "R": 5.88,
+     "S": 4.96,
      "A": 5.0
     },
-    "running_viability": 6.34,
+    "running_viability": 6.74,
     "daily": [
      {
       "day": 1,
-      "demand": 141.24,
-      "served": 60.61,
-      "cash_balance": 100729.93,
-      "profit_to_date": 5992.97
+      "demand": 29.4,
+      "served": 27.09,
+      "cash_balance": 37158.86,
+      "profit_to_date": 3099.06
      },
      {
       "day": 2,
-      "demand": 136.71,
-      "served": 58.67,
-      "cash_balance": 109852.01,
-      "profit_to_date": 12082.33
+      "demand": 27.98,
+      "served": 25.77,
+      "cash_balance": 41733.32,
+      "profit_to_date": 6331.8
      },
      {
       "day": 3,
-      "demand": 144.23,
-      "served": 61.89,
-      "cash_balance": 119478.57,
-      "profit_to_date": 18509.23
+      "demand": 28.83,
+      "served": 26.56,
+      "cash_balance": 46448.36,
+      "profit_to_date": 9664.07
      },
      {
       "day": 4,
-      "demand": 144.54,
-      "served": 62.03,
-      "cash_balance": 129125.67,
-      "profit_to_date": 24949.87
+      "demand": 30.92,
+      "served": 28.48,
+      "cash_balance": 51507.25,
+      "profit_to_date": 13239.8
      },
      {
       "day": 5,
-      "demand": 200.61,
-      "served": 86.09,
-      "cash_balance": 142532.02,
-      "profit_to_date": 33905.82
+      "demand": 36.69,
+      "served": 33.79,
+      "cash_balance": 57512.82,
+      "profit_to_date": 17485.85
      },
      {
       "day": 6,
-      "demand": 216.4,
-      "served": 92.86,
-      "cash_balance": 156996.88,
-      "profit_to_date": 43570.01
+      "demand": 40.82,
+      "served": 37.6,
+      "cash_balance": 64197.51,
+      "profit_to_date": 22212.75
      },
      {
       "day": 7,
-      "demand": 158.1,
-      "served": 67.85,
-      "cash_balance": 166353.54,
-      "profit_to_date": 49419.23
+      "demand": 36.14,
+      "served": 33.29,
+      "cash_balance": 69714.08,
+      "profit_to_date": 25088.6
      }
     ],
     "advice": [
      {
-      "kind": "burnout",
-      "text": "Your team is overloaded (strain 1.63). Hire at least one more worker or execution will keep falling."
+      "kind": "steady",
+      "text": "A steady week. Try a small price rise and watch whether demand holds."
      }
     ]
    },
@@ -1586,28 +1679,26 @@
     },
     "viability_baseline": 6.65,
     "running_scores": {
-     "D": 3.82,
-     "F": 10.0,
-     "C": 10.0,
-     "E": 4.59,
-     "R": 4.48,
-     "S": 5.0,
+     "D": 8.82,
+     "F": 6.99,
+     "C": 7.0,
+     "E": 5.05,
+     "R": 5.88,
+     "S": 4.96,
      "A": 5.0
     },
-    "running_viability": 6.34,
+    "running_viability": 6.74,
     "economics": {
      "average_unit_price": 180.0,
      "core_unit_cost": 54.23,
      "capital_available": null,
      "capital_required": 3000.0,
      "initial_cash": 3000.0,
-     "cash": 166353.54,
-     "staff_count": 3,
+     "cash": 69714.08,
+     "staff_count": 1,
      "inventory": {
       "__core__": 0.0,
-      "Free-range eggs (tray of 30)": 0.0,
-      "Artisan sourdough bread loaf": 0.0,
-      "Homemade herb-infused honey (350g)": 0.0
+      "Artisan sourdough bread loaf": 0.0
      },
      "total_target_buyers": 800.0,
      "consumption_frequency_per_year": 48.0,
@@ -1618,7 +1709,14 @@
      "base_elasticity": 0.7,
      "marketing_scale_k": 500.0,
      "category_growth_rate": 0.004,
-     "environmental_risk_score": 5.0
+     "environmental_risk_score": 5.0,
+     "spoilage_rate_weekly": 0.35,
+     "share_cap": 0.5,
+     "awareness": 0.7105,
+     "goodwill": 0.9764,
+     "execution_fit": 5.05,
+     "purchase_budget": 69414.08,
+     "forecast_demand": 256.22
     },
     "allowed_sub_products": [
      {
@@ -1652,491 +1750,501 @@
       "week": 1,
       "shock_name": "Calm week",
       "shock_hit": false,
-      "gross_demand": 966.22,
-      "served_demand": 102.0,
-      "turned_away": 864.22,
-      "staff_count": 2,
-      "staff_capacity": 500.0,
-      "labor_strain_index": 1.932,
-      "revenue": 13260.0,
-      "cogs": 6177.69,
-      "procurement": 6177.69,
-      "net_cash_flow": 5782.31,
-      "net_profit": 5782.31,
-      "cash_balance": 8782.31,
+      "gross_demand": 159.86,
+      "served_demand": 41.0,
+      "turned_away": 118.86,
+      "reference_demand": 147.69,
+      "staff_count": 1,
+      "staff_capacity": 250.0,
+      "labor_strain_index": 0.639,
+      "revenue": 7317.0,
+      "cogs": 2135.74,
+      "procurement": 2135.74,
+      "net_cash_flow": 4341.26,
+      "net_profit": 4341.26,
+      "cash_balance": 7341.26,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 6.76,
+      "liquidity_ratio": 8.74,
       "in_crunch": false,
-      "risk_score": 3.82,
+      "risk_score": 6.0,
       "execution_fit": 5.0,
-      "execution_fit_next": 4.77,
+      "execution_fit_next": 4.95,
+      "units_requested": 41.0,
+      "units_bought": 41.0,
+      "order_capped": false,
+      "purchase_budget": 2560.0,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.437,
+      "goodwill": 0.851,
       "running_scores": {
-       "D": 1.06,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.77,
-       "R": 3.82,
-       "S": 5.0,
+       "D": 2.81,
+       "F": 7.08,
+       "C": 6.29,
+       "E": 4.95,
+       "R": 6.0,
+       "S": 4.78,
        "A": 5.0
       },
-      "running_viability": 5.61,
+      "running_viability": 5.13,
       "daily": [
        {
         "day": 1,
-        "demand": 113.46,
-        "served": 11.98,
-        "cash_balance": -1949.22,
-        "profit_to_date": 503.06
+        "demand": 19.67,
+        "served": 5.04,
+        "cash_balance": 1444.44,
+        "profit_to_date": 317.43
        },
        {
         "day": 2,
-        "demand": 123.62,
-        "served": 13.05,
-        "cash_balance": -281.31,
-        "profit_to_date": 1380.6
+        "demand": 17.54,
+        "served": 4.5,
+        "cash_balance": 2227.37,
+        "profit_to_date": 865.99
        },
        {
         "day": 3,
-        "demand": 126.16,
-        "served": 13.32,
-        "cash_balance": 1421.54,
-        "profit_to_date": 2276.8
+        "demand": 19.96,
+        "served": 5.12,
+        "cash_balance": 3121.02,
+        "profit_to_date": 1492.96
        },
        {
         "day": 4,
-        "demand": 140.2,
-        "served": 14.8,
-        "cash_balance": 3316.98,
-        "profit_to_date": 3275.86
+        "demand": 21.46,
+        "served": 5.5,
+        "cash_balance": 4083.29,
+        "profit_to_date": 2168.52
        },
        {
         "day": 5,
-        "demand": 146.89,
-        "served": 15.51,
-        "cash_balance": 5304.31,
-        "profit_to_date": 4324.01
+        "demand": 26.93,
+        "served": 6.91,
+        "cash_balance": 5295.76,
+        "profit_to_date": 3021.25
        },
        {
         "day": 6,
-        "demand": 176.72,
-        "served": 18.66,
-        "cash_balance": 7700.93,
-        "profit_to_date": 5590.76
+        "demand": 29.93,
+        "served": 7.68,
+        "cash_balance": 6645.54,
+        "profit_to_date": 3971.21
        },
        {
         "day": 7,
-        "demand": 139.17,
-        "served": 14.69,
-        "cash_balance": 8782.31,
-        "profit_to_date": 5782.31
+        "demand": 24.38,
+        "served": 6.25,
+        "cash_balance": 7341.26,
+        "profit_to_date": 4341.26
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.93). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 119 customers, and some won't come back. Stock more units next week."
        },
        {
-        "kind": "shock",
-        "text": "Next week's threat: Power outage (55% chance). Keep stock lean to limit losses."
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      },
      {
       "week": 2,
-      "shock_name": "Power outage",
-      "shock_hit": true,
-      "gross_demand": 1124.89,
-      "served_demand": 556.03,
-      "turned_away": 568.86,
-      "staff_count": 3,
-      "staff_capacity": 715.07,
-      "labor_strain_index": 1.573,
-      "revenue": 88163.54,
-      "cogs": 29312.94,
-      "procurement": 31103.85,
-      "net_cash_flow": 55159.69,
-      "net_profit": 55159.69,
-      "cash_balance": 63942.0,
-      "units_lost": 33.97,
+      "shock_name": "Calm week",
+      "shock_hit": false,
+      "gross_demand": 148.25,
+      "served_demand": 124.0,
+      "turned_away": 24.25,
+      "reference_demand": 178.72,
+      "staff_count": 1,
+      "staff_capacity": 247.5,
+      "labor_strain_index": 0.599,
+      "revenue": 22140.0,
+      "cogs": 6461.45,
+      "procurement": 6461.45,
+      "net_cash_flow": 14828.55,
+      "net_profit": 14828.55,
+      "cash_balance": 22169.81,
+      "units_lost": 0.0,
       "unsold": 0.0,
-      "loss_ratio": 0.058,
-      "liquidity_ratio": 33.65,
+      "loss_ratio": 0.0,
+      "liquidity_ratio": 26.08,
       "in_crunch": false,
-      "risk_score": 4.5,
-      "execution_fit": 4.77,
-      "execution_fit_next": 4.71,
+      "risk_score": 6.0,
+      "execution_fit": 4.95,
+      "execution_fit_next": 4.9,
+      "units_requested": 124.0,
+      "units_bought": 124.0,
+      "order_capped": false,
+      "purchase_budget": 6891.26,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.526,
+      "goodwill": 0.89,
       "running_scores": {
-       "D": 3.15,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.71,
-       "R": 4.16,
-       "S": 5.0,
+       "D": 6.34,
+       "F": 7.08,
+       "C": 7.0,
+       "E": 4.9,
+       "R": 6.0,
+       "S": 4.83,
        "A": 5.0
       },
-      "running_viability": 6.16,
+      "running_viability": 6.12,
       "daily": [
        {
         "day": 1,
-        "demand": 134.6,
-        "served": 66.53,
-        "cash_balance": -12129.16,
-        "profit_to_date": 4893.92
+        "demand": 19.79,
+        "served": 16.56,
+        "cash_balance": 3514.42,
+        "profit_to_date": 1771.91
        },
        {
         "day": 2,
-        "demand": 149.91,
-        "served": 74.1,
-        "cash_balance": -437.16,
-        "profit_to_date": 12679.53
+        "demand": 17.33,
+        "served": 14.49,
+        "cash_balance": 6081.0,
+        "profit_to_date": 3583.19
        },
        {
         "day": 3,
-        "demand": 156.1,
-        "served": 77.16,
-        "cash_balance": 11740.33,
-        "profit_to_date": 20789.2
+        "demand": 19.29,
+        "served": 16.13,
+        "cash_balance": 8940.4,
+        "profit_to_date": 5601.83
        },
        {
         "day": 4,
-        "demand": 145.91,
-        "served": 72.12,
-        "cash_balance": 23118.57,
-        "profit_to_date": 28365.36
+        "demand": 19.87,
+        "served": 16.62,
+        "cash_balance": 11885.97,
+        "profit_to_date": 7681.5
        },
        {
         "day": 5,
-        "demand": 177.67,
-        "served": 87.82,
-        "cash_balance": 36986.61,
-        "profit_to_date": 37603.5
+        "demand": 24.34,
+        "served": 20.36,
+        "cash_balance": 15499.21,
+        "profit_to_date": 10233.98
        },
        {
         "day": 6,
-        "demand": 201.95,
-        "served": 99.82,
-        "cash_balance": 52757.0,
-        "profit_to_date": 48111.5
+        "demand": 25.94,
+        "served": 21.7,
+        "cash_balance": 19351.8,
+        "profit_to_date": 12955.95
        },
        {
         "day": 7,
-        "demand": 158.75,
-        "served": 78.47,
-        "cash_balance": 63942.0,
-        "profit_to_date": 55159.69
+        "demand": 21.69,
+        "served": 18.14,
+        "cash_balance": 22169.81,
+        "profit_to_date": 14828.55
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.57). Hire at least one more worker or execution will keep falling."
+        "kind": "stockout",
+        "text": "You turned away about 24 customers, and some won't come back. Stock more units next week."
+       },
+       {
+        "kind": "shock",
+        "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
        }
       ]
      },
      {
       "week": 3,
-      "shock_name": "Calm week",
+      "shock_name": "Market flooded with cheap produce",
       "shock_hit": false,
-      "gross_demand": 1104.17,
-      "served_demand": 510.0,
-      "turned_away": 594.17,
-      "staff_count": 3,
-      "staff_capacity": 707.24,
-      "labor_strain_index": 1.561,
-      "revenue": 81550.0,
-      "cogs": 26657.69,
-      "procurement": 26657.69,
-      "net_cash_flow": 52992.31,
-      "net_profit": 52992.31,
-      "cash_balance": 116934.31,
+      "gross_demand": 184.81,
+      "served_demand": 184.0,
+      "turned_away": 0.81,
+      "reference_demand": 211.01,
+      "staff_count": 1,
+      "staff_capacity": 245.0,
+      "labor_strain_index": 0.754,
+      "revenue": 32904.0,
+      "cogs": 9598.33,
+      "procurement": 9598.33,
+      "net_cash_flow": 22455.67,
+      "net_profit": 22455.67,
+      "cash_balance": 44625.48,
       "units_lost": 0.0,
       "unsold": 0.0,
       "loss_ratio": 0.0,
-      "liquidity_ratio": 61.54,
+      "liquidity_ratio": 52.5,
       "in_crunch": false,
-      "risk_score": 4.82,
-      "execution_fit": 4.71,
-      "execution_fit_next": 4.67,
+      "risk_score": 6.0,
+      "execution_fit": 4.9,
+      "execution_fit_next": 4.85,
+      "units_requested": 184.0,
+      "units_bought": 184.0,
+      "order_capped": false,
+      "purchase_budget": 21719.81,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.624,
+      "goodwill": 0.945,
       "running_scores": {
-       "D": 3.66,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.67,
-       "R": 4.38,
-       "S": 5.0,
+       "D": 8.25,
+       "F": 7.08,
+       "C": 7.0,
+       "E": 4.85,
+       "R": 6.0,
+       "S": 4.92,
        "A": 5.0
       },
-      "running_viability": 6.3,
+      "running_viability": 6.6,
       "daily": [
        {
         "day": 1,
-        "demand": 122.23,
-        "served": 56.46,
-        "cash_balance": 45954.94,
-        "profit_to_date": 5719.56
+        "demand": 21.28,
+        "served": 21.18,
+        "cash_balance": 16038.35,
+        "profit_to_date": 2361.79
        },
        {
         "day": 2,
-        "demand": 141.96,
-        "served": 65.57,
-        "cash_balance": 56382.39,
-        "profit_to_date": 12719.73
+        "demand": 20.84,
+        "served": 20.75,
+        "cash_balance": 19726.67,
+        "profit_to_date": 4967.96
        },
        {
         "day": 3,
-        "demand": 150.95,
-        "served": 69.72,
-        "cash_balance": 67473.67,
-        "profit_to_date": 20166.72
+        "demand": 23.29,
+        "served": 23.19,
+        "cash_balance": 23851.59,
+        "profit_to_date": 7883.36
        },
        {
         "day": 4,
-        "demand": 164.52,
-        "served": 75.99,
-        "cash_balance": 79566.99,
-        "profit_to_date": 28288.21
+        "demand": 27.62,
+        "served": 27.5,
+        "cash_balance": 28747.83,
+        "profit_to_date": 11345.08
        },
        {
         "day": 5,
-        "demand": 177.32,
-        "served": 81.9,
-        "cash_balance": 92606.19,
-        "profit_to_date": 37046.37
+        "demand": 32.25,
+        "served": 32.1,
+        "cash_balance": 34467.61,
+        "profit_to_date": 15390.11
        },
        {
         "day": 6,
-        "demand": 183.07,
-        "served": 84.56,
-        "cash_balance": 106070.23,
-        "profit_to_date": 46090.51
+        "demand": 32.16,
+        "served": 32.02,
+        "cash_balance": 40172.4,
+        "profit_to_date": 19424.52
        },
        {
         "day": 7,
-        "demand": 164.12,
-        "served": 75.8,
-        "cash_balance": 116934.31,
-        "profit_to_date": 52992.31
+        "demand": 27.38,
+        "served": 27.26,
+        "cash_balance": 44625.48,
+        "profit_to_date": 22455.67
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.56). Hire at least one more worker or execution will keep falling."
+        "kind": "shock",
+        "text": "Next week's threat: Market flooded with cheap produce (55% chance). Keep stock lean to limit losses."
+       },
+       {
+        "kind": "idle",
+        "text": "Your staff are idle most of the week. Spend on marketing to bring in more customers."
        }
       ]
      },
      {
       "week": 4,
-      "shock_name": "Calm week",
-      "shock_hit": false,
-      "gross_demand": 1141.83,
-      "served_demand": 490.0,
-      "turned_away": 651.83,
-      "staff_count": 3,
-      "staff_capacity": 699.97,
-      "labor_strain_index": 1.631,
-      "revenue": 76550.0,
-      "cogs": 25330.77,
-      "procurement": 25330.77,
-      "net_cash_flow": 49419.23,
-      "net_profit": 49419.23,
-      "cash_balance": 166353.54,
-      "units_lost": 0.0,
+      "shock_name": "Market flooded with cheap produce",
+      "shock_hit": true,
+      "gross_demand": 230.78,
+      "served_demand": 212.58,
+      "turned_away": 18.21,
+      "reference_demand": 242.69,
+      "staff_count": 1,
+      "staff_capacity": 242.5,
+      "labor_strain_index": 0.952,
+      "revenue": 37914.59,
+      "cogs": 11068.81,
+      "procurement": 11975.99,
+      "net_cash_flow": 25088.6,
+      "net_profit": 25088.6,
+      "cash_balance": 69714.08,
+      "units_lost": 17.42,
       "unsold": 0.0,
-      "loss_ratio": 0.0,
-      "liquidity_ratio": 92.42,
+      "loss_ratio": 0.076,
+      "liquidity_ratio": 82.02,
       "in_crunch": false,
-      "risk_score": 4.79,
-      "execution_fit": 4.67,
-      "execution_fit_next": 4.59,
+      "risk_score": 5.88,
+      "execution_fit": 4.85,
+      "execution_fit_next": 5.05,
+      "units_requested": 230.0,
+      "units_bought": 230.0,
+      "order_capped": false,
+      "purchase_budget": 44175.48,
+      "units_spoiled": 0.0,
+      "spoilage_cost": 0.0,
+      "severance": 0.0,
+      "overdrawn": false,
+      "awareness": 0.711,
+      "goodwill": 0.976,
       "running_scores": {
-       "D": 3.82,
-       "F": 10.0,
-       "C": 10.0,
-       "E": 4.59,
-       "R": 4.48,
-       "S": 5.0,
+       "D": 8.82,
+       "F": 6.99,
+       "C": 7.0,
+       "E": 5.05,
+       "R": 5.88,
+       "S": 4.96,
        "A": 5.0
       },
-      "running_viability": 6.34,
+      "running_viability": 6.74,
       "daily": [
        {
         "day": 1,
-        "demand": 141.24,
-        "served": 60.61,
-        "cash_balance": 100729.93,
-        "profit_to_date": 5992.97
+        "demand": 29.4,
+        "served": 27.09,
+        "cash_balance": 37158.86,
+        "profit_to_date": 3099.06
        },
        {
         "day": 2,
-        "demand": 136.71,
-        "served": 58.67,
-        "cash_balance": 109852.01,
-        "profit_to_date": 12082.33
+        "demand": 27.98,
+        "served": 25.77,
+        "cash_balance": 41733.32,
+        "profit_to_date": 6331.8
        },
        {
         "day": 3,
-        "demand": 144.23,
-        "served": 61.89,
-        "cash_balance": 119478.57,
-        "profit_to_date": 18509.23
+        "demand": 28.83,
+        "served": 26.56,
+        "cash_balance": 46448.36,
+        "profit_to_date": 9664.07
        },
        {
         "day": 4,
-        "demand": 144.54,
-        "served": 62.03,
-        "cash_balance": 129125.67,
-        "profit_to_date": 24949.87
+        "demand": 30.92,
+        "served": 28.48,
+        "cash_balance": 51507.25,
+        "profit_to_date": 13239.8
        },
        {
         "day": 5,
-        "demand": 200.61,
-        "served": 86.09,
-        "cash_balance": 142532.02,
-        "profit_to_date": 33905.82
+        "demand": 36.69,
+        "served": 33.79,
+        "cash_balance": 57512.82,
+        "profit_to_date": 17485.85
        },
        {
         "day": 6,
-        "demand": 216.4,
-        "served": 92.86,
-        "cash_balance": 156996.88,
-        "profit_to_date": 43570.01
+        "demand": 40.82,
+        "served": 37.6,
+        "cash_balance": 64197.51,
+        "profit_to_date": 22212.75
        },
        {
         "day": 7,
-        "demand": 158.1,
-        "served": 67.85,
-        "cash_balance": 166353.54,
-        "profit_to_date": 49419.23
+        "demand": 36.14,
+        "served": 33.29,
+        "cash_balance": 69714.08,
+        "profit_to_date": 25088.6
        }
       ],
       "advice": [
        {
-        "kind": "burnout",
-        "text": "Your team is overloaded (strain 1.63). Hire at least one more worker or execution will keep falling."
+        "kind": "steady",
+        "text": "A steady week. Try a small price rise and watch whether demand holds."
        }
       ]
      }
     ],
     "lever_history": [
      {
-      "price": 180,
-      "ad_spend": 200,
-      "stock_ordered": 42,
-      "staffing_change": 1,
-      "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 60
-       }
-      ]
-     },
-     {
-      "price": 185,
-      "ad_spend": 400,
-      "stock_ordered": 450,
-      "staffing_change": 1,
-      "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 80
-       },
-       {
-        "sub_product_name": "Artisan sourdough bread loaf",
-        "base_cost": 25,
-        "suggested_price": 45,
-        "demand_expansion_factor": 0.08,
-        "units": 60
-       }
-      ]
-     },
-     {
-      "price": 190,
-      "ad_spend": 400,
-      "stock_ordered": 380,
+      "price": 189,
+      "ad_spend": 140,
+      "stock_ordered": 38,
       "staffing_change": 0,
       "product_mix_selections": [
        {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 70
-       },
-       {
         "sub_product_name": "Artisan sourdough bread loaf",
         "base_cost": 25,
         "suggested_price": 45,
         "demand_expansion_factor": 0.08,
-        "units": 60
+        "units": 3
        }
       ]
      },
      {
-      "price": 190,
-      "ad_spend": 300,
-      "stock_ordered": 350,
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 115,
       "staffing_change": 0,
       "product_mix_selections": [
-       {
-        "sub_product_name": "Free-range eggs (tray of 30)",
-        "base_cost": 65,
-        "suggested_price": 95,
-        "demand_expansion_factor": 0.12,
-        "units": 60
-       },
        {
         "sub_product_name": "Artisan sourdough bread loaf",
         "base_cost": 25,
         "suggested_price": 45,
         "demand_expansion_factor": 0.08,
-        "units": 50
-       },
+        "units": 9
+       }
+      ]
+     },
+     {
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 171,
+      "staffing_change": 0,
+      "product_mix_selections": [
        {
-        "sub_product_name": "Homemade herb-infused honey (350g)",
-        "base_cost": 40,
-        "suggested_price": 70,
-        "demand_expansion_factor": 0.1,
-        "units": 30
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 13
+       }
+      ]
+     },
+     {
+      "price": 189,
+      "ad_spend": 150,
+      "stock_ordered": 213,
+      "staffing_change": 0,
+      "product_mix_selections": [
+       {
+        "sub_product_name": "Artisan sourdough bread loaf",
+        "base_cost": 25,
+        "suggested_price": 45,
+        "demand_expansion_factor": 0.08,
+        "units": 17
        }
       ]
      }
     ],
     "default_levers": {
-     "price": 190,
-     "ad_spend": 300,
-     "stock_ordered": 350,
+     "price": 189,
+     "ad_spend": 150,
+     "stock_ordered": 213,
      "staffing_change": 0,
      "product_mix_selections": [
-      {
-       "sub_product_name": "Free-range eggs (tray of 30)",
-       "base_cost": 65,
-       "suggested_price": 95,
-       "demand_expansion_factor": 0.12,
-       "units": 60
-      },
       {
        "sub_product_name": "Artisan sourdough bread loaf",
        "base_cost": 25,
        "suggested_price": 45,
        "demand_expansion_factor": 0.08,
-       "units": 50
-      },
-      {
-       "sub_product_name": "Homemade herb-infused honey (350g)",
-       "base_cost": 40,
-       "suggested_price": 70,
-       "demand_expansion_factor": 0.1,
-       "units": 30
+       "units": 17
       }
      ]
     }

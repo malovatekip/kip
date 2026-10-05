@@ -6,6 +6,7 @@ Routes in app/routes/simulation_routes.py are thin wrappers over these functions
 Only the NEXT week's shock is revealed to the client; the rest of the schedule
 stays server-side.
 """
+import math
 import random
 from typing import Optional
 
@@ -18,7 +19,7 @@ from app.services import viability_engine as ve
 from app.services import simulation_advisor as advisor
 from app.services.simulation_engine import (
     SimulationEngine, SimulationLevers, SimulationState, IdeaBaseline,
-    DEFAULT_HORIZON_WEEKS, BASE_STAFF,
+    DEFAULT_HORIZON_WEEKS, CORE_KEY,
 )
 
 NEUTRAL_SCORE = 5.0  # fallback when a user_session_factors row is absent (pre-persistence ideas)
@@ -90,19 +91,21 @@ def _engine_for(db: Session, sess: SimulationSession) -> tuple[BusinessIdea, Ide
     return idea, baseline, SimulationEngine(baseline, horizon_weeks=sess.horizon_weeks, seed=sess.seed)
 
 
-def _default_levers(baseline: IdeaBaseline, engine: SimulationEngine, cash: float) -> dict:
-    """A sensible, affordable opening order: price at baseline, stock about one
-    week of demand one worker can serve, capped so stock plus the week's rent and
-    wages fits the cash on hand. No ads, no sub-products."""
-    weekly_buyers = (baseline.total_target_buyers or 0) * (baseline.consumption_frequency_per_year or 0) / 52.0
-    capacity = BASE_STAFF * engine.bench["base_worker_throughput_weekly"] * (baseline.E / 10.0)
-    fixed = engine.bench["fixed_weekly_rent_baseline"] + BASE_STAFF * engine.bench["weekly_wage_per_worker"]
+def _default_levers(baseline: IdeaBaseline, engine: SimulationEngine, state: SimulationState) -> dict:
+    """A sensible, affordable order: price at baseline, stock for the forecast
+    demand the current team can serve (less what is already on the shelf),
+    capped so the order still leaves this week's payroll in reserve. No ads,
+    no sub-products."""
+    demand = engine.forecast_demand(state)
+    capacity = state.staff_count * engine.bench["base_worker_throughput_weekly"] * (state.E_w / 10.0)
+    budget = engine.purchase_budget(state) - state.staff_count * engine.bench["weekly_wage_per_worker"]
     unit_cost = baseline.core_unit_cost
-    affordable = max(0.0, (cash - fixed) / unit_cost) if unit_cost > 0 else float("inf")
+    affordable = max(0.0, budget / unit_cost) if unit_cost > 0 else float("inf")
+    need = max(0.0, min(demand, capacity) - state.inventory.get(CORE_KEY, 0.0))
     return {
         "price": round(baseline.average_unit_price or 0, 2),
         "ad_spend": 0,
-        "stock_ordered": int(max(0, round(min(weekly_buyers, capacity, affordable)))),
+        "stock_ordered": int(max(0, math.floor(min(need, affordable)))),
         "staffing_change": 0,
         "product_mix_selections": [],
     }
@@ -111,15 +114,26 @@ def _default_levers(baseline: IdeaBaseline, engine: SimulationEngine, cash: floa
 def serialize(db: Session, sess: SimulationSession) -> dict:
     idea, baseline, engine = _engine_for(db, sess)
     state = SimulationState.from_dict(sess.state) if sess.state else engine.start()
+    return build_view(
+        engine, state, session_id=sess.id, status=sess.status,
+        current_week=sess.current_week, horizon_weeks=sess.horizon_weeks,
+        idea={"id": idea.id, "name": idea.idea_name, "category": idea.category},
+        weeks=list(sess.weekly_trace or []), lever_history=sess.levers,
+    )
+
+
+def build_view(engine: SimulationEngine, state: SimulationState, *, session_id, status: str,
+               current_week: int, horizon_weeks: int, idea: dict, weeks: list, lever_history) -> dict:
+    """The session payload the dashboard renders. DB-free, so scripts can build it too."""
+    baseline = engine.b
     running = engine.compile(state)
-    weeks = list(sess.weekly_trace or [])
     bench = engine.bench
     return {
-        "session_id": sess.id,
-        "status": sess.status,
-        "current_week": sess.current_week,
-        "horizon_weeks": sess.horizon_weeks,
-        "idea": {"id": idea.id, "name": idea.idea_name, "category": idea.category},
+        "session_id": session_id,
+        "status": status,
+        "current_week": current_week,
+        "horizon_weeks": horizon_weeks,
+        "idea": idea,
         "baseline_scores": {"D": baseline.D, "F": baseline.F, "C": baseline.C, "E": baseline.E,
                             "R": baseline.R, "S": baseline.S, "A": baseline.A},
         "viability_baseline": running.V_baseline,
@@ -144,12 +158,19 @@ def serialize(db: Session, sess: SimulationSession) -> dict:
             "marketing_scale_k": bench["diminishing_returns_marketing_scale_k"],
             "category_growth_rate": ve.get_cagr(baseline.category),
             "environmental_risk_score": baseline.environmental_risk_score,
+            "spoilage_rate_weekly": bench.get("spoilage_rate_weekly", 0.0),
+            "share_cap": round(engine.share_cap(), 4),
+            "awareness": round(state.awareness if state.awareness is not None else engine.initial_awareness(), 4),
+            "goodwill": round(state.goodwill, 4),
+            "execution_fit": round(state.E_w, 2),
+            "purchase_budget": round(engine.purchase_budget(state), 2),
+            "forecast_demand": round(engine.forecast_demand(state), 2),
         },
         "allowed_sub_products": baseline.allowed_sub_products,
         "next_shock": state.next_shock(),          # only the coming week is revealed
         "weeks": weeks,
-        "lever_history": list(sess.levers) if isinstance(sess.levers, list) else [],
-        "default_levers": _carried_levers(sess.levers) or _default_levers(baseline, engine, state.cash),
+        "lever_history": list(lever_history) if isinstance(lever_history, list) else [],
+        "default_levers": _carried_levers(lever_history) or _default_levers(baseline, engine, state),
     }
 
 

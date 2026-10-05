@@ -19,37 +19,49 @@ Session flow:
 `run(levers)` is a convenience loop over step() with the same levers each week.
 
 ────────────────────────────────────────────────────────────────────────────
-DOCUMENTED INTERPRETATIONS (the sprint doc is precise on formulas but leaves a
-few quantities to engineering judgement; each choice is commented inline too):
+MARKET & OPERATIONS MODEL (v2 -- "realistic" rewrite)
 
-1. Marketing multiplier M_m IS applied to weekly demand D_w. The doc defines
-   M_m as "expands top-of-funnel buyer volume (N)", but its inline D_w formula
-   omits it. Omitting it would make the ad_spend lever inert, so M_m is included.
-2. `price` lever is the core product's selling price; elasticity compares it
-   with the core baseline price P (average_unit_price): M_p = (P / price)^β.
-3. Portfolio blend (for M_mix and realized revenue/COGS) is WEIGHTED BY UNITS
-   on hand across the core product + selected sub-products. With no stock at all
-   it falls back to an equal-weight blend so M_mix stays defined.
-4. Base workforce is 1 (owner-operator). `staffing_change` is a hire(+)/fire(-)
-   delta applied that week; the head-count persists into later weeks.
-5. `stock_ordered` = core-product units BOUGHT this week; each selected
-   sub-product carries its own `units` bought this week. Unsold stock CARRIES
-   OVER to the next week (so over-ordering locks cash in inventory) and pays the
-   category's unsold_waste_penalty_per_unit every week it sits unsold.
-6. Initial Cash AC = the requester's capital_available; if that is None
-   (limitless) or <=0, fall back to capital_required, then to a small positive
-   floor, so the Ending/Initial cash ratios never divide by zero.
-7. Shocks: a seeded SCHEDULE names one threat per week up front, drawn from the
-   idea's own operational_risks (or "Calm week"), so the player can prepare.
-   Whether it hits, and how hard, is rolled during that week from the seed.
-   Shocks destroy a fraction L of standing inventory before sales.
-8. (1+g)^t market growth uses t in YEARS = (week-1)/52, so a 4-week horizon
-   doesn't explode an annual CAGR into a weekly one.
-9. E_compiled is the latest week's E (the doc says E is a learning curve, "not
-   a passive average"); R_compiled is the mean of weekly R_w (the doc says so).
-10. Cash vs profit are separate series. Net cash = revenue - procurement (every
-   unit bought) - rent - wages - ad - waste. Net profit = revenue - COGS of units
-   sold - rent - wages - ad - waste - value of units destroyed by shocks.
+1. Reachable demand. A new micro-business does not face its whole addressable
+   market on day one. Weekly demand is
+       D_w = N_w * share_cap(S) * awareness * goodwill * M_p * mix_expansion
+   - N_w = N*Q/52 grown by the category CAGR ((1+g)^(years elapsed)).
+   - share_cap(S): competitive position caps the share of the market a shop can
+     win (fragmented markets; S=5 -> 50%).
+   - awareness: Bass-diffusion style adoption. Starts from location/assets (A),
+     grows each week by ad reach (innovation, p) and word of mouth from
+     satisfied customers (imitation, q).
+   - goodwill: customer retention. Stockouts and over-pricing push it down
+     (retail studies: ~30-40% of shoppers hitting a stockout switch store);
+     consistently full shelves at a fair price push it slightly above 1.
+   - M_p = (P/price)^beta, the category price elasticity (clamped).
+2. Reference demand D_ref is the same market served by a competent operator at
+   the baseline price, no ads, full service. The static score implicitly
+   assumes this operator, so the compiled Demand score compares against it.
+3. Working capital. Stock is paid for in cash up front (Zambian MSMEs get very
+   little supplier credit). The week's purchases are capped at cash on hand
+   after rent, ads and severance; an over-budget order is scaled down pro rata.
+4. Labour. Base workforce is 1 (owner-operator). New hires work at 50% in their
+   first week (onboarding); each fired worker costs one week's wage. A week
+   that ends overdrawn (wages unpaid) knocks 0.5 off execution fit.
+5. Perishability. After sales a category share of unsold stock spoils
+   (spoilage_rate_weekly in industry_benchmarks.json). The rest carries over
+   and pays the holding/waste fee.
+6. Shocks: a seeded SCHEDULE names one threat per week up front, drawn from the
+   idea's operational_risks (or "Calm week"). Whether it hits and how hard is
+   rolled during the week; a hit destroys a fraction of standing stock.
+7. Scoring (compile) uses the SAME basis as the static score, weighted toward
+   later weeks (week t has weight t) so the trajectory counts more than the
+   cold start:
+   - D: baseline D x fill-rate score (95% in-stock = perfect) x sqrt(reach vs D_ref)
+   - F: realised gross margin after spoilage and shock losses (static F basis)
+   - C: baseline C moved by log2 net-worth growth (cash + stock at cost),
+        minus cash-crunch weeks (thin closing cash, or no payroll reserve left
+        after buying stock) and overdrawn weeks
+   - E: the learning-curve execution fit after the last week
+   - R: baseline R minus the share of stock lost, plus diversification and
+        an always-liquid bonus
+   - S: baseline S moved by end-of-run goodwill (reputation)
+   - A: baseline (location/assets don't move in a few weeks)
 """
 from __future__ import annotations
 
@@ -57,7 +69,7 @@ import json
 import math
 import os
 import random
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from typing import Optional
 
 from app.services import viability_engine as ve
@@ -68,13 +80,33 @@ _benchmarks_cache: Optional[dict] = None
 # ── Tunable model constants (documented above) ──────────────────────────────
 BASE_STAFF = 1                 # owner-operator baseline
 DEFAULT_HORIZON_WEEKS = 4
-LIQUIDITY_CRITICAL = 1.50      # LR_w below this = a "crunch" week (doc)
+LIQUIDITY_CRITICAL = 1.50      # cash below this many weeks of fixed costs = a "crunch" week
 SCORE_FLOOR, SCORE_CEIL = 1.0, 10.0
 MAX_SHOCK_FRACTION = 0.40      # worst-case share of standing inventory lost
 CORE_KEY = "__core__"          # inventory key for the main product
 CALM_WEEK = "Calm week"
 # Intra-week shape: share of the week's customers per day (Mon..Sun), weekend-heavy.
 DAY_SHAPE = (0.12, 0.12, 0.13, 0.14, 0.16, 0.18, 0.15)
+
+SHARE_CAP_BASE, SHARE_CAP_PER_S = 0.15, 0.07      # S=5 -> 50% of the market winnable
+AWARENESS_BASE, AWARENESS_PER_A = 0.20, 0.04      # A=5 -> 40% aware on opening day
+WORD_OF_MOUTH_Q = 0.35                            # weekly imitation coefficient
+AD_REACH_SCALE = 0.20                             # share of the unaware an ad budget reaches
+PRICE_MULT_MIN, PRICE_MULT_MAX = 0.20, 1.60       # clamp on (P/price)^beta
+GOODWILL_MEMORY = 0.70                            # weight of last week's goodwill
+GOODWILL_MIN, GOODWILL_MAX = 0.30, 1.15
+FILL_TARGET = 0.95                                # in-stock rate treated as perfect service
+NEW_HIRE_PRODUCTIVITY = 0.50                      # first-week output of a new hire
+SEVERANCE_WEEKS = 1.0                             # wages owed per fired worker
+OVERDRAWN_E_PENALTY = 0.5
+REACH_CAP = 1.25                                  # max credit for out-growing the reference
+C_GROWTH_PER_DOUBLING = 1.0
+C_DELTA_MIN, C_DELTA_MAX = -6.0, 2.0
+C_CRUNCH_PENALTY, C_OVERDRAWN_PENALTY = 1.0, 3.0
+R_LOSS_WEIGHT, R_LINE_BONUS, R_LINE_BONUS_CAP, R_LIQUID_BONUS = 4.0, 0.5, 1.0, 0.5
+R_DELTA_MIN, R_DELTA_MAX = -4.0, 1.5
+S_GOODWILL_WEIGHT = 1.5
+S_DELTA_MIN, S_DELTA_MAX = -2.0, 1.5
 
 
 def load_benchmarks() -> dict:
@@ -98,6 +130,10 @@ def _clamp(x: float, lo: float = SCORE_FLOOR, hi: float = SCORE_CEIL) -> float:
     if x is None or math.isnan(x) or math.isinf(x):
         return lo
     return round(max(lo, min(hi, x)), 2)
+
+
+def _bound(x: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, x))
 
 
 def _safe_div(num: float, den: float, default: float = 0.0) -> float:
@@ -184,6 +220,19 @@ class SimulationState:
     cum_profit: float = 0.0
     R_weeks: list = field(default_factory=list)
     weeks_in_crunch: int = 0
+    # v2 market/operations state. Defaults let pre-v2 persisted sessions load;
+    # None awareness means "not initialised yet" and is filled on the next step.
+    awareness: Optional[float] = None
+    ref_awareness: Optional[float] = None
+    goodwill: float = 1.0
+    w_served: float = 0.0                  # sum of week-weighted served demand
+    w_demand: float = 0.0                  # sum of week-weighted reachable demand
+    w_ref_demand: float = 0.0              # sum of week-weighted reference demand
+    cum_procurement: float = 0.0
+    cum_spoil_cost: float = 0.0
+    cum_loss_cost: float = 0.0
+    overdrawn_weeks: int = 0
+    product_lines_max: int = 0
 
     @property
     def finished(self) -> bool:
@@ -194,12 +243,16 @@ class SimulationState:
             return None
         return self.shock_schedule[self.week]
 
+    def inventory_value(self) -> float:
+        return sum(units * (self.unit_costs.get(k) or 0.0) for k, units in self.inventory.items())
+
     def to_dict(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, d: dict) -> "SimulationState":
-        return cls(**d)
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in d.items() if k in known})
 
 
 # ── Output ──────────────────────────────────────────────────────────────────
@@ -208,8 +261,9 @@ class WeekTrace:
     week: int
     shock_name: str
     shock_hit: bool
-    D_w: float                 # gross demand (walk-ins)
+    D_w: float                 # reachable demand (walk-ins)
     D_r: float                 # served demand after bottlenecks
+    D_ref: float               # reference demand (competent operator)
     staff_count: int
     staff_capacity: float
     LSI: float                 # labor strain index
@@ -227,6 +281,16 @@ class WeekTrace:
     R_w: float
     E: float                   # execution fit entering the week
     E_next: float              # execution fit after the week's learning curve
+    units_requested: float = 0.0
+    units_bought: float = 0.0
+    order_capped: bool = False
+    purchase_budget: float = 0.0
+    units_spoiled: float = 0.0
+    spoilage_cost: float = 0.0
+    severance: float = 0.0
+    overdrawn: bool = False
+    awareness: float = 0.0     # awareness after this week
+    goodwill: float = 1.0      # goodwill after this week
     running_scores: dict = field(default_factory=dict)
     running_viability: float = 0.0
     daily: list = field(default_factory=list)
@@ -241,6 +305,7 @@ class WeekTrace:
             "gross_demand": r2(self.D_w),
             "served_demand": r2(self.D_r),
             "turned_away": r2(max(0.0, self.D_w - self.D_r)),
+            "reference_demand": r2(self.D_ref),
             "staff_count": self.staff_count,
             "staff_capacity": r2(self.staff_capacity),
             "labor_strain_index": round(_finite(self.LSI), 3),
@@ -258,6 +323,16 @@ class WeekTrace:
             "risk_score": r2(self.R_w),
             "execution_fit": r2(self.E),
             "execution_fit_next": r2(self.E_next),
+            "units_requested": r2(self.units_requested),
+            "units_bought": r2(self.units_bought),
+            "order_capped": self.order_capped,
+            "purchase_budget": r2(self.purchase_budget),
+            "units_spoiled": r2(self.units_spoiled),
+            "spoilage_cost": r2(self.spoilage_cost),
+            "severance": r2(self.severance),
+            "overdrawn": self.overdrawn,
+            "awareness": round(self.awareness, 3),
+            "goodwill": round(self.goodwill, 3),
             "running_scores": self.running_scores,
             "running_viability": self.running_viability,
             "daily": self.daily,
@@ -313,14 +388,16 @@ class SimulationEngine:
     # ---- Session lifecycle ---------------------------------------------------
     def start(self) -> SimulationState:
         AC = self._initial_cash()
+        a0 = self.initial_awareness()
         return SimulationState(
             seed=self.seed, horizon_weeks=self.n, initial_cash=AC, cash=AC,
             E_w=self.b.E, staff_count=BASE_STAFF, inventory={},
             shock_schedule=self._build_shock_schedule(),
+            awareness=a0, ref_awareness=a0,
         )
 
     def _build_shock_schedule(self) -> list:
-        """One named threat per week, revealed before the week (interpretation #7)."""
+        """One named threat per week, revealed before the week."""
         rng = random.Random(f"{self.seed}:schedule")
         risk = max(0.0, min(10.0, self.b.environmental_risk_score or 5.0))
         names = [r for r in (self.b.operational_risks or []) if isinstance(r, str) and r.strip()]
@@ -339,19 +416,55 @@ class SimulationEngine:
                                  "hit_probability": 0.0, "severity": "none"})
         return schedule
 
-    # ---- Lever coupling multipliers (sprint PART 2) -------------------------
+    # ---- Market model ---------------------------------------------------------
+    def share_cap(self) -> float:
+        """Share of the addressable market this shop can win, from competitive position S."""
+        return _bound(SHARE_CAP_BASE + SHARE_CAP_PER_S * (self.b.S or 0), 0.05, 0.95)
+
+    def initial_awareness(self) -> float:
+        """Opening-day awareness, from location/assets A."""
+        return _bound(AWARENESS_BASE + AWARENESS_PER_A * (self.b.A or 0), 0.05, 0.95)
+
     def _price_elasticity(self, price: float) -> float:
-        """M_p = (P / price)^β. Raising price above baseline P shrinks N."""
+        """M_p = (P / price)^beta, clamped. Raising price above baseline P shrinks demand."""
         P = self.b.average_unit_price or 0
         beta = self.bench["base_elasticity"]
-        if price <= 0 or P <= 0:
+        if not price or price <= 0 or P <= 0:
             return 1.0
-        return (P / price) ** beta
+        return _bound((P / price) ** beta, PRICE_MULT_MIN, PRICE_MULT_MAX)
 
-    def _marketing_expansion(self, ad_spend: float) -> float:
-        """M_m = 1 + ln(1 + ad_spend/k) * (A/10)."""
+    def _price_fairness(self, price: float) -> float:
+        """Value-for-money perception: 1.0 at the baseline price, lower when dearer."""
+        P = self.b.average_unit_price or 0
+        if not price or price <= 0 or P <= 0:
+            return 1.0
+        return _bound(math.sqrt(P / price), 0.0, 1.15)
+
+    def ad_reach(self, ad_spend: float) -> float:
+        """Share of the still-unaware market an ad budget reaches this week (diminishing returns)."""
         k = self.bench["diminishing_returns_marketing_scale_k"] or 1.0
-        return 1.0 + math.log(1.0 + _safe_div(max(0.0, ad_spend), k)) * (self.b.A / 10.0)
+        return _bound(AD_REACH_SCALE * math.log(1.0 + _safe_div(max(0.0, ad_spend or 0), k))
+                      * ((self.b.A or 0) / 10.0), 0.0, 0.9)
+
+    def market_weekly(self, week: int) -> float:
+        """Addressable buyers this week: N*Q/52 grown by the category CAGR."""
+        g = ve.get_cagr(self.b.category)
+        N_w = _safe_div((self.b.total_target_buyers or 0) * (self.b.consumption_frequency_per_year or 0), 52.0)
+        return N_w * (1.0 + g) ** ((week - 1) / 52.0)
+
+    def forecast_demand(self, state: SimulationState, price: Optional[float] = None,
+                        ad_spend: float = 0.0, mix_expansion: float = 1.0) -> float:
+        """Expected reachable demand for the coming week under these levers."""
+        a = state.awareness if state.awareness is not None else self.initial_awareness()
+        a_eff = min(1.0, a + (1.0 - a) * self.ad_reach(ad_spend))
+        price = price if price and price > 0 else self.b.average_unit_price
+        return (self.market_weekly(state.week + 1) * self.share_cap() * a_eff * state.goodwill
+                * self._price_elasticity(price) * mix_expansion)
+
+    def purchase_budget(self, state: SimulationState, ad_spend: float = 0.0, fired: int = 0) -> float:
+        """Cash left for stock after this week's rent, ads and severance."""
+        sev = max(0, fired) * SEVERANCE_WEEKS * self.bench["weekly_wage_per_worker"]
+        return max(0.0, state.cash - self.bench["fixed_weekly_rent_baseline"] - max(0.0, ad_spend or 0) - sev)
 
     def _products(self, levers: SimulationLevers) -> list:
         """Core + selected sub-products as {key, price, cost, bought}."""
@@ -367,19 +480,9 @@ class SimulationEngine:
                         "expansion": float(s.get("demand_expansion_factor") or 0)})
         return out
 
-    def _m_mix(self, products: list, weights: list) -> float:
-        """M_mix = blended portfolio gross margin% / baseline gross margin%,
-        weighted by units on hand (interpretation #3)."""
-        if sum(weights) <= 0:
-            weights = [1.0] * len(products)
-        revenue = sum(p["price"] * w for p, w in zip(products, weights))
-        cost = sum(p["cost"] * w for p, w in zip(products, weights))
-        blended = _safe_div(revenue - cost, revenue, default=0.0)
-        return _safe_div(blended, self.b.baseline_gross_margin, default=1.0) or 1.0
-
-    def _staff_capacity(self, staff_count: int, E_w: float) -> float:
-        """Staff capacity = staff_count * base_worker_throughput_weekly * (E/10)."""
-        return max(0, staff_count) * self.bench["base_worker_throughput_weekly"] * (E_w / 10.0)
+    def _staff_capacity(self, staff_count: float, E_w: float) -> float:
+        """Staff capacity = effective staff * base_worker_throughput_weekly * (E/10)."""
+        return max(0.0, staff_count) * self.bench["base_worker_throughput_weekly"] * (E_w / 10.0)
 
     @staticmethod
     def _next_execution_fit(E_w: float, LSI: float) -> float:
@@ -402,19 +505,35 @@ class SimulationEngine:
     def step(self, state: SimulationState, levers: SimulationLevers) -> tuple[WeekTrace, SimulationState]:
         if state.finished:
             raise ValueError("Simulation session already finished")
-        b = self.b
+        b, bench = self.b, self.bench
         week = state.week + 1
+        weight = float(week)
         wrng = random.Random(f"{state.seed}:{week}")
         shock = state.shock_schedule[week - 1] if state.shock_schedule else \
             {"name": CALM_WEEK, "hit_probability": 0.0, "severity": "none"}
+        awareness = state.awareness if state.awareness is not None else self.initial_awareness()
+        ref_awareness = state.ref_awareness if state.ref_awareness is not None else awareness
 
-        # Workforce: hire/fire delta persists (interpretation #4).
+        # 1. Workforce: hire/fire delta persists; new hires onboard at half output,
+        #    fired workers are owed severance.
         staff_count = max(0, state.staff_count + int(levers.staffing_change or 0))
+        hired = max(0, staff_count - state.staff_count)
+        fired = max(0, state.staff_count - staff_count)
+        wage = bench["weekly_wage_per_worker"]
+        severance = fired * SEVERANCE_WEEKS * wage
+        rent = bench["fixed_weekly_rent_baseline"]
+        ad = max(0.0, float(levers.ad_spend or 0))
 
-        # Products + inventory: carried stock + this week's purchases.
-        # Only products selected this week are on sale; carried stock of an
-        # unselected sub-product stays on the shelf (and still pays waste fees).
+        # 2. Working capital: stock is paid in cash up front; scale an over-budget order.
         on_sale = self._products(levers)
+        requested_units = sum(p["bought"] for p in on_sale)
+        requested_cost = sum(p["bought"] * p["cost"] for p in on_sale)
+        budget = self.purchase_budget(state, ad, fired)
+        order_capped = requested_cost > budget + 1e-9
+        if order_capped:
+            scale = _safe_div(budget, requested_cost, default=0.0)
+            for p in on_sale:
+                p["bought"] = float(math.floor(p["bought"] * scale))
         inventory = dict(state.inventory)
         unit_costs = dict(state.unit_costs)
         procurement = 0.0
@@ -422,8 +541,9 @@ class SimulationEngine:
             procurement += p["bought"] * p["cost"]
             inventory[p["key"]] = inventory.get(p["key"], 0.0) + p["bought"]
             unit_costs[p["key"]] = p["cost"]
+        units_bought = sum(p["bought"] for p in on_sale)
 
-        # Shock: destroys a fraction L of standing inventory BEFORE sales.
+        # 3. Shock: destroys a fraction L of standing inventory BEFORE sales.
         hit = wrng.random() < float(shock.get("hit_probability") or 0)
         risk = max(0.0, min(10.0, b.environmental_risk_score or 5.0))
         L = (0.25 + 0.75 * wrng.random()) * MAX_SHOCK_FRACTION * max(0.3, risk / 10.0) if hit else 0.0
@@ -437,47 +557,66 @@ class SimulationEngine:
         stock_on_sale = [inventory.get(p["key"], 0.0) for p in on_sale]
         total_available = sum(stock_on_sale)
 
-        # Gross demand D_w (interpretation #1 includes M_m).
-        g = ve.get_cagr(b.category)
-        N_w = _safe_div((b.total_target_buyers or 0) * (b.consumption_frequency_per_year or 0), 52.0)
+        # 4. Demand: reachable market this week vs the competent-operator reference.
+        market = self.market_weekly(week) * self.share_cap()
+        a_eff = min(1.0, awareness + (1.0 - awareness) * self.ad_reach(ad))
         mix_expansion = 1.0 + sum(p["expansion"] for p in on_sale)
-        D_w = (N_w * (1.0 + g) ** ((week - 1) / 52.0)
-               * self._marketing_expansion(levers.ad_spend)
-               * mix_expansion * self._price_elasticity(levers.price))
+        D_w = market * a_eff * state.goodwill * self._price_elasticity(levers.price) * mix_expansion
+        D_ref = market * ref_awareness
 
-        # Bottleneck: served = min(demand, stock on sale, staff capacity).
-        staff_capacity = self._staff_capacity(staff_count, state.E_w)
+        # 5. Bottleneck: served = min(demand, stock on sale, staff capacity).
+        effective_staff = staff_count - hired * (1.0 - NEW_HIRE_PRODUCTIVITY)
+        staff_capacity = self._staff_capacity(effective_staff, state.E_w)
         D_r = min(D_w, total_available, staff_capacity)
         LSI = _safe_div(D_w, staff_capacity, default=float("inf") if D_w > 0 else 0.0)
 
-        # Sales split across products by stock share.
         revenue = cogs = 0.0
         for p, stock in zip(on_sale, stock_on_sale):
             sold = D_r * _safe_div(stock, total_available)
             revenue += sold * p["price"]
             cogs += sold * p["cost"]
             inventory[p["key"]] = max(0.0, inventory.get(p["key"], 0.0) - sold)
+        product_lines = sum(1 for s in stock_on_sale if s > 0)
+
+        # 6. Perishability: a share of unsold stock spoils; the rest pays holding fees.
+        spoil_rate = float(bench.get("spoilage_rate_weekly", 0.0) or 0.0)
+        units_spoiled = spoil_cost = 0.0
+        for key in list(inventory.keys()):
+            spoiled = inventory[key] * spoil_rate
+            inventory[key] -= spoiled
+            units_spoiled += spoiled
+            spoil_cost += spoiled * unit_costs.get(key, b.core_unit_cost)
         unsold = sum(inventory.values())
 
-        # Weekly settlement (sprint PART 3.4 + interpretation #10).
-        rent = self.bench["fixed_weekly_rent_baseline"]
-        wages = staff_count * self.bench["weekly_wage_per_worker"]
-        ad = max(0.0, float(levers.ad_spend or 0))
-        waste_cost = unsold * self.bench["unsold_waste_penalty_per_unit"]
-        net_cash = revenue - (procurement + rent + wages + ad + waste_cost)
-        net_profit = revenue - (cogs + rent + wages + ad + waste_cost + loss_cost)
+        # 7. Weekly settlement. Net cash counts every unit bought; profit counts
+        #    units sold plus everything destroyed or spoiled.
+        wages = staff_count * wage
+        waste_cost = unsold * bench["unsold_waste_penalty_per_unit"]
+        net_cash = revenue - (procurement + rent + wages + ad + waste_cost + severance)
+        net_profit = revenue - (cogs + rent + wages + ad + waste_cost + severance + loss_cost + spoil_cost)
         cash = state.cash + net_cash
+        overdrawn = cash < 0
 
-        # Risk (sprint PART 3.1), weighted by the portfolio actually stocked.
-        M_mix = self._m_mix(on_sale, stock_on_sale)
-        L_ratio = _safe_div(units_lost, total_before, default=0.0)
-        R_w = (b.R * M_mix) * (1.0 - L_ratio)
-
-        # Liquidity vs next week's committed overheads.
+        # Crunch: either the week ends with under LIQUIDITY_CRITICAL weeks of fixed
+        # costs in hand, or the mid-week low point (after paying for stock, rent
+        # and ads) left no reserve to cover this week's payroll.
         LR = _safe_div(cash, rent + wages + ad, default=float("inf"))
-        in_crunch = LR < LIQUIDITY_CRITICAL
+        low_point = state.cash - procurement - rent - ad - severance
+        in_crunch = LR < LIQUIDITY_CRITICAL or low_point < wages
 
         E_next = self._next_execution_fit(state.E_w, _finite(LSI, 2.0))
+        if overdrawn:
+            E_next = max(1.0, E_next - OVERDRAWN_E_PENALTY)
+
+        # 8. Goodwill and awareness for next week.
+        fill = _safe_div(D_r, D_w, default=1.0)
+        fill_score = min(1.0, fill / FILL_TARGET)
+        fairness = self._price_fairness(levers.price)
+        goodwill = _bound(GOODWILL_MEMORY * state.goodwill
+                          + (1.0 - GOODWILL_MEMORY) * (0.3 + 0.8 * fill_score) * fairness,
+                          GOODWILL_MIN, GOODWILL_MAX)
+        awareness_next = min(1.0, a_eff + (1.0 - a_eff) * WORD_OF_MOUTH_Q * a_eff * fill_score * fairness)
+        ref_next = min(1.0, ref_awareness + (1.0 - ref_awareness) * WORD_OF_MOUTH_Q * ref_awareness)
 
         new_state = SimulationState(
             seed=state.seed, horizon_weeks=state.horizon_weeks,
@@ -487,31 +626,47 @@ class SimulationEngine:
             sum_D_w=state.sum_D_w + D_w, sum_D_r=state.sum_D_r + D_r,
             cum_revenue=state.cum_revenue + revenue, cum_cogs=state.cum_cogs + cogs,
             cum_profit=state.cum_profit + net_profit,
-            R_weeks=state.R_weeks + [R_w],
+            R_weeks=list(state.R_weeks),
             weeks_in_crunch=state.weeks_in_crunch + (1 if in_crunch else 0),
+            awareness=awareness_next, ref_awareness=ref_next, goodwill=goodwill,
+            w_served=state.w_served + weight * D_r,
+            w_demand=state.w_demand + weight * D_w,
+            w_ref_demand=state.w_ref_demand + weight * D_ref,
+            cum_procurement=state.cum_procurement + procurement,
+            cum_spoil_cost=state.cum_spoil_cost + spoil_cost,
+            cum_loss_cost=state.cum_loss_cost + loss_cost,
+            overdrawn_weeks=state.overdrawn_weeks + (1 if overdrawn else 0),
+            product_lines_max=max(state.product_lines_max, product_lines),
         )
         running = self.compile(new_state)
+        new_state.R_weeks.append(running.R_compiled)
 
         trace = WeekTrace(
             week=week, shock_name=shock.get("name", CALM_WEEK), shock_hit=hit,
-            D_w=D_w, D_r=D_r, staff_count=staff_count, staff_capacity=staff_capacity,
+            D_w=D_w, D_r=D_r, D_ref=D_ref, staff_count=staff_count, staff_capacity=staff_capacity,
             LSI=LSI, revenue=revenue, cogs=cogs, procurement=procurement,
             net_cash_flow=net_cash, net_profit=net_profit, cash_balance=cash,
-            units_lost=units_lost, unsold=unsold, loss_ratio=L_ratio,
-            liquidity_ratio=LR, in_crunch=in_crunch, R_w=R_w,
+            units_lost=units_lost, unsold=unsold,
+            loss_ratio=_safe_div(units_lost, total_before, default=0.0),
+            liquidity_ratio=LR, in_crunch=in_crunch, R_w=running.R_compiled,
             E=state.E_w, E_next=E_next,
+            units_requested=requested_units, units_bought=units_bought,
+            order_capped=order_capped, purchase_budget=budget,
+            units_spoiled=units_spoiled, spoilage_cost=spoil_cost, severance=severance,
+            overdrawn=overdrawn, awareness=awareness_next, goodwill=goodwill,
             running_scores=running.scores, running_viability=running.V_simulated,
         )
-        trace.daily = self._daily_ticks(trace, state.cash, rent, wages, ad, waste_cost, loss_cost, wrng)
+        trace.daily = self._daily_ticks(trace, state.cash, rent, wages, ad,
+                                        waste_cost + severance, loss_cost + spoil_cost, wrng)
         trace.advice = self.advise(trace, new_state)
         return trace, new_state
 
     @staticmethod
     def _daily_ticks(t: WeekTrace, opening_cash: float, rent: float, wages: float,
-                     ad: float, waste_cost: float, loss_cost: float, rng: random.Random) -> list:
+                     ad: float, end_costs: float, loss_cost: float, rng: random.Random) -> list:
         """Split the week into 7 days for live charts. Purchases and rent land on
-        day 1, ads spread evenly, wages on payday (day 7), waste on day 7; sales
-        follow a weekend-heavy shape with a little seeded jitter."""
+        day 1, ads spread evenly, wages/waste/severance on day 7; sales follow a
+        weekend-heavy shape with a little seeded jitter."""
         shape = [s * (0.9 + 0.2 * rng.random()) for s in DAY_SHAPE]
         total = sum(shape)
         shape = [s / total for s in shape]
@@ -523,10 +678,10 @@ class SimulationEngine:
             if i == 0:
                 out += t.procurement + rent
             if i == 6:
-                out += wages + waste_cost
+                out += wages + end_costs
             cash += revenue - out
             day_profit = revenue * (1 - cogs_ratio) - ad / 7.0 - (rent if i == 0 else 0) \
-                - (wages + waste_cost if i == 6 else 0) - (loss_cost if i == 0 else 0)
+                - (wages + end_costs + loss_cost if i == 6 else 0)
             profit += day_profit
             days.append({
                 "day": i + 1,
@@ -537,11 +692,17 @@ class SimulationEngine:
             })
         return days
 
-    # ---- Advisor (rule-based; AI wiring comes later) -------------------------
+    # ---- Advisor (rule-based fallback for the AI advisor) --------------------
     def advise(self, t: WeekTrace, state: SimulationState) -> list:
         tips = []
         nxt = state.next_shock()
-        if t.in_crunch:
+        if t.overdrawn:
+            tips.append(("overdrawn", "You ended the week overdrawn and could not pay wages in full. "
+                                      "Your team's morale took a hit. Order less stock until cash recovers."))
+        if t.order_capped:
+            tips.append(("order_capped", f"You only had K{t.purchase_budget:,.0f} for stock after rent and ads, "
+                                         f"so your order was cut to {t.units_bought:.0f} of {t.units_requested:.0f} units."))
+        if t.in_crunch and not t.overdrawn:
             tips.append(("crunch", f"Cash is thin: you hold less than {LIQUIDITY_CRITICAL}x next week's fixed costs. "
                                    "Order less stock or cut ad spend until sales catch up."))
         if t.LSI > 1.25:
@@ -549,10 +710,13 @@ class SimulationEngine:
                                     "Hire at least one more worker or execution will keep falling."))
         turned_away = max(0.0, t.D_w - t.D_r)
         if turned_away > 0.15 * max(t.D_w, 1) and t.LSI <= 1.25:
-            tips.append(("stockout", f"You turned away about {turned_away:.0f} customers. "
+            tips.append(("stockout", f"You turned away about {turned_away:.0f} customers, and some won't come back. "
                                      "Stock more units next week."))
+        if t.units_spoiled > 0.1 * max(t.D_r, 1):
+            tips.append(("spoilage", f"{t.units_spoiled:.0f} units spoiled on the shelf this week. "
+                                     "Order closer to what you actually sell."))
         if t.unsold > 0.5 * max(t.D_r, 1):
-            tips.append(("overstock", f"{t.unsold:.0f} units are still on the shelf and cost you waste fees. "
+            tips.append(("overstock", f"{t.unsold:.0f} units are still on the shelf and cost you holding fees. "
                                       "Order less until they sell."))
         if nxt and nxt.get("severity") in ("medium", "high"):
             tips.append(("shock", f"Next week's threat: {nxt['name']} "
@@ -575,13 +739,38 @@ class SimulationEngine:
                 A_compiled=_clamp(b.A), V_simulated=V_baseline, V_baseline=V_baseline,
                 initial_cash=state.initial_cash, ending_cash=state.cash, weeks_in_crunch=0,
             )
-        cash_ratio = _safe_div(state.cash, state.initial_cash, default=0.0)
-        D_c = _clamp(b.D * _safe_div(state.sum_D_r, state.sum_D_w, default=0.0))
-        F_c = _clamp(_safe_div(state.cum_revenue - state.cum_cogs, state.cum_revenue, default=0.0) * 10.0 * cash_ratio)
-        C_c = _clamp((b.C * cash_ratio) - (state.weeks_in_crunch * 1.5))
-        R_c = _clamp(_safe_div(sum(state.R_weeks), len(state.R_weeks), default=b.R))
+
+        # D: service quality (95% fill = perfect) x reach vs the reference operator.
+        fill = _safe_div(state.w_served, state.w_demand, default=1.0)
+        fill_score = min(1.0, fill / FILL_TARGET)
+        reach = _safe_div(state.w_demand, state.w_ref_demand, default=1.0)
+        D_c = _clamp(b.D * fill_score * math.sqrt(_bound(reach, 0.0, REACH_CAP)))
+
+        # F: realised gross margin after spoilage and shock write-offs.
+        if state.cum_revenue > 0:
+            margin = (state.cum_revenue - state.cum_cogs - state.cum_spoil_cost - state.cum_loss_cost) \
+                / state.cum_revenue
+            F_c = _clamp(margin * 10.0)
+        else:
+            F_c = _clamp(b.F - 2.0)
+
+        # C: net-worth growth (stock counts as an asset), minus liquidity failures.
+        net_worth = state.cash + state.inventory_value()
+        growth = _safe_div(net_worth, state.initial_cash, default=0.0)
+        c_delta = _bound(C_GROWTH_PER_DOUBLING * math.log2(max(growth, 0.01)), C_DELTA_MIN, C_DELTA_MAX)
+        C_c = _clamp(b.C + c_delta - C_CRUNCH_PENALTY * state.weeks_in_crunch
+                     - C_OVERDRAWN_PENALTY * state.overdrawn_weeks)
+
+        # R: resilience -- losses hurt, diversification and liquidity help.
+        loss_share = _safe_div(state.cum_spoil_cost + state.cum_loss_cost, state.cum_procurement, default=0.0)
+        r_delta = (-R_LOSS_WEIGHT * loss_share
+                   + min(R_LINE_BONUS_CAP, R_LINE_BONUS * max(0, state.product_lines_max - 1))
+                   + (R_LIQUID_BONUS if state.weeks_in_crunch == 0 and state.overdrawn_weeks == 0 else 0.0))
+        R_c = _clamp(b.R + _bound(r_delta, R_DELTA_MIN, R_DELTA_MAX))
+
         E_c = _clamp(state.E_w)
-        S_c, A_c = _clamp(b.S), _clamp(b.A)
+        S_c = _clamp(b.S + _bound(S_GOODWILL_WEIGHT * (state.goodwill - 1.0), S_DELTA_MIN, S_DELTA_MAX))
+        A_c = _clamp(b.A)
         V = ve.calculate_viability(D=D_c, F=F_c, C=C_c, E=E_c, R=R_c, S=S_c, A=A_c)
         return SimulationResult(
             horizon_weeks=state.horizon_weeks,

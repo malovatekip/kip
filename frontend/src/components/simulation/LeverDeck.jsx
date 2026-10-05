@@ -62,32 +62,49 @@ export default function LeverDeck({ levers, onChange, economics, subProducts = [
   const preview = useMemo(() => {
     const price = levers.price || P
     const beta = e.base_elasticity ?? 1
-    const Mp = price > 0 && P > 0 ? Math.pow(P / price, beta) : 1
+    const Mp = price > 0 && P > 0 ? Math.min(1.6, Math.max(0.2, Math.pow(P / price, beta))) : 1
     const A = scores?.A ?? 5
     const k = e.marketing_scale_k || 300
-    const Mm = 1 + Math.log(1 + Math.max(0, levers.ad_spend) / k) * (A / 10)
+    const ad = Math.max(0, levers.ad_spend || 0)
+    // Ads reach part of the still-unaware market (engine: SimulationEngine.ad_reach).
+    const awareness = e.awareness ?? 1
+    const reach = Math.min(0.9, 0.2 * Math.log(1 + ad / k) * (A / 10))
+    const aEff = Math.min(1, awareness + (1 - awareness) * reach)
+    const Mm = awareness > 0 ? aEff / awareness : 1
     const chosen = subProducts.filter(s => mix[s.sub_product_name] != null)
     const mixBoost = chosen.reduce((s, x) => s + (Number(x.demand_expansion_factor) || 0), 0)
     const baseWeekly = ((e.total_target_buyers || 0) * (e.consumption_frequency_per_year || 0)) / 52
-    const expected = baseWeekly * Mm * (1 + mixBoost) * Mp
-    const staffAfter = Math.max(0, (e.staff_count || 1) + (levers.staffing_change || 0))
-    const capacity = staffAfter * (e.worker_throughput_weekly || 0) * ((scores?.E ?? 5) / 10)
+    const expected = baseWeekly * (e.share_cap ?? 1) * aEff * (e.goodwill ?? 1) * (1 + mixBoost) * Mp
+    const staffNow = e.staff_count || 1
+    const change = levers.staffing_change || 0
+    const staffAfter = Math.max(0, staffNow + change)
+    const hired = Math.max(0, change)
+    const fired = Math.max(0, -change)
+    // New hires work at half speed in their first week.
+    const capacity = (staffAfter - hired * 0.5) * (e.worker_throughput_weekly || 0) * ((e.execution_fit ?? scores?.E ?? 5) / 10)
     const coreCost = e.core_unit_cost || 0
     const subCost = chosen.reduce((s, x) => s + (Number(mix[x.sub_product_name]) || 0) * (Number(x.base_cost) || 0), 0)
     const procurement = (levers.stock_ordered || 0) * coreCost + subCost
-    const wages = staffAfter * (e.weekly_wage_per_worker || 0)
-    const fixed = (e.weekly_rent || 0) + wages + Math.max(0, levers.ad_spend || 0)
+    const wage = e.weekly_wage_per_worker || 0
+    const wages = staffAfter * wage
+    const severance = fired * wage
+    const fixed = (e.weekly_rent || 0) + wages + ad + severance
+    // Stock is paid in cash up front: whatever is left after rent, ads and severance.
+    const budget = Math.max(0, (e.cash ?? 0) - (e.weekly_rent || 0) - ad - severance)
+    const capScale = procurement > budget && procurement > 0 ? budget / procurement : 1
     const onHand = Object.values(e.inventory || {}).reduce((s, v) => s + (Number(v) || 0), 0)
-    const unitsBought = (levers.stock_ordered || 0) + chosen.reduce((s, x) => s + (Number(mix[x.sub_product_name]) || 0), 0)
+    const unitsRequested = (levers.stock_ordered || 0) + chosen.reduce((s, x) => s + (Number(mix[x.sub_product_name]) || 0), 0)
+    const unitsBought = Math.floor(unitsRequested * capScale)
     return {
-      Mp, Mm, expected, capacity, staffAfter, wages, procurement, fixed,
-      needed: procurement + fixed, available: onHand + unitsBought,
+      Mp, Mm, expected, capacity, staffAfter, wages, procurement, fixed, budget, severance, hired,
+      capped: capScale < 1, unitsBought, noReserve: budget - Math.min(procurement, budget) < wages,
+      needed: Math.min(procurement, budget) + fixed, available: onHand + unitsBought,
       margin: price > 0 ? (price - coreCost) / price : 0, mixBoost,
     }
   }, [levers, e, P, scores, subProducts, mix])
 
   const cash = e.cash ?? 0
-  const over = preview.needed > cash
+  const over = preview.capped
   const share = cash > 0 ? Math.min(1, preview.needed / cash) : 1
   const priceMin = Math.max(1, Math.round(P * 0.5))
   const priceMax = Math.max(priceMin + 1, Math.round(P * 2))
@@ -140,6 +157,11 @@ export default function LeverDeck({ levers, onChange, economics, subProducts = [
             <span>{t('simulate.hint_cost', { amount: fmtK((levers.stock_ordered || 0) * (e.core_unit_cost || 0)) })}</span>
             <span>{t('simulate.hint_on_hand', { units: fmtInt(carried) })}</span>
           </div>
+          {(e.spoilage_rate_weekly || 0) > 0 && (
+            <div className="sim-lever-hint">
+              <span className="sim-warn">{t('simulate.hint_spoilage', { pct: Math.round(e.spoilage_rate_weekly * 100) })}</span>
+            </div>
+          )}
         </Group>
 
         <Group id="lever-staff" icon={Users} title={t('simulate.lever_staff')}
@@ -152,6 +174,12 @@ export default function LeverDeck({ levers, onChange, economics, subProducts = [
               : t('simulate.hint_keep')}</span>
             <span>{t('simulate.hint_capacity', { n: fmtInt(preview.capacity) })}</span>
           </div>
+          {(preview.hired > 0 || preview.severance > 0) && (
+            <div className="sim-lever-hint">
+              <span>{preview.hired > 0 ? t('simulate.hint_onboarding')
+                : t('simulate.hint_severance', { amount: fmtK(preview.severance) })}</span>
+            </div>
+          )}
         </Group>
 
         {subProducts.length > 0 && (
@@ -195,6 +223,7 @@ export default function LeverDeck({ levers, onChange, economics, subProducts = [
               <span>{t('simulate.budget_stock', { amount: fmtK(preview.procurement) })}</span>
               <span>{t('simulate.budget_fixed', { amount: fmtK(preview.fixed) })}</span>
               <span className={over ? 'sim-bad' : 'sim-good'}>{t('simulate.budget_cash', { amount: fmtK(cash) })}</span>
+              <span>{t('simulate.budget_available', { amount: fmtK(preview.budget) })}</span>
             </div>
             <div className="sim-lever-hint">
               <span>{t('simulate.forecast_customers', { n: fmtInt(preview.expected) })}</span>
@@ -202,7 +231,9 @@ export default function LeverDeck({ levers, onChange, economics, subProducts = [
                 {t('simulate.forecast_serve', { n: fmtInt(Math.min(preview.available, preview.capacity)) })}
               </span>
             </div>
-            {over && <div className="sim-lever-hint"><span className="sim-bad">{t('simulate.budget_over')}</span></div>}
+            {over && <div className="sim-lever-hint"><span className="sim-bad">
+              {t('simulate.budget_over', { units: fmtInt(preview.unitsBought), amount: fmtK(preview.budget) })}</span></div>}
+            {!over && preview.noReserve && <div className="sim-lever-hint"><span className="sim-warn">{t('simulate.budget_no_reserve')}</span></div>}
           </div>
         </Group>
       </div>
