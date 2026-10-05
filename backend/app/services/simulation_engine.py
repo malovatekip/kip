@@ -108,6 +108,13 @@ R_DELTA_MIN, R_DELTA_MAX = -4.0, 1.5
 S_GOODWILL_WEIGHT = 1.5
 S_DELTA_MIN, S_DELTA_MAX = -2.0, 1.5
 
+# Solver ("Run with Kip") candidate grid. Kept small so a full plan is sub-second.
+SOLVER_PRICE_MULTS = (0.9, 0.95, 1.0, 1.05, 1.1, 1.2)
+SOLVER_AD_MULTS = (0.0, 0.25, 0.5, 1.0)       # multiples of the category marketing scale k
+SOLVER_HIRES = (0, 1, 2)
+SOLVER_STOCK_COVERS = (0.85, 1.0, 1.2)        # fraction of serveable demand to stock
+SOLVER_PASSES = 2                             # coordinate-descent passes over the dimensions
+
 
 def load_benchmarks() -> dict:
     global _benchmarks_cache
@@ -780,6 +787,102 @@ class SimulationEngine:
             initial_cash=state.initial_cash, ending_cash=state.cash,
             weeks_in_crunch=state.weeks_in_crunch,
         )
+
+    # ---- Prudent reference policy -------------------------------------------
+    def prudent_levers(self, state: SimulationState) -> SimulationLevers:
+        """A safe, solvent play: baseline price, no ads or hires, stock only what
+        the current team can serve of the forecast demand and the cash can buy.
+        Used as the lever default and as the roll-out continuation for the solver."""
+        b, bench = self.b, self.bench
+        throughput = bench["base_worker_throughput_weekly"] * state.E_w / 10.0
+        capacity = state.staff_count * throughput
+        budget = self.purchase_budget(state) - state.staff_count * bench["weekly_wage_per_worker"]
+        need = max(0.0, min(self.forecast_demand(state), capacity) - state.inventory.get(CORE_KEY, 0.0))
+        cost = b.core_unit_cost
+        units = min(need, max(0.0, budget) / cost) if cost > 0 else need
+        return SimulationLevers(price=round(b.average_unit_price or 0, 2),
+                                stock_ordered=int(max(0, math.floor(units))))
+
+    # ---- Solver: let Kip pick the levers ------------------------------------
+    def _sub_sets(self) -> list:
+        """Sub-product archetypes the solver tries: none, best-margin, all."""
+        subs = self.b.allowed_sub_products or []
+        sets = [[]]
+        if subs:
+            best = max(subs, key=lambda s: _safe_div((s.get("suggested_price") or 0) - (s.get("base_cost") or 0),
+                                                     s.get("suggested_price") or 0))
+            sets.append([best])
+            if len(subs) > 1:
+                sets.append(list(subs))
+        return sets
+
+    def _lever_from_params(self, state: SimulationState, pm: float, ad_mult: float,
+                           hire: int, sub_set: list, cover: float) -> SimulationLevers:
+        """One lever set from solver parameters. Stock is sized to the chosen cover
+        of serveable demand, then held within the cash left after payroll so the
+        order is never one the business cannot finance."""
+        b, bench = self.b, self.bench
+        price = round((b.average_unit_price or 1.0) * pm, 2)
+        ad = round(ad_mult * (bench["diminishing_returns_marketing_scale_k"] or 1.0), 2)
+        throughput = bench["base_worker_throughput_weekly"] * state.E_w / 10.0
+        cap_eff = (state.staff_count + NEW_HIRE_PRODUCTIVITY * hire) * throughput
+        budget = max(0.0, self.purchase_budget(state, ad) - (state.staff_count + hire) * bench["weekly_wage_per_worker"])
+        mix_exp = 1.0 + sum((s.get("demand_expansion_factor") or 0) for s in sub_set)
+        sub_frac = (mix_exp - 1.0) / mix_exp if mix_exp > 1 else 0.0
+        demand = self.forecast_demand(state, price=price, ad_spend=ad, mix_expansion=mix_exp)
+        target = max(0.0, min(demand, cap_eff) * cover - sum(state.inventory.values()))
+        core_units = target * (1.0 - sub_frac)
+        sub_each = _safe_div(target * sub_frac, len(sub_set)) if sub_set else 0.0
+        cost = core_units * b.core_unit_cost + sum(sub_each * (s.get("base_cost") or 0) for s in sub_set)
+        scale = min(1.0, _safe_div(budget, cost, default=1.0)) if cost > 0 else 1.0
+        sel = [dict(s, units=int(math.floor(sub_each * scale))) for s in sub_set]
+        return SimulationLevers(
+            price=price, ad_spend=ad, stock_ordered=int(math.floor(core_units * scale)),
+            staffing_change=hire, product_mix_selections=[s for s in sel if s["units"] > 0])
+
+    def _rollout_value(self, levers: SimulationLevers, state: SimulationState) -> tuple:
+        """Final viability if this week's levers are played and the rest of the
+        horizon continues prudently; ending net worth breaks ties (favours the
+        setup that also banks more)."""
+        _, s = self.step(state, levers)
+        while not s.finished:
+            _, s = self.step(s, self.prudent_levers(s))
+        return (self.compile(s).V_simulated, round(s.cash + s.inventory_value(), 2))
+
+    def plan_week(self, state: SimulationState) -> SimulationLevers:
+        """Kip's choice for the coming week. Coordinate descent over the lever
+        dimensions (each scored by rolling the choice out to the horizon and
+        continuing prudently), so a full plan stays well under a second."""
+        if state.finished:
+            return self.prudent_levers(state)
+        dims = [("pm", SOLVER_PRICE_MULTS), ("hire", SOLVER_HIRES), ("sub_set", self._sub_sets()),
+                ("ad_mult", SOLVER_AD_MULTS), ("cover", SOLVER_STOCK_COVERS)]
+        cur = {"pm": 1.0, "ad_mult": 0.0, "hire": 0, "sub_set": [], "cover": 1.0}
+
+        def value(params):
+            return self._rollout_value(self._lever_from_params(state, **params), state)
+
+        best_key = value(cur)
+        for _ in range(SOLVER_PASSES):
+            improved = False
+            for dim, options in dims:
+                for opt in options:
+                    if opt == cur[dim]:
+                        continue
+                    trial = {**cur, dim: opt}
+                    key = value(trial)
+                    if key > best_key:
+                        best_key, cur, improved = key, trial, True
+            if not improved:
+                break
+        return self._lever_from_params(state, **cur)
+
+    def autopilot(self, state: SimulationState):
+        """Play every remaining week with plan_week. Yields (levers, trace, state)."""
+        while not state.finished:
+            levers = self.plan_week(state)
+            trace, state = self.step(state, levers)
+            yield levers, trace, state
 
     # ---- Convenience: whole run with fixed levers ---------------------------
     def run(self, levers: SimulationLevers) -> SimulationResult:

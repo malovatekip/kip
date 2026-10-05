@@ -92,22 +92,18 @@ def _engine_for(db: Session, sess: SimulationSession) -> tuple[BusinessIdea, Ide
 
 
 def _default_levers(baseline: IdeaBaseline, engine: SimulationEngine, state: SimulationState) -> dict:
-    """A sensible, affordable order: price at baseline, stock for the forecast
-    demand the current team can serve (less what is already on the shelf),
-    capped so the order still leaves this week's payroll in reserve. No ads,
-    no sub-products."""
-    demand = engine.forecast_demand(state)
-    capacity = state.staff_count * engine.bench["base_worker_throughput_weekly"] * (state.E_w / 10.0)
-    budget = engine.purchase_budget(state) - state.staff_count * engine.bench["weekly_wage_per_worker"]
-    unit_cost = baseline.core_unit_cost
-    affordable = max(0.0, budget / unit_cost) if unit_cost > 0 else float("inf")
-    need = max(0.0, min(demand, capacity) - state.inventory.get(CORE_KEY, 0.0))
+    """The prudent opening order (baseline price, no ads/hires, stock for the
+    forecast demand the team can serve within cash) in the API lever shape."""
+    return _levers_to_api(engine.prudent_levers(state))
+
+
+def _levers_to_api(levers: SimulationLevers) -> dict:
     return {
-        "price": round(baseline.average_unit_price or 0, 2),
-        "ad_spend": 0,
-        "stock_ordered": int(max(0, math.floor(min(need, affordable)))),
-        "staffing_change": 0,
-        "product_mix_selections": [],
+        "price": round(levers.price, 2),
+        "ad_spend": round(levers.ad_spend, 2),
+        "stock_ordered": int(levers.stock_ordered),
+        "staffing_change": int(levers.staffing_change),
+        "product_mix_selections": list(levers.product_mix_selections or []),
     }
 
 
@@ -246,20 +242,62 @@ def play_week(db: Session, user_id: int, session_id: int, levers: dict) -> dict:
     sess.viability_simulated = week["running_viability"]
 
     if state.finished:
-        result = engine.compile(state)
-        sess.status = "completed"
-        sess.demand_score = result.D_compiled
-        sess.financial_score = result.F_compiled
-        sess.capital_fit_score = result.C_compiled
-        sess.execution_fit_score = result.E_compiled
-        sess.risk_score = result.R_compiled
-        sess.competitive_score = result.S_compiled
-        sess.asset_location_score = result.A_compiled
-        sess.viability_simulated = result.V_simulated
-        sess.viability_baseline = result.V_baseline
+        _write_final_scores(sess, engine.compile(state))
     db.commit()
     db.refresh(sess)
     return {"week": week, "session": serialize(db, sess)}
+
+
+def _write_final_scores(sess: SimulationSession, result) -> None:
+    sess.status = "completed"
+    sess.demand_score = result.D_compiled
+    sess.financial_score = result.F_compiled
+    sess.capital_fit_score = result.C_compiled
+    sess.execution_fit_score = result.E_compiled
+    sess.risk_score = result.R_compiled
+    sess.competitive_score = result.S_compiled
+    sess.asset_location_score = result.A_compiled
+    sess.viability_simulated = result.V_simulated
+    sess.viability_baseline = result.V_baseline
+
+
+def autoplay(db: Session, user_id: int, session_id: int) -> dict:
+    """"Run with Kip": the solver plays every remaining week aiming for the highest
+    final viability. Returns one animatable step per week (same shape as play_week's
+    result plus the levers Kip chose) and the final serialized session."""
+    sess = get_session(db, user_id, session_id)
+    if sess.status != "in_progress" or not sess.state:
+        raise SessionError(409, "This simulation has already finished")
+    idea, _, engine = _engine_for(db, sess)
+    state = SimulationState.from_dict(sess.state)
+    levers_history = list(sess.levers or [])
+    weeks = list(sess.weekly_trace or [])
+    idea_meta = {"id": idea.id, "name": idea.idea_name, "category": idea.category}
+
+    steps = []
+    for levers, trace, state in engine.autopilot(state):
+        api_levers = _levers_to_api(levers)
+        levers_history.append(api_levers)
+        weeks.append(trace.to_dict())
+        snapshot = build_view(
+            engine, state, session_id=sess.id,
+            status="completed" if state.finished else "in_progress",
+            current_week=state.week, horizon_weeks=sess.horizon_weeks,
+            idea=idea_meta, weeks=list(weeks), lever_history=list(levers_history),
+        )
+        steps.append({"week": weeks[-1], "session": snapshot, "recordedLevers": api_levers})
+
+    sess.state = state.to_dict()
+    sess.current_week = state.week
+    sess.levers = levers_history
+    sess.weekly_trace = weeks
+    sess.ending_cash = state.cash
+    sess.weeks_in_crunch = state.weeks_in_crunch
+    sess.viability_simulated = weeks[-1]["running_viability"] if weeks else None
+    _write_final_scores(sess, engine.compile(state))
+    db.commit()
+    db.refresh(sess)
+    return {"steps": steps, "session": serialize(db, sess), "autopilot": True}
 
 
 def week_advice(db: Session, sess: SimulationSession) -> dict:

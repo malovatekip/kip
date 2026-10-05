@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Play, LogOut, Sun, Moon, Loader2, Activity, BarChart3, ScrollText, Gamepad2, RotateCcw, Trophy } from 'lucide-react'
+import { Play, LogOut, Sun, Moon, Loader2, Activity, BarChart3, ScrollText, Gamepad2, RotateCcw, Trophy, Sparkles } from 'lucide-react'
 import '../styles/simulate.css'
 import { useT } from '../context/TranslationContext'
 import { useTheme } from '../hooks/useTheme'
@@ -124,9 +124,12 @@ export default function SimulatePage({ demo = false }) {
   const [newHorizon, setNewHorizon] = useState(4)
   const [aiAdvice, setAiAdvice] = useState(null)   // Kip's AI read of the last week: { week, problem, solution }
   const [audioOn, setAudioOn] = useState(audioPref) // speak advice aloud by default
-  const busy = awaiting || playback.playing
+  const [autopilot, setAutopilot] = useState(false) // Kip is playing the remaining weeks
+  const busy = awaiting || playback.playing || autopilot
   const sceneRef = useRef(null)
   const spokenKeyRef = useRef(null)                 // week number Kip has already spoken for
+  const aliveRef = useRef(true)
+  useEffect(() => () => { aliveRef.current = false }, [])
 
   const load = useCallback(async () => {
     setLoadError(null)
@@ -176,6 +179,50 @@ export default function SimulatePage({ demo = false }) {
       setAwaiting(false)
       toast.error(err.response?.data?.detail || t('simulate.play_failed'))
     }
+  }
+
+  /* "Run with Kip": the solver plays every remaining week for the highest final
+     viability, and we animate each week in turn through the usual playback. */
+  const runWithKip = async () => {
+    if (busy || !session || session.status !== 'in_progress') return
+    setAutopilot(true)
+    setAwaiting(true)
+    setAiAdvice(null)
+    stopSpeaking()
+    let res
+    try {
+      res = await simApi.autoplay(session.session_id)
+    } catch (err) {
+      setAwaiting(false)
+      setAutopilot(false)
+      toast.error(err.response?.data?.detail || t('simulate.play_failed'))
+      return
+    }
+    setAwaiting(false)
+    if (window.matchMedia?.('(max-width: 767px)').matches) {
+      setMtab('play')
+      sceneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    let base = session
+    for (const step of res.steps) {
+      if (!aliveRef.current) return
+      setLevers(toEditable(step.recordedLevers))
+      setPrevSession(base)
+      setPending({ week: step.week, session: step.session, levers: step.recordedLevers })
+      await new Promise(resolve => playback.start(resolve))
+      if (!aliveRef.current) return
+      setSession(step.session)
+      setPending(null)
+      base = step.session
+    }
+    setLevers(toEditable(res.session.default_levers))
+    setAutopilot(false)
+    simApi.past().then(setPast).catch(() => {})
+    const dv = res.session.running_viability - res.session.viability_baseline
+    toast.success(t('simulate.kip_done', {
+      v: res.session.running_viability.toFixed(2),
+      d: `${dv >= 0 ? '+' : ''}${dv.toFixed(2)}`,
+    }))
   }
 
   const restart = async () => {
@@ -322,7 +369,9 @@ export default function SimulatePage({ demo = false }) {
     revenue: fmtK(view.metrics.revenue),
   }
   const aiForWeek = !playback.playing && aiAdvice && aiAdvice.week === view.lastWeek?.week ? aiAdvice : null
-  const tips = playback.playing
+  const tips = autopilot
+    ? [{ kind: 'watch', text: t('simulate.kip_playing') }]
+    : playback.playing
     ? [{ kind: 'watch', text: t('simulate.advisor_watching') }]
     : aiForWeek
       ? [
@@ -337,6 +386,12 @@ export default function SimulatePage({ demo = false }) {
       aria-label={playLabel}>
       {busy ? <span className="sim-play-pulse" /> : <Play size={mini ? 14 : 17} fill="currentColor" />}
       {mini ? (busy ? t('simulate.playing_short') : `W${weekNumber}`) : playLabel}
+    </button>
+  )
+  const renderKip = (mini) => (
+    <button className={`sim-ghost-btn sim-kip-btn${mini ? ' is-mini' : ''}`} onClick={runWithKip}
+      disabled={busy || finished} aria-label={t('simulate.run_with_kip')} title={t('simulate.run_with_kip_hint')}>
+      <Sparkles size={mini ? 14 : 16} /> {mini ? t('simulate.kip_short') : (autopilot ? t('simulate.kip_running') : t('simulate.run_with_kip'))}
     </button>
   )
   const sparkline = (() => {
@@ -367,6 +422,7 @@ export default function SimulatePage({ demo = false }) {
             <div className="sim-hud-actions">
               <button className="sim-iconbtn" onClick={toggle} aria-label={t('simulate.toggle_theme')}>{isDark ? <Sun size={16} /> : <Moon size={16} />}</button>
               <button className="sim-iconbtn" onClick={() => navigate('/ideas')} aria-label={t('simulate.exit')}><LogOut size={16} /></button>
+              {!finished && renderKip(false)}
               {renderPlay(false)}
             </div>
           </div>
@@ -389,6 +445,7 @@ export default function SimulatePage({ demo = false }) {
             <div className="sim-num">{t('simulate.week_of', { week: weekNumber, total: session.horizon_weeks })} · {fmtK(view.metrics.cash)}</div>
           </div>
           <button className="sim-iconbtn" onClick={toggle} aria-label={t('simulate.toggle_theme')}>{isDark ? <Sun size={16} /> : <Moon size={16} />}</button>
+          {!finished && renderKip(true)}
           {renderPlay(true)}
         </div>
         <div className="sim-mini-gauges">
@@ -479,7 +536,7 @@ export default function SimulatePage({ demo = false }) {
             </div>
           ) : (
             <LeverDeck levers={levers} onChange={setLevers} economics={view.base.economics} subProducts={subs}
-              scores={view.base.running_scores} disabled={awaiting} playing={playback.playing} onPlay={play}
+              scores={view.base.running_scores} disabled={awaiting || autopilot} playing={playback.playing} onPlay={play}
               weekNumber={weekNumber} finished={finished} />
           )}
 

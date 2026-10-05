@@ -77,6 +77,12 @@ def play_week(session_id: int, req: WeekRequest, current_user: User = Depends(ge
     return _call(svc.play_week, db, current_user.id, session_id, req.levers.model_dump())
 
 
+@router.post("/sessions/{session_id}/autoplay")
+def autoplay_session(session_id: int, current_user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    return _call(svc.autoplay, db, current_user.id, session_id)
+
+
 @router.post("/sessions/{session_id}/advice")
 def week_advice(session_id: int, current_user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):

@@ -32,6 +32,14 @@ export function makeSimulationApi(ideaId, { demo = false } = {}) {
       async past() { return [pastRow] },
       // No backend in demo: fall back to the week's rule-based advice.
       async advice() { return null },
+      // Demo "Run with Kip" replays the recorded plays as autopilot steps.
+      async autoplay() {
+        played = demoSession.plays.length
+        return {
+          steps: demoSession.plays.map(p => ({ week: clone(p.week), session: clone(p.session), recordedLevers: clone(p.levers) })),
+          session: clone(final), autopilot: true,
+        }
+      },
     }
   }
 
@@ -60,6 +68,10 @@ export function makeSimulationApi(ideaId, { demo = false } = {}) {
     async advice(sessionId) {
       const { data } = await api.post(`/simulation/sessions/${sessionId}/advice`)
       return data   // { week, problem, solution }
+    },
+    async autoplay(sessionId) {
+      const { data } = await api.post(`/simulation/sessions/${sessionId}/autoplay`)
+      return data   // { steps: [{ week, session, recordedLevers }], session }
     },
   }
 }

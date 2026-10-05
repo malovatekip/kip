@@ -276,6 +276,35 @@ def test_old_overorder_exploit_no_longer_wins():
     assert exploit < mean_v(idea, skilled)
 
 
+def test_kip_autopilot_beats_baseline_and_is_affordable():
+    for fixture in FIXTURES:
+        idea = fixture()
+        wins = []
+        for seed in SEEDS:
+            eng = SimulationEngine(idea, horizon_weeks=4, seed=seed)
+            st = eng.start()
+            for levers, trace, st in eng.autopilot(st):
+                assert trace.procurement <= trace.purchase_budget + 1e-6   # never over budget
+                assert not trace.overdrawn                                  # Kip stays solvent
+            wins.append(eng.compile(st).V_simulated)
+        assert sum(wins) / len(wins) > baseline_v(idea), idea.category
+
+
+def test_kip_autopilot_beats_prudent_play():
+    for fixture in FIXTURES:
+        idea = fixture()
+        kip = sum(play_autopilot(idea, s) for s in SEEDS) / len(SEEDS)
+        assert kip >= mean_v(idea, prudent), idea.category
+
+
+def play_autopilot(idea, seed):
+    eng = SimulationEngine(idea, horizon_weeks=4, seed=seed)
+    st = eng.start()
+    for _, _, st in eng.autopilot(st):
+        pass
+    return eng.compile(st).V_simulated
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     failed = 0
