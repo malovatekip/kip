@@ -98,6 +98,15 @@ def _query_overpass(lat: float, lon: float, radius_m: int) -> Optional[Dict]:
 
 # ── Data Processing ───────────────────────────────────────────────
 
+def saturation_level(count: int) -> str:
+    if count == 0:   return "none"
+    if count <= 2:   return "very_low"
+    if count <= 5:   return "low"
+    if count <= 10:  return "medium"
+    if count <= 20:  return "high"
+    return "very_high"
+
+
 def _categorise_element(tags: Dict) -> Optional[str]:
     """Return the KIP category for an OSM element's tags."""
     for cat_key, cat_data in OSM_CATEGORIES.items():
@@ -131,15 +140,6 @@ def _process_osm_response(raw: Dict, location_key: str, coord: Dict) -> Dict:
             if name and len(named_businesses[cat]) < 6:  # keep up to 6 named examples
                 named_businesses[cat].append(name)
 
-    # Determine saturation levels
-    def saturation(count: int) -> str:
-        if count == 0:   return "none"
-        if count <= 2:   return "very_low"
-        if count <= 5:   return "low"
-        if count <= 10:  return "medium"
-        if count <= 20:  return "high"
-        return "very_high"
-
     # Identify gaps (categories with very low or no presence)
     gaps = []
     for cat_key, cat_data in OSM_CATEGORIES.items():
@@ -164,7 +164,7 @@ def _process_osm_response(raw: Dict, location_key: str, coord: Dict) -> Dict:
             for k in counts
         },
         "saturation_levels": {
-            OSM_CATEGORIES[k]["kip_label"]: saturation(counts[k])
+            OSM_CATEGORIES[k]["kip_label"]: saturation_level(counts[k])
             for k in counts
             if OSM_CATEGORIES[k].get("competition_signal")
         },
@@ -202,13 +202,27 @@ def fetch_and_cache(location_key: str, coord: Dict, force: bool = False) -> Opti
     return profile
 
 
-def get_map_context(location_string: str) -> str:
+def get_map_context(location_string: str, db=None) -> str:
     """
     Given a user's location string, return a formatted map intelligence
     summary ready for injection into KIP's system prompt context.
 
-    Tries cache first. If not cached, returns empty string gracefully.
+    With a `db` session, KIP's own field survey (saturation_service) is used
+    wherever the area has been surveyed; the OSM cache is only the fallback
+    for towns our agents have not reached yet. If neither has data, returns
+    an empty string gracefully.
     """
+    if db is not None:
+        # Imported here: saturation_service imports this module.
+        from app.services.saturation_service import get_ground_truth_context
+        try:
+            ground_truth = get_ground_truth_context(db, location_string)
+        except Exception as e:
+            print(f"[KIP Map] ground-truth lookup failed, using OSM cache: {e}")
+            ground_truth = ""
+        if ground_truth:
+            return ground_truth
+
     location_key, coord = resolve_location(location_string)
     if not location_key:
         return ""

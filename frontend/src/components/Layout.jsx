@@ -8,13 +8,14 @@ import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
   FileText, Globe, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
-  BarChart2, BookOpen, Gamepad2, Rocket, Settings
+  BarChart2, BookOpen, Gamepad2, Rocket, Settings, MapPinned
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
 import OfflineBanner from './OfflineBanner'
 import LanguageToggle from './LanguageToggle'
 import { useT } from '../context/TranslationContext'
+import { isCollector } from './field/fieldUi'
 
 export default function Layout({ children }) {
   const { t }                     = useT()
@@ -34,6 +35,8 @@ export default function Layout({ children }) {
     { to: '/survey',     icon: Globe,           label: t('nav.survey')     },
     { to: '/enterprise', icon: Crown,           label: t('nav.enterprise'), premium: true },
     { to: '/settings',   icon: Settings,        label: t('nav.settings')   },
+    // Staff only: field data collection for KIP's own business map.
+    ...(isCollector(user) ? [{ to: '/field', icon: MapPinned, label: t('nav.field') }] : []),
   ]
   const location                  = useLocation()
   const navigate                  = useNavigate()

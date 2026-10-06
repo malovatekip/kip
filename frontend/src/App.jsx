@@ -1,5 +1,5 @@
 import { TranslationProvider } from './context/TranslationContext'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
@@ -41,6 +41,14 @@ import StartupChatPage from './pages/StartupChatPage'
 
 
 
+// Field data collection (collector staff only). Loaded on demand so the map
+// library stays out of the main bundle.
+import { FieldGuard } from './components/field/fieldUi'
+const FieldHomePage    = React.lazy(() => import('./pages/field/FieldHomePage'))
+const FieldCapturePage = React.lazy(() => import('./pages/field/FieldCapturePage'))
+const FieldMarketPage  = React.lazy(() => import('./pages/field/FieldMarketPage'))
+const FieldReviewPage  = React.lazy(() => import('./pages/field/FieldReviewPage'))
+
 function Protected({ children }) {
   const token =
     localStorage.getItem('kip_token') ||
@@ -68,6 +76,7 @@ function AppRoutes() {
           error:   { iconTheme: { primary: '#E0263E', secondary: '#fff' } },
         }}
       />
+      <Suspense fallback={null}>
       <Routes>
         {/* Public */}
         <Route path="/"              element={<LandingPage />} />
@@ -111,8 +120,15 @@ function AppRoutes() {
         <Route path="/business/:planId/log"    element={<Protected><EnhancedLogPage /></Protected>} />
         <Route path="/business/:planId/survey" element={<Protected><SurveyPage /></Protected>} />
 
+        {/* Field data collection — collectors and supervisors only */}
+        <Route path="/field"         element={<FieldGuard><FieldHomePage /></FieldGuard>} />
+        <Route path="/field/capture" element={<FieldGuard><FieldCapturePage /></FieldGuard>} />
+        <Route path="/field/market"  element={<FieldGuard><FieldMarketPage /></FieldGuard>} />
+        <Route path="/field/review"  element={<FieldGuard supervisor><FieldReviewPage /></FieldGuard>} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </>
   )
 }

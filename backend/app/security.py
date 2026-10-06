@@ -133,3 +133,20 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
     return current_user
+
+
+FIELD_ROLES = ("collector", "supervisor")
+
+
+def get_current_collector(current_user: User = Depends(get_current_user)) -> User:
+    """Dependency: field data collectors (and supervisors / admins)."""
+    if not (current_user.is_admin or current_user.role in FIELD_ROLES):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Field collector access required.")
+    return current_user
+
+
+def get_current_supervisor(current_user: User = Depends(get_current_user)) -> User:
+    """Dependency: field supervisors (and admins) -- review and QA of collected data."""
+    if not (current_user.is_admin or current_user.role == "supervisor"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Field supervisor access required.")
+    return current_user

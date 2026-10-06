@@ -15,6 +15,7 @@ from app.models import simulation
 from app.models import enhanced_logs
 from app.models import startup_chat as startup_chat_models
 from app.models import token_blocklist
+from app.models import ground_truth
 
 from app.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -40,6 +41,7 @@ from app.routes import add_own_business
 from app.routes import capital_access
 from app.routes import learn
 from app.routes import simulation_routes
+from app.routes import field_data, market_map
 
 from app.routes.briefings import router as briefings_router
 from app.routes import i18n_routes
@@ -79,6 +81,8 @@ def _migrate_user_verification_columns():
         statements.append("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP")
     if "sessions_revoked_at" not in existing:
         statements.append("ALTER TABLE users ADD COLUMN sessions_revoked_at TIMESTAMP")
+    if "role" not in existing:
+        statements.append("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'")
     if not statements:
         return
     with engine.connect() as conn:
@@ -150,6 +154,8 @@ app.include_router(add_own_business.router,prefix="/api/business",       tags=["
 app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital"])
 app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
 app.include_router(simulation_routes.router, prefix="/api/simulation", tags=["Simulation"])
+app.include_router(field_data.router,  prefix="/api/field", tags=["Field Data"])
+app.include_router(market_map.router,  prefix="/api/map",   tags=["Market Map"])
 
 app.include_router(briefings_router, prefix="/api/news", tags=["briefings"])
 

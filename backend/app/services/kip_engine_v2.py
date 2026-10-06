@@ -72,7 +72,7 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
     retrieved_knowledge = kb.search(f"{location} {' '.join(skills)}".strip(), top_k=4)
 
     town_profile = get_town_profile(location) if location else ""
-    map_context = get_map_context(location) if location else ""
+    map_context = get_map_context(location, db) if location else ""
     combined_location = "\n\n".join(filter(None, [town_profile, map_context]))
 
     recent = (

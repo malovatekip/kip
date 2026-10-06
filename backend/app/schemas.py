@@ -1,6 +1,6 @@
 import re
 from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional, List
+from typing import Optional, List, Literal
 from datetime import datetime
 
 # ── Auth ──
@@ -52,6 +52,7 @@ class UserOut(BaseModel):
     plan_tier: str
     is_verified: bool
     is_admin: bool = False
+    role: Optional[str] = "user"
     created_at: datetime
     class Config:
         from_attributes = True
@@ -182,3 +183,30 @@ class DashboardStats(BaseModel):
     total_ideas: int
     accepted_ideas: int
     member_since: datetime
+
+# ── Field data collection (KIP ground truth map) ──
+class FieldObservationIn(BaseModel):
+    id: str                       # client-generated UUID; the idempotency key
+    kind: Literal["business", "market", "price", "footfall", "vacancy"]
+    target_id: Optional[str] = None
+    lat: Optional[float] = None
+    lon: Optional[float] = None
+    gps_accuracy_m: Optional[float] = None
+    captured_at: datetime
+    app_version: Optional[str] = None
+    payload: dict = {}
+
+    @field_validator("id", "target_id")
+    @classmethod
+    def _uuid_like(cls, v):
+        if v is not None and not re.fullmatch(r"[0-9a-fA-F-]{32,36}", v):
+            raise ValueError("must be a UUID")
+        return v
+
+class FieldSyncRequest(BaseModel):
+    observations: List[FieldObservationIn]
+
+class FieldReviewDecision(BaseModel):
+    decision: Literal["verified", "rejected", "duplicate"]
+    merged_into_id: Optional[str] = None
+    note: Optional[str] = None
