@@ -420,3 +420,49 @@
 @media (prefers-reduced-motion: reduce) {
   .sim-root *, .sim-root *::before, .sim-root *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
+
+/* ── Simple / Detailed view toggle ─────────────────────────────────────── */
+.sim-viewtoggle { display: inline-flex; background: var(--sim-track); border: 1px solid var(--border); border-radius: 11px; padding: 2px; gap: 2px; }
+.sim-viewtoggle button {
+  display: inline-flex; align-items: center; gap: 5px; border: none; background: none; cursor: pointer;
+  padding: 6px 11px; border-radius: 9px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: var(--muted);
+}
+.sim-viewtoggle button.is-active { background: var(--blue-dim); color: var(--blue); }
+.sim-mini-toolbar { display: flex; justify-content: center; margin-top: 8px; }
+
+/* ── Plain "this week" summary ─────────────────────────────────────────── */
+.sim-summary-week { display: flex; flex-direction: column; gap: 10px; }
+.sim-sumw-row { display: flex; align-items: center; gap: 10px; }
+.sim-sumw-text { font-size: 14px; font-weight: 600; }
+.sim-sumw-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; }
+.sim-sumw-icon.tone-good { background: var(--green-dim); color: var(--green); }
+.sim-sumw-icon.tone-bad { background: var(--red-dim); color: var(--red); }
+.sim-sumw-icon.tone-info { background: var(--blue-dim); color: var(--blue); }
+.sim-sumw-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sim-sumw-stat {
+  display: flex; align-items: center; gap: 7px; padding: 10px 12px; border-radius: 12px;
+  background: var(--sim-track); border: 1px solid var(--border);
+}
+.sim-sumw-stat strong { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+.sim-sumw-stat span { font-size: 12px; color: var(--muted); }
+.sim-sumw-stat.tone-good { color: var(--green); }
+.sim-sumw-stat.tone-bad { color: var(--red); }
+.sim-sumw-stat.tone-info { color: var(--blue); }
+.sim-sumw-stat.tone-muted { color: var(--muted); }
+.sim-sumw-stat.tone-good strong, .sim-sumw-stat.tone-bad strong, .sim-sumw-stat.tone-info strong { color: inherit; }
+.sim-sumw-shock { padding-top: 2px; }
+.sim-sumw-shock .sim-sumw-text { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+/* One-line plain caption under the animated scene (both views). */
+.sim-scene-caption { margin: 10px 2px 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+/* ── Simple view: hide the dense panels, centre a single column ─────────── */
+.sim-root[data-view="simple"] .sim-col-left,
+.sim-root[data-view="simple"] .sim-col-right { display: none; }
+.sim-root[data-view="simple"] .sim-body { grid-template-columns: minmax(0, 1fr); max-width: 940px; margin-inline: auto; }
+.sim-root[data-view="simple"] .sim-hud { grid-template-columns: minmax(0, 1fr) 230px; }
+.sim-root[data-view="simple"] .sim-gauge-card.is-initial { display: none; }
+.sim-root[data-view="simple"] .sim-mini-gauges { grid-template-columns: 1fr; }
+.sim-root[data-view="simple"] .sim-mini-gauge.is-initial { display: none; }
+.sim-root[data-view="simple"] .sim-tabs { display: none; }
+.sim-root[data-view="simple"] { padding-bottom: 24px; }

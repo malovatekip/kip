@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Play, LogOut, Sun, Moon, Loader2, Activity, BarChart3, ScrollText, Gamepad2, RotateCcw, Trophy, Sparkles } from 'lucide-react'
+import { Play, LogOut, Sun, Moon, Loader2, Activity, BarChart3, ScrollText, Gamepad2, RotateCcw, Trophy, Sparkles, LayoutGrid, List } from 'lucide-react'
 import '../styles/simulate.css'
 import { useT } from '../context/TranslationContext'
 import { useTheme } from '../hooks/useTheme'
@@ -11,6 +11,7 @@ import BusinessFlowScene from '../components/simulation/BusinessFlowScene'
 import ShockBanner from '../components/simulation/ShockBanner'
 import LeverDeck, { fmtK, fmtInt } from '../components/simulation/LeverDeck'
 import WeekProgress from '../components/simulation/WeekProgress'
+import WeeklySummary from '../components/simulation/WeeklySummary'
 import LiveCharts from '../components/simulation/LiveCharts'
 import { ScoreBreakdown, EventLog, PastSessions, buildEvents } from '../components/simulation/LeftPanel'
 import useWeekPlayback from '../components/simulation/useWeekPlayback'
@@ -22,6 +23,9 @@ const sum = (xs) => xs.reduce((s, x) => s + (Number(x) || 0), 0)
 
 const AUDIO_KEY = 'kip_sim_audio'
 const audioPref = () => { try { return localStorage.getItem(AUDIO_KEY) !== 'off' } catch { return true } }
+
+const VIEW_KEY = 'kip_sim_view'
+const viewPref = () => { try { return localStorage.getItem(VIEW_KEY) === 'detailed' ? 'detailed' : 'simple' } catch { return 'simple' } }
 
 /* Kip speaks with a male voice. Voice names vary by platform, so match known
    male English voices (and an explicit "male" that isn't "female"); fall back
@@ -124,6 +128,7 @@ export default function SimulatePage({ demo = false }) {
   const [newHorizon, setNewHorizon] = useState(4)
   const [aiAdvice, setAiAdvice] = useState(null)   // Kip's AI read of the last week: { week, problem, solution }
   const [audioOn, setAudioOn] = useState(audioPref) // speak advice aloud by default
+  const [viewMode, setViewMode] = useState(viewPref) // 'simple' (default) | 'detailed'
   const [autopilot, setAutopilot] = useState(false) // Kip is playing the remaining weeks
   const busy = awaiting || playback.playing || autopilot
   const sceneRef = useRef(null)
@@ -322,6 +327,11 @@ export default function SimulatePage({ demo = false }) {
 
   useEffect(() => stopSpeaking, [])  // stop any speech when leaving the page
 
+  const setView = useCallback((mode) => {
+    setViewMode(mode)
+    try { localStorage.setItem(VIEW_KEY, mode) } catch { /* ignore */ }
+  }, [])
+
   const toggleAudio = useCallback(() => {
     setAudioOn(v => {
       const next = !v
@@ -394,6 +404,22 @@ export default function SimulatePage({ demo = false }) {
       <Sparkles size={mini ? 14 : 16} /> {mini ? t('simulate.kip_short') : (autopilot ? t('simulate.kip_running') : t('simulate.run_with_kip'))}
     </button>
   )
+  const renderViewToggle = () => (
+    <div className="sim-viewtoggle" role="group" aria-label={t('simulate.view_label')}>
+      <button type="button" className={viewMode === 'simple' ? 'is-active' : ''}
+        onClick={() => setView('simple')} aria-pressed={viewMode === 'simple'}>
+        <LayoutGrid size={13} /> {t('simulate.view_simple')}
+      </button>
+      <button type="button" className={viewMode === 'detailed' ? 'is-active' : ''}
+        onClick={() => setView('detailed')} aria-pressed={viewMode === 'detailed'}>
+        <List size={13} /> {t('simulate.view_detailed')}
+      </button>
+    </div>
+  )
+  const summaryWeek = view.live || view.weeksDone[view.weeksDone.length - 1] || null
+  const sceneCaption = view.lastWeek
+    ? t('simulate.scene_caption', { served: fmtInt(view.lastWeek.served_demand || 0), demand: fmtInt(view.lastWeek.gross_demand || 0) })
+    : t('simulate.scene_caption_pre')
   const sparkline = (() => {
     const cs = view.points.map(p => p.cash)
     if (cs.length < 2) return ''
@@ -402,10 +428,10 @@ export default function SimulatePage({ demo = false }) {
   })()
 
   return (
-    <div className="sim-root" data-mtab={mtab}>
+    <div className="sim-root" data-mtab={mtab} data-view={viewMode}>
       {/* ── Desktop / tablet HUD ─────────────────────────────── */}
       <header className="sim-hud">
-        <div className="sim-panel sim-gauge-card">
+        <div className="sim-panel sim-gauge-card is-initial">
           <Gauge value={session.viability_baseline} label={t('simulate.gauge_initial')} caption={t('simulate.gauge_initial_caption')} />
         </div>
         <div className="sim-panel sim-hud-centre">
@@ -420,6 +446,7 @@ export default function SimulatePage({ demo = false }) {
               </div>
             </div>
             <div className="sim-hud-actions">
+              {renderViewToggle()}
               <button className="sim-iconbtn" onClick={toggle} aria-label={t('simulate.toggle_theme')}>{isDark ? <Sun size={16} /> : <Moon size={16} />}</button>
               <button className="sim-iconbtn" onClick={() => navigate('/ideas')} aria-label={t('simulate.exit')}><LogOut size={16} /></button>
               {!finished && renderKip(false)}
@@ -448,8 +475,9 @@ export default function SimulatePage({ demo = false }) {
           {!finished && renderKip(true)}
           {renderPlay(true)}
         </div>
+        <div className="sim-mini-toolbar">{renderViewToggle()}</div>
         <div className="sim-mini-gauges">
-          <div className="sim-mini-gauge">
+          <div className="sim-mini-gauge is-initial">
             <Gauge mini value={session.viability_baseline} label={t('simulate.gauge_initial')} />
             <div><div className="sim-eyebrow">{t('simulate.gauge_initial')}</div><strong>{session.viability_baseline.toFixed(2)}</strong></div>
           </div>
@@ -500,7 +528,10 @@ export default function SimulatePage({ demo = false }) {
                 lostLabel: t('simulate.shock_hit_chip', { name: view.live.shock_name, units: fmtInt(view.live.units_lost) }) } : null}
               ariaLabel={t('simulate.scene_aria', { name: session.idea.name })}
             />
+            <p className="sim-scene-caption">{sceneCaption}</p>
           </div>
+
+          {!finished && <WeeklySummary week={summaryWeek} />}
 
           <div className="sim-m-play">
             <ShockBanner shock={pending ? (prevSession || session).next_shock : session.next_shock}
