@@ -7,8 +7,8 @@ import { useTheme } from '../hooks/useTheme'
 import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
-  FileText, Globe, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
-  BarChart2, BookOpen, Gamepad2, Rocket, Settings, MapPinned
+  FileText, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
+  Gamepad2, Rocket, Settings, MapPinned
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
@@ -29,14 +29,11 @@ export default function Layout({ children }) {
     { to: '/ideas',      icon: Lightbulb,       label: t('nav.ideas')      },
     { to: '/startup',    icon: Rocket,          label: t('nav.startup')    },
     { to: '/templates',  icon: FileText,        label: t('nav.templates')  },
-    { to: '/learn',      icon: BookOpen,        label: t('nav.learn')      },
     // { to: '/capital', icon: DollarSign, label: t('nav.capital') },
-    { to: '/market',     icon: BarChart2,       label: t('nav.market')     },
-    { to: '/survey',     icon: Globe,           label: t('nav.survey')     },
-    { to: '/enterprise', icon: Crown,           label: t('nav.enterprise'), premium: true },
-    { to: '/settings',   icon: Settings,        label: t('nav.settings')   },
     // Staff only: field data collection for KIP's own business map.
     ...(isCollector(user) ? [{ to: '/field', icon: MapPinned, label: t('nav.field') }] : []),
+    { to: '/enterprise', icon: Crown,           label: t('nav.enterprise'), premium: true },
+    { to: '/settings',   icon: Settings,        label: t('nav.settings')   },
   ]
   const location                  = useLocation()
   const navigate                  = useNavigate()

@@ -1,16 +1,12 @@
 """
-KIP Templates Routes — Hotfix 7
-Fixed: GeneralSurveyRequest uses validator to coerce string→numeric.
-Input type="number" in browsers sends strings; Pydantic v2 rejects them
-without explicit coercion.
+KIP Templates Routes: template library, business plan PDF and letter generation.
 """
 import json
 import os
-import re
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
@@ -22,116 +18,6 @@ from app.models.business_idea import BusinessIdea
 from app.services.business_plan_generator import generate_business_plan_pdf
 
 router = APIRouter()
-
-SURVEY_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    'data', 'surveys'
-)
-os.makedirs(SURVEY_DIR, exist_ok=True)
-
-
-def _slug(location: str) -> str:
-    s = location.lower().strip()
-    s = re.sub(r'[^a-z0-9\s]', '', s)
-    s = re.sub(r'\s+', '_', s.strip())
-    return s[:60] or 'unknown'
-
-
-def _to_int(v):
-    if v is None or v == '':
-        return None
-    try:
-        return int(float(str(v)))
-    except (TypeError, ValueError):
-        return None
-
-
-def _to_float(v):
-    if v is None or v == '':
-        return None
-    try:
-        return float(str(v))
-    except (TypeError, ValueError):
-        return None
-
-
-def _save_to_json(location: str, data: dict, survey_type: str):
-    slug     = _slug(location)
-    filepath = os.path.join(SURVEY_DIR, f"{slug}.json")
-
-    if os.path.exists(filepath):
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                town = json.load(f)
-        except Exception:
-            town = _new_town(location, slug)
-    else:
-        town = _new_town(location, slug)
-
-    clean = {k: v for k, v in data.items()
-             if k not in ('user_id',) and v is not None and v != ''}
-
-    town['submissions'].append({
-        'type':         survey_type,
-        'submitted_at': datetime.utcnow().isoformat(),
-        'data':         clean,
-    })
-    town['aggregated']  = _aggregate(town['submissions'])
-    town['last_updated']= datetime.utcnow().isoformat()
-
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(town, f, indent=2, ensure_ascii=False, default=str)
-
-    return filepath
-
-
-def _new_town(location, slug):
-    return {
-        'town': location, 'slug': slug,
-        'created_at':   datetime.utcnow().isoformat(),
-        'last_updated': datetime.utcnow().isoformat(),
-        'submissions':  [], 'aggregated': {},
-    }
-
-
-def _aggregate(submissions):
-    agg = {'total_submissions': len(submissions)}
-    num_fields = [
-        'avg_spend_per_visit', 'direct_competitors_count', 'nearest_wholesale_km',
-        'market_distance_km', 'avg_tomato_price_per_kg', 'avg_bread_price',
-        'avg_phone_data_1gb', 'avg_shop_rent_pm', 'avg_labor_wage_pm',
-        'food_businesses_count', 'retail_count', 'services_count',
-    ]
-    for field in num_fields:
-        vals = []
-        for s in submissions:
-            v = s.get('data', {}).get(field)
-            try:
-                if v not in (None, '', 0):
-                    vals.append(float(v))
-            except (TypeError, ValueError):
-                pass
-        if vals:
-            agg[f'avg_{field}']     = round(sum(vals) / len(vals), 2)
-            agg[f'samples_{field}'] = len(vals)
-
-    cat_fields = [
-        'area_type', 'foot_traffic', 'dominant_income_level', 'competition_quality',
-        'power_reliability', 'payment_preference', 'internet_access', 'security_level',
-    ]
-    for field in cat_fields:
-        vals = [s['data'][field] for s in submissions if s.get('data', {}).get(field)]
-        if vals:
-            agg[f'most_common_{field}'] = max(set(vals), key=vals.count)
-
-    gaps = [s['data'].get('market_gaps_noted') or s['data'].get('missing_services')
-            for s in submissions
-            if s.get('data', {}).get('market_gaps_noted') or s.get('data', {}).get('missing_services')]
-    if gaps:
-        agg['market_gaps_mentioned'] = gaps
-
-    return agg
-
 
 # ── Template library ──────────────────────────────────────────────────────────
 
@@ -190,18 +76,6 @@ async def generate_plan_pdf(
         except Exception:
             plan_json_text = str(plan.plan_json)
 
-    survey_data = None
-    try:
-        from app.models.enhanced_logs import MarketSurvey
-        s = db.query(MarketSurvey).filter(
-            MarketSurvey.user_id == current_user.id,
-            MarketSurvey.plan_id == plan_id
-        ).first()
-        if s:
-            survey_data = {c.name: getattr(s, c.name) for c in s.__table__.columns if getattr(s, c.name) is not None}
-    except Exception:
-        pass
-
     log_summary = None
     try:
         from app.models.business_dashboard import DailyBusinessLog
@@ -233,7 +107,6 @@ async def generate_plan_pdf(
             capital=capital,
             idea_summary=idea_summary[:1000],
             plan_json_text=plan_json_text,
-            survey_data=survey_data,
             log_summary=log_summary,
             projected_profit=plan.projected_monthly_profit,
         )
@@ -291,175 +164,3 @@ async def generate_letter(
                 "owner_name": current_user.full_name, "generated_at": datetime.utcnow().isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ── General Survey ────────────────────────────────────────────────────────────
-
-class GeneralSurveyRequest(BaseModel):
-    """
-    All numeric fields accept both int/float AND strings (from HTML inputs).
-    field_validator coerces everything to the right type before validation.
-    """
-    location:                str
-
-    area_type:               Optional[str]   = None
-    food_businesses_count:   Optional[int]   = None
-    retail_count:            Optional[int]   = None
-    services_count:          Optional[int]   = None
-    manufacturing_count:     Optional[int]   = None
-    missing_services:        Optional[str]   = None
-    oversaturated_sectors:   Optional[str]   = None
-    power_reliability:       Optional[str]   = None
-    internet_access:         Optional[str]   = None
-    road_quality:            Optional[str]   = None
-    dominant_income_level:   Optional[str]   = None
-    primary_employment:      Optional[str]   = None
-    market_days:             Optional[str]   = None
-    avg_tomato_price_per_kg: Optional[float] = None
-    avg_bread_price:         Optional[float] = None
-    avg_phone_data_1gb:      Optional[float] = None
-    avg_shop_rent_pm:        Optional[float] = None
-    avg_labor_wage_pm:       Optional[float] = None
-    seasonal_notes:          Optional[str]   = None
-    other_observations:      Optional[str]   = None
-
-    # Coerce int fields — HTML sends strings
-    @field_validator('food_businesses_count','retail_count','services_count',
-                     'manufacturing_count', mode='before')
-    @classmethod
-    def coerce_int(cls, v):
-        return _to_int(v)
-
-    # Coerce float fields — HTML sends strings
-    @field_validator('avg_tomato_price_per_kg','avg_bread_price','avg_phone_data_1gb',
-                     'avg_shop_rent_pm','avg_labor_wage_pm', mode='before')
-    @classmethod
-    def coerce_float(cls, v):
-        return _to_float(v)
-
-
-@router.post("/general-survey")
-async def submit_general_survey(
-    req: GeneralSurveyRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    from sqlalchemy import text as sqlt
-
-    data               = req.dict()
-    data['user_id']    = current_user.id
-    data['submitted_at'] = datetime.utcnow().isoformat()
-
-    # Save to SQLite
-    try:
-        db.execute(sqlt("""
-            CREATE TABLE IF NOT EXISTS general_surveys (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER, location TEXT,
-                data_json TEXT, submitted_at TEXT,
-                UNIQUE(user_id, location)
-            )
-        """))
-        db.execute(sqlt("""
-            INSERT INTO general_surveys (user_id, location, data_json, submitted_at)
-            VALUES (:uid, :loc, :dj, :sa)
-            ON CONFLICT(user_id, location) DO UPDATE SET
-                data_json=excluded.data_json, submitted_at=excluded.submitted_at
-        """), {"uid": current_user.id, "loc": req.location,
-               "dj": json.dumps(data, default=str), "sa": data['submitted_at']})
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"[Survey] DB error: {e}")
-
-    # Save to JSON file
-    json_file = None
-    try:
-        fp = _save_to_json(req.location, data, "general_survey")
-        json_file = f"data/surveys/{_slug(req.location)}.json"
-    except Exception as e:
-        print(f"[Survey] JSON save error: {e}")
-
-    return {
-        "status":    "saved",
-        "location":  req.location,
-        "json_file": json_file,
-        "message":   "Thank you! This improves KIP's recommendations in your area.",
-    }
-
-
-@router.get("/general-survey")
-def get_my_general_surveys(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    from sqlalchemy import text as sqlt
-    try:
-        rows = db.execute(sqlt(
-            "SELECT location, data_json, submitted_at FROM general_surveys "
-            "WHERE user_id=:uid ORDER BY submitted_at DESC"
-        ), {"uid": current_user.id}).fetchall()
-        return [{"location": r[0], "submitted_at": r[2], **json.loads(r[1])} for r in rows]
-    except Exception:
-        return []
-
-
-@router.get("/admin/towns")
-def list_town_surveys(current_user: User = Depends(get_current_user)):
-    if not os.path.exists(SURVEY_DIR):
-        return []
-    towns = []
-    for f in sorted(os.listdir(SURVEY_DIR)):
-        if not f.endswith('.json'):
-            continue
-        fp = os.path.join(SURVEY_DIR, f)
-        try:
-            with open(fp) as fh:
-                d = json.load(fh)
-            towns.append({
-                "filename":    f,
-                "town":        d.get("town", f),
-                "submissions": d.get("aggregated", {}).get("total_submissions", 0),
-                "last_updated":d.get("last_updated"),
-                "size_kb":     round(os.path.getsize(fp) / 1024, 1),
-            })
-        except Exception:
-            pass
-    return towns
-
-
-@router.get("/admin/towns/{slug}")
-def get_town_survey(slug: str, current_user: User = Depends(get_current_user)):
-    fp = os.path.join(SURVEY_DIR, f"{slug}.json")
-    if not os.path.exists(fp):
-        raise HTTPException(status_code=404, detail="Town not found.")
-    with open(fp) as f:
-        return json.load(f)
-
-@router.get("/market-intelligence")
-def get_market_intelligence(db: Session = Depends(get_db)):
-    """Public aggregated market data by town — no auth required."""
-    if not os.path.exists(SURVEY_DIR):
-        return {"towns": []}
-    towns = []
-    for fname in sorted(os.listdir(SURVEY_DIR)):
-        if not fname.endswith('.json'):
-            continue
-        fp = os.path.join(SURVEY_DIR, fname)
-        try:
-            with open(fp) as f:
-                d = json.load(f)
-            agg = d.get("aggregated", {})
-            if agg.get("total_submissions", 0) == 0:
-                continue
-            towns.append({
-                "town":        d.get("town", fname),
-                "slug":        d.get("slug", fname.replace('.json','')),
-                "submissions": agg.get("total_submissions", 0),
-                "last_updated":d.get("last_updated"),
-                "aggregated":  agg,
-            })
-        except Exception:
-            pass
-    towns.sort(key=lambda x: x["submissions"], reverse=True)
-    return {"towns": towns, "total": len(towns)}

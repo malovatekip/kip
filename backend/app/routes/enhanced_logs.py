@@ -1,6 +1,6 @@
 """
 KIP Enhanced Log Routes — Sprint 6
-All endpoints for daily logs, ML predictions, weekly reviews, and market survey.
+All endpoints for daily logs, ML predictions and weekly reviews.
 """
 
 import json
@@ -16,7 +16,7 @@ from app.models.user import User
 from app.models.business_dashboard import BusinessLaunchPlan
 from app.models.enhanced_logs import (
     EnhancedDailyLog, BusinessLogTemplate, WeeklyReview,
-    MLPrediction, MarketSurvey
+    MLPrediction
 )
 from app.routes.language_support import get_language_from_request, language_instruction
 from app.services.ml_engine import run_all_predictions
@@ -66,37 +66,6 @@ class DailyLogRequest(BaseModel):
     time_breakdown:  Optional[dict] = None
     daily_win:       Optional[str] = None
     daily_lesson:    Optional[str] = None
-
-
-class SurveyRequest(BaseModel):
-    plan_id:              Optional[int] = None
-    location:             Optional[str] = None
-    area_type:            Optional[str] = None
-    foot_traffic:         Optional[str] = None
-    road_access:          Optional[str] = None
-    power_reliability:    Optional[str] = None
-    internet_access:      Optional[str] = None
-    has_nearby_market:    bool = False
-    market_distance_km:   Optional[float] = None
-    dominant_income_level: Optional[str] = None
-    primary_occupation:   Optional[str] = None
-    peak_shopping_time:   Optional[str] = None
-    payment_preference:   Optional[str] = None
-    avg_spend_per_visit:  Optional[float] = None
-    direct_competitors_count: Optional[int] = None
-    competition_quality:  Optional[str] = None
-    main_competitor_weakness: Optional[str] = None
-    market_gaps_noted:    Optional[str] = None
-    nearest_wholesale_km: Optional[float] = None
-    supplier_reliability: Optional[str] = None
-    main_supply_source:   Optional[str] = None
-    has_cdf_office:       bool = False
-    has_ceec_office:      bool = False
-    has_bank_branch:      bool = False
-    security_level:       Optional[str] = None
-    seasonal_business:    bool = False
-    peak_season_months:   Optional[str] = None
-    additional_notes:     Optional[str] = None
 
 
 # ── Log Template ────────────────────────────────────────────────────────────
@@ -393,68 +362,6 @@ async def trigger_weekly_review(
     return result
 
 
-# ── Market Survey ───────────────────────────────────────────────────────────
-
-@router.post("/survey")
-async def submit_survey(
-    req: SurveyRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Submit or update market survey for a location/plan."""
-    existing = db.query(MarketSurvey).filter(
-        MarketSurvey.user_id == current_user.id,
-        MarketSurvey.plan_id == req.plan_id
-    ).first()
-
-    data = req.dict()
-    data['user_id'] = current_user.id
-    data['completed_at'] = datetime.utcnow()
-
-    if existing:
-        for k, v in data.items():
-            if hasattr(existing, k) and v is not None:
-                setattr(existing, k, v)
-        existing.updated_at = datetime.utcnow()
-        db.commit()
-        from app.services.survey_json import save_survey_json
-        save_survey_json(req.location or "", {c.name: getattr(survey_obj, c.name) for c in survey_obj.__table__.columns}, "market_survey")
-        return {"status": "updated", "survey_id": existing.id}
-    else:
-        survey = MarketSurvey(**data)
-        db.add(survey)
-        db.commit()
-        db.refresh(survey)
-        return {"status": "created", "survey_id": survey.id}
-
-
-@router.get("/survey/{plan_id}")
-def get_survey(
-    plan_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    survey = db.query(MarketSurvey).filter(
-        MarketSurvey.user_id == current_user.id,
-        MarketSurvey.plan_id == plan_id
-    ).first()
-    if not survey:
-        return None
-    return {c.name: getattr(survey, c.name) for c in survey.__table__.columns}
-
-
-@router.get("/survey")
-def get_user_surveys(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Get all surveys submitted by this user (across all businesses)."""
-    surveys = db.query(MarketSurvey).filter(
-        MarketSurvey.user_id == current_user.id
-    ).order_by(MarketSurvey.created_at.desc()).all()
-    return [{c.name: getattr(s, c.name) for c in s.__table__.columns} for s in surveys]
-
-
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
 def _log_to_dict(log: EnhancedDailyLog) -> dict:
@@ -500,4 +407,3 @@ def _get_logs_as_dicts(plan_id: int, db: Session) -> list:
         EnhancedDailyLog.plan_id == plan_id
     ).order_by(EnhancedDailyLog.log_date.asc()).all()
     return [_log_to_dict(l) for l in logs]
-# submit_survey()

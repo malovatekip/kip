@@ -39,7 +39,6 @@ from app.routes import enterprise
 from app.routes import add_own_business
 
 from app.routes import capital_access
-from app.routes import learn
 from app.routes import simulation_routes
 from app.routes import field_data, market_map
 
@@ -152,7 +151,6 @@ app.include_router(startup_chat.router,    prefix="/api/startup-chat",   tags=["
 app.include_router(enterprise.router,      prefix="/api/enterprise",     tags=["Enterprise"])
 app.include_router(add_own_business.router,prefix="/api/business",       tags=["Business"])
 app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital"])
-app.include_router(learn.router, prefix="/api/learn", tags=["Learn"])
 app.include_router(simulation_routes.router, prefix="/api/simulation", tags=["Simulation"])
 app.include_router(field_data.router,  prefix="/api/field", tags=["Field Data"])
 app.include_router(market_map.router,  prefix="/api/map",   tags=["Market Map"])

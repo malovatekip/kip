@@ -10,6 +10,7 @@ import Layout from '../components/Layout'
 import KipMarkdown from '../components/KipMarkdown'
 import { EmptyStateIllustration } from '../components/KipIllustrations'
 import { useAuth } from '../hooks/useAuth'
+import { isCollector } from '../components/field/fieldUi'
 import { useT } from '../context/TranslationContext'
 import api from '../lib/api'
 
@@ -522,7 +523,7 @@ export default function DashboardPage() {
               {[
                 { to: '/chat',      label: t('dashboard.action_ask_kip'),  icon: Zap,          color: 'var(--blue-bright)' },
                 { to: '/templates', label: t('dashboard.action_templates'), icon: BarChart2,    color: 'var(--gold)'        },
-                { to: '/survey',    label: t('dashboard.action_survey'),   icon: MapPin,       color: 'var(--teal)'        },
+                ...(isCollector(user) ? [{ to: '/field', label: t('nav.field'), icon: MapPin, color: 'var(--teal)' }] : []),
               ].map(({ to, label, icon: Icon, color }) => (
                 <Link key={to} to={to} style={{
                   display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',

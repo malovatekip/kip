@@ -1,7 +1,7 @@
 """
 KIP Language Support
 Shared helper for adding Bemba language instructions to Claude prompts
-across K-BIG-1 chat, BizSim, and KIP Learn.
+across K-BIG-1 chat and BizSim.
 
 Usage:
     from app.routes.language_support import get_language_from_request, language_instruction

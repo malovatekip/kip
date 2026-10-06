@@ -3,9 +3,8 @@ KIP Startup Script — Railway Deployment
 Runs before uvicorn. Handles:
   1. ChromaDB migration to Railway volume
   2. SQLite symlink for persistence
-  3. Surveys directory setup
-  4. ALL database table creation (ORM + raw SQL)
-  5. Environment variable validation
+  3. ALL database table creation (ORM + raw SQL)
+  4. Environment variable validation
 """
 import os
 import sys
@@ -16,10 +15,8 @@ from pathlib import Path
 # ── Paths ─────────────────────────────────────────────────────────────────────
 VOLUME_PATH        = os.getenv("CHROMA_VOLUME_PATH", "/data")
 CHROMA_VOLUME_DIR  = os.path.join(VOLUME_PATH, "chroma_db")
-SURVEYS_VOLUME_DIR = os.path.join(VOLUME_PATH, "surveys")
 DB_VOLUME_PATH     = os.path.join(VOLUME_PATH, "kip.db")
 LOCAL_CHROMA       = os.path.join(os.path.dirname(__file__), "kip_knowledge_db")
-LOCAL_SURVEYS      = os.path.join(os.path.dirname(__file__), "data", "surveys")
 LOCAL_DB_PATH      = os.path.join(os.path.dirname(__file__), "kip.db")
 
 
@@ -96,28 +93,6 @@ def migrate_database(volume_ok: bool):
         except FileExistsError:
             pass
         log(f"✓ Symlinked kip.db → {DB_VOLUME_PATH} (created on first run).")
-
-
-def migrate_surveys(volume_ok: bool):
-    if not volume_ok:
-        return
-    os.makedirs(SURVEYS_VOLUME_DIR, exist_ok=True)
-    if os.path.exists(LOCAL_SURVEYS) and not os.path.islink(LOCAL_SURVEYS):
-        for fname in os.listdir(LOCAL_SURVEYS):
-            if fname.endswith('.json'):
-                src = os.path.join(LOCAL_SURVEYS, fname)
-                dst = os.path.join(SURVEYS_VOLUME_DIR, fname)
-                if not os.path.exists(dst):
-                    shutil.copy2(src, dst)
-                    log(f"  Migrated survey: {fname}")
-        shutil.rmtree(LOCAL_SURVEYS)
-    if not os.path.exists(LOCAL_SURVEYS):
-        os.makedirs(os.path.dirname(LOCAL_SURVEYS), exist_ok=True)
-        try:
-            os.symlink(SURVEYS_VOLUME_DIR, LOCAL_SURVEYS)
-            log(f"✓ Surveys directory → {SURVEYS_VOLUME_DIR}")
-        except FileExistsError:
-            pass
 
 
 def check_env():
@@ -241,16 +216,6 @@ def create_all_tables():
                 is_read       INTEGER DEFAULT 0,
                 created_at    TEXT    DEFAULT CURRENT_TIMESTAMP
             )""",
-
-            # General surveys
-            f"""CREATE TABLE IF NOT EXISTS general_surveys (
-                id           {pk},
-                user_id      INTEGER,
-                location     TEXT,
-                data_json    TEXT,
-                submitted_at TEXT,
-                UNIQUE(user_id, location)
-            )""",
         ]
 
         with engine.connect() as conn:
@@ -276,7 +241,6 @@ def main():
     volume_ok  = ensure_volume()
     chroma_dir = migrate_chromadb(volume_ok)
     migrate_database(volume_ok)
-    migrate_surveys(volume_ok)
     write_chroma_path_env(chroma_dir)
     create_all_tables()
 

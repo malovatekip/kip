@@ -1,6 +1,6 @@
 """
 KIP Enhanced Business Log Models — Sprint 6
-Five-category log system with ML prediction support and market survey.
+Five-category log system with ML prediction support.
 """
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Float, ForeignKey, JSON
 from datetime import datetime
@@ -161,8 +161,10 @@ class MLPrediction(Base):
 
 class MarketSurvey(Base):
     """
-    Market knowledge survey completed by the user about their business location.
-    Feeds into KIP's contextual intelligence layer.
+    LEGACY. The per-business market survey feature was removed (superseded by
+    KIP's field-collected map, models/ground_truth.py). The table is kept so
+    existing rows are still cleared when an account is deleted
+    (services/account_service.py); nothing reads or writes it any more.
     """
     __tablename__ = "market_surveys"
     id              = Column(Integer, primary_key=True, index=True)

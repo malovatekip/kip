@@ -108,7 +108,7 @@ def _is_rejection(text: str) -> bool:
 
 # ── Business context builder ──────────────────────────────────────────────────
 
-def _build_context(plan, idea, logs, survey) -> str:
+def _build_context(plan, idea, logs) -> str:
     lines = [f"BUSINESS: {plan.business_name}", f"STATUS: {plan.status or 'active'}"]
     if idea:
         if idea.location:       lines.append(f"LOCATION: {idea.location}")
@@ -134,17 +134,6 @@ def _build_context(plan, idea, logs, survey) -> str:
             lines.append(f"  {date}: K{rev:,.0f} rev | K{rev-exp:,.0f} profit | {cust} customers"
                          + (f" | Problem: {prob[:50]}" if prob else "")
                          + (f" | Win: {win[:50]}"     if win  else ""))
-
-    if survey:
-        fields = {
-            'area_type': 'Area', 'foot_traffic': 'Traffic',
-            'dominant_income_level': 'Income', 'competition_quality': 'Competition',
-            'market_gaps_noted': 'Gaps', 'payment_preference': 'Payments',
-        }
-        notes = [f"{label}: {str(survey[f]).replace('_',' ')}"
-                 for f, label in fields.items() if survey.get(f)]
-        if notes:
-            lines.append("\nMARKET: " + " | ".join(notes))
 
     return "\n".join(lines)
 
@@ -239,19 +228,7 @@ async def business_chat(
         DailyBusinessLog.plan_id == req.plan_id
     ).order_by(DailyBusinessLog.created_at.desc()).limit(14).all()
 
-    survey = None
-    try:
-        from app.models.enhanced_logs import MarketSurvey
-        s = db.query(MarketSurvey).filter(
-            MarketSurvey.plan_id == req.plan_id,
-            MarketSurvey.user_id == current_user.id
-        ).first()
-        if s:
-            survey = {c.name: getattr(s, c.name) for c in s.__table__.columns}
-    except Exception:
-        pass
-
-    context = _build_context(plan, idea, logs, survey)
+    context = _build_context(plan, idea, logs)
     system  = f"BUSINESS CONTEXT:\n{'='*60}\n{context}\n{'='*60}\n\n{SYSTEM_BASE}"
     system += "\n\n" + language_instruction(lang)
 

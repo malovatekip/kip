@@ -7,7 +7,7 @@
  * When to use this vs t():
  *   t()               → for static UI strings (buttons, labels, headings)
  *   useAITranslation  → for dynamic content Claude generates (coaching,
- *                        business ideas, BizSim events, KIP Learn explanations)
+ *                        business ideas, BizSim events)
  *
  * Usage:
  *   const { translateAI, translating } = useAITranslation()

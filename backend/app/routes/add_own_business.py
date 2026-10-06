@@ -203,10 +203,9 @@ a full AI-powered growth analysis and improvement plan.
 ## 🚀 GROWTH PRIORITIES (Next 90 Days)
 
 1. Set up your daily logging to track revenue, expenses, and customers
-2. Complete the market survey for your area to improve KIP's recommendations
-3. Review your pricing strategy against local competitors
-4. Identify your top 3 customers and focus on retaining them
-5. Register with PACRA and ZRA if not already done
+2. Review your pricing strategy against local competitors
+3. Identify your top 3 customers and focus on retaining them
+4. Register with PACRA and ZRA if not already done
 
 ## 📋 COMPLIANCE CHECK
 

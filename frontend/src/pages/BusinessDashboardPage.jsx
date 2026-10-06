@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
-  TrendingUp, BookOpen, ClipboardList, MapPin,
-  ArrowLeft, Calendar, DollarSign, Users, Zap,
+  TrendingUp, BookOpen, ClipboardList,   ArrowLeft, Calendar, DollarSign, Users, Zap,
   ChevronDown, ChevronUp, MessageSquare, Send, Square,
   Sparkles, RotateCcw, CheckCircle, XCircle, History
 } from 'lucide-react'
@@ -468,9 +467,6 @@ export default function BusinessDashboardPage() {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <Link to={`/business/${planId}/log`} className="kip-btn kip-btn-primary" style={{ fontSize: 13, padding: '9px 16px' }}>
                 <ClipboardList size={15} /> {t('business_dashboard.log_today')}
-              </Link>
-              <Link to={`/business/${planId}/survey`} className="kip-btn kip-btn-ghost" style={{ fontSize: 13, padding: '9px 16px' }}>
-                <MapPin size={15} /> {t('business_dashboard.survey')}
               </Link>
             </div>
           </div>

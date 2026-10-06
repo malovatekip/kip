@@ -19,9 +19,7 @@ import NewsPage              from './pages/NewsPage'
 import IdeasPage             from './pages/IdeasPage'
 import BusinessDashboardPage from './pages/BusinessDashboardPage'
 import EnhancedLogPage       from './pages/EnhancedLogPage'
-import SurveyPage            from './pages/SurveyPage'
 import TemplatesPage         from './pages/TemplatesPage'
-import GeneralSurveyPage     from './pages/GeneralSurveyPage'
 import EnterprisePage        from './pages/EnterprisePage'
 
 // Legal pages
@@ -30,8 +28,6 @@ import PrivacyPage           from './pages/legal/PrivacyPage'
 import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
 
 import CapitalAccessPage from './pages/CapitalAccessPage'
-import MarketIntelligencePage from './pages/MarketIntelligencePage'
-import LearnPage from './pages/LearnPage'
 import SimulatePage from './pages/SimulatePage'
 
 // ── NEW: Startup guidance page (CTO addition — business registration roadmap) ──
@@ -100,11 +96,8 @@ function AppRoutes() {
         <Route path="/news"        element={<Protected><NewsPage /></Protected>} />
         <Route path="/ideas"       element={<Protected><IdeasPage /></Protected>} />
         <Route path="/templates"   element={<Protected><TemplatesPage /></Protected>} />
-        <Route path="/survey"      element={<Protected><GeneralSurveyPage /></Protected>} />
         <Route path="/enterprise"  element={<Protected><EnterprisePage /></Protected>} />
         <Route path="/capital" element={<Protected><CapitalAccessPage /></Protected>} />
-        <Route path="/market" element={<Protected><MarketIntelligencePage /></Protected>} />
-        <Route path="/learn" element={<Protected><LearnPage /></Protected>} />
         {/* Dev-only replay of a recorded engine session, viewable without the backend. */}
         {import.meta.env.DEV && <Route path="/simulate/demo" element={<SimulatePage demo />} />}
         <Route path="/simulate/:ideaId" element={<Protected><SimulatePage /></Protected>} />
@@ -118,7 +111,6 @@ function AppRoutes() {
         {/* Business */}
         <Route path="/business/:planId"        element={<Protected><BusinessDashboardPage /></Protected>} />
         <Route path="/business/:planId/log"    element={<Protected><EnhancedLogPage /></Protected>} />
-        <Route path="/business/:planId/survey" element={<Protected><SurveyPage /></Protected>} />
 
         {/* Field data collection — collectors and supervisors only */}
         <Route path="/field"         element={<FieldGuard><FieldHomePage /></FieldGuard>} />

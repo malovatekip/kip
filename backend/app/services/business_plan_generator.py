@@ -199,7 +199,6 @@ async def _generate_plan_content(
     location: str,
     capital: Optional[float],
     idea_summary: str,
-    survey_data: Optional[dict],
     log_summary: Optional[dict],
     projected_profit: Optional[float]
 ) -> dict:
@@ -216,7 +215,6 @@ async def _generate_plan_content(
     import anthropic
 
     capital_str = f"K{capital:,.0f}" if capital else "as per recommendation"
-    survey_str  = json.dumps(survey_data, indent=2) if survey_data else "Not completed"
     log_str     = json.dumps(log_summary, indent=2) if log_summary else "Not yet operating"
     profit_str  = f"K{projected_profit:,.0f}/month" if projected_profit else "To be determined"
 
@@ -234,9 +232,6 @@ BUSINESS DETAILS:
 ORIGINAL KIP RECOMMENDATION:
 {idea_summary[:800] if idea_summary else 'Not available'}
 
-MARKET SURVEY DATA (what the owner knows about the local market):
-{survey_str}
-
 ACTUAL PERFORMANCE DATA (from daily logs if available):
 {log_str}
 
@@ -246,7 +241,7 @@ Return ONLY valid JSON — no markdown, no explanation, no preamble.
 {{
   "executive_summary": "3 paragraph executive summary. Para 1: business concept and value proposition. Para 2: market opportunity with specific Zambian context. Para 3: financial highlight and funding ask.",
   "business_description": "2 paragraphs describing the business, its mission, objectives, and legal structure. Be specific about location and what the business does day-to-day.",
-  "market_analysis": "3 paragraphs. Para 1: industry overview and Zambian market context. Para 2: target customer profile (use survey data if available). Para 3: competitive landscape and competitive advantage.",
+  "market_analysis": "3 paragraphs. Para 1: industry overview and Zambian market context. Para 2: target customer profile. Para 3: competitive landscape and competitive advantage.",
   "products_services": "Detailed description of products/services offered, pricing strategy, and unique selling points. 2 paragraphs.",
   "marketing_strategy": "2 paragraphs covering: customer acquisition channels specific to this location and customer type (WhatsApp, Facebook, word-of-mouth, physical marketing), and retention strategy.",
   "operations_plan": "2 paragraphs: daily operations overview, key suppliers, staffing plan, and operational milestones for first 6 months.",
@@ -376,7 +371,6 @@ async def generate_business_plan_pdf(
     capital: Optional[float],
     idea_summary: str,
     plan_json_text: str,
-    survey_data: Optional[dict] = None,
     log_summary: Optional[dict] = None,
     projected_profit: Optional[float] = None,
 ) -> bytes:
@@ -391,7 +385,6 @@ async def generate_business_plan_pdf(
         location=location,
         capital=capital,
         idea_summary=idea_summary,
-        survey_data=survey_data,
         log_summary=log_summary,
         projected_profit=projected_profit,
     )
@@ -510,23 +503,6 @@ async def generate_business_plan_pdf(
     story.extend(_section_header('3.  Market Analysis', TEAL))
     story.extend(body(content.get('market_analysis', '')))
 
-    if survey_data:
-        story.append(Spacer(1, 10))
-        story.append(Paragraph('Market Intelligence (Owner-Verified)', st['h3']))
-        survey_rows = []
-        field_labels = {
-            'area_type': 'Area Type', 'foot_traffic': 'Foot Traffic',
-            'dominant_income_level': 'Customer Income Level',
-            'competition_quality': 'Competition Level',
-            'market_gaps_noted': 'Identified Market Gaps',
-            'payment_preference': 'Payment Preference',
-        }
-        for field, label in field_labels.items():
-            val = survey_data.get(field)
-            if val:
-                survey_rows.append([label, str(val).replace('_', ' ').title()])
-        if survey_rows:
-            story.append(_kpi_table(survey_rows))
     story.append(PageBreak())
 
     # 4. Products & Services

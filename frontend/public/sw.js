@@ -21,8 +21,6 @@ const CACHEABLE_API_PATTERNS = [
   '/api/business/my-plans',
   '/api/dashboard',
   '/api/ideas/',
-  '/api/learn/courses',
-  '/api/learn/my-progress',
   '/api/templates/',
 ];
 
