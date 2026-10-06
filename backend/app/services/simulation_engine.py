@@ -234,6 +234,7 @@ class SimulationState:
     goodwill: float = 1.0
     w_served: float = 0.0                  # sum of week-weighted served demand
     w_demand: float = 0.0                  # sum of week-weighted reachable demand
+    w_serviceable: float = 0.0             # sum of week-weighted serviceable demand (what cash could supply)
     w_ref_demand: float = 0.0              # sum of week-weighted reference demand
     cum_procurement: float = 0.0
     cum_spoil_cost: float = 0.0
@@ -570,6 +571,14 @@ class SimulationEngine:
         mix_expansion = 1.0 + sum(p["expansion"] for p in on_sale)
         D_w = market * a_eff * state.goodwill * self._price_elasticity(levers.price) * mix_expansion
         D_ref = market * ref_awareness
+        # Serviceable demand: what the business could realistically supply this week from the
+        # cash it started with (carried stock + units affordable after unavoidable rent/wages).
+        # Used only to score Demand fairly -- a shop is judged on serving the market it can
+        # finance, not a market its capital could never reach. Unaffordable demand is excused;
+        # stockouts you could have afforded, and under-staffing, are not.
+        base_fixed = rent + state.staff_count * wage
+        affordable_units = sum(state.inventory.values()) + max(0.0, state.cash - base_fixed) / max(b.core_unit_cost, 1e-9)
+        D_serviceable = min(D_w, affordable_units)
 
         # 5. Bottleneck: served = min(demand, stock on sale, staff capacity).
         effective_staff = staff_count - hired * (1.0 - NEW_HIRE_PRODUCTIVITY)
@@ -615,8 +624,10 @@ class SimulationEngine:
         if overdrawn:
             E_next = max(1.0, E_next - OVERDRAWN_E_PENALTY)
 
-        # 8. Goodwill and awareness for next week.
-        fill = _safe_div(D_r, D_w, default=1.0)
+        # 8. Goodwill and awareness for next week. Measured against serviceable demand:
+        # a shop that serves everyone it could afford keeps its reputation, even if the
+        # wider market is bigger than its capital can reach.
+        fill = _safe_div(D_r, D_serviceable, default=1.0)
         fill_score = min(1.0, fill / FILL_TARGET)
         fairness = self._price_fairness(levers.price)
         goodwill = _bound(GOODWILL_MEMORY * state.goodwill
@@ -638,6 +649,7 @@ class SimulationEngine:
             awareness=awareness_next, ref_awareness=ref_next, goodwill=goodwill,
             w_served=state.w_served + weight * D_r,
             w_demand=state.w_demand + weight * D_w,
+            w_serviceable=state.w_serviceable + weight * D_serviceable,
             w_ref_demand=state.w_ref_demand + weight * D_ref,
             cum_procurement=state.cum_procurement + procurement,
             cum_spoil_cost=state.cum_spoil_cost + spoil_cost,
@@ -748,7 +760,10 @@ class SimulationEngine:
             )
 
         # D: service quality (95% fill = perfect) x reach vs the reference operator.
-        fill = _safe_div(state.w_served, state.w_demand, default=1.0)
+        # Fill is measured against serviceable demand -- the market the business could
+        # finance -- so an under-capitalised shop that serves all it can afford still scores
+        # well on Demand; being short of capital shows up in Capital-fit instead.
+        fill = _safe_div(state.w_served, state.w_serviceable, default=1.0)
         fill_score = min(1.0, fill / FILL_TARGET)
         reach = _safe_div(state.w_demand, state.w_ref_demand, default=1.0)
         D_c = _clamp(b.D * fill_score * math.sqrt(_bound(reach, 0.0, REACH_CAP)))

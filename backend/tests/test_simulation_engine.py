@@ -76,12 +76,9 @@ def _capacity(eng, st, staff):
 
 
 def prudent(eng, st):
-    """Baseline price, no ads, stock what the forecast says and cash allows."""
-    b = eng.b
-    budget = eng.purchase_budget(st) - st.staff_count * eng.bench["weekly_wage_per_worker"]
-    need = max(0.0, min(eng.forecast_demand(st), _capacity(eng, st, st.staff_count)) - st.inventory.get(CORE_KEY, 0))
-    return SimulationLevers(price=b.average_unit_price,
-                            stock_ordered=int(math.floor(min(need, max(0.0, budget) / b.core_unit_cost))))
+    """The app's real default play (baseline price, no ads/hires, stock what the
+    forecast says and cash allows) -- see SimulationEngine.prudent_levers."""
+    return eng.prudent_levers(st)
 
 
 def skilled(eng, st):
@@ -243,9 +240,12 @@ def test_pre_v2_state_dict_still_loads_and_plays():
 
 # ── Calibration: fair, beatable, not exploitable ────────────────────────────
 def test_prudent_play_lands_near_baseline():
+    # Prudent play may improve health modestly (a solvent, reinvesting operator at a
+    # healthy margin earns a little), but should stay in the baseline's neighbourhood
+    # and never beat skilled play (checked separately).
     for fixture in FIXTURES:
         idea = fixture()
-        assert abs(mean_v(idea, prudent) - baseline_v(idea)) <= 0.35, idea.category
+        assert abs(mean_v(idea, prudent) - baseline_v(idea)) <= 0.45, idea.category
 
 
 def test_skilled_play_beats_baseline_and_prudent():
@@ -290,6 +290,32 @@ def test_kip_autopilot_beats_baseline_and_is_affordable():
         assert sum(wins) / len(wins) > baseline_v(idea), idea.category
 
 
+def undercapitalised_idea() -> IdeaBaseline:
+    """Huge market, thin margin, tiny capital (mirrors kip.db idea 3): the business
+    can only finance a sliver of its market. Good play should still raise health."""
+    D, _ = ve.calculate_demand(3000, 52, 250, "retail_and_trade")
+    return IdeaBaseline(
+        category="retail_and_trade", D=D, F=ve.calculate_financial(32475, 19485), C=5.0, E=5.0, R=5.0, S=5.0, A=5.0,
+        total_target_buyers=3000, consumption_frequency_per_year=52, average_unit_price=250,
+        monthly_revenue_estimate=32475, cost_of_goods_sold_monthly=19485,
+        capital_required=3000, capital_available=None, environmental_risk_score=5.0,
+        allowed_sub_products=[{"sub_product_name": "Add-on", "base_cost": 120, "suggested_price": 220, "demand_expansion_factor": 0.1}],
+        operational_risks=["Supplier price hike"],
+    )
+
+
+def test_undercapitalised_idea_can_still_improve():
+    """Serving the financeable slice of a huge market should score well on Demand,
+    so Kip raises health instead of collapsing (was Demand ~1.1, delta ~-1.6)."""
+    idea = undercapitalised_idea()
+    base = baseline_v(idea)
+    kip = sum(play_autopilot(idea, s) for s in SEEDS) / len(SEEDS)
+    assert kip > base, (kip, base)
+    # Serving the financeable slice well lifts Demand back near its ceiling (was ~1.1).
+    demands = [compile_autopilot(idea, s).D_compiled for s in SEEDS]
+    assert sum(demands) / len(demands) > 7.0, demands
+
+
 def test_kip_autopilot_beats_prudent_play():
     for fixture in FIXTURES:
         idea = fixture()
@@ -297,12 +323,16 @@ def test_kip_autopilot_beats_prudent_play():
         assert kip >= mean_v(idea, prudent), idea.category
 
 
-def play_autopilot(idea, seed):
+def compile_autopilot(idea, seed):
     eng = SimulationEngine(idea, horizon_weeks=4, seed=seed)
     st = eng.start()
     for _, _, st in eng.autopilot(st):
         pass
-    return eng.compile(st).V_simulated
+    return eng.compile(st)
+
+
+def play_autopilot(idea, seed):
+    return compile_autopilot(idea, seed).V_simulated
 
 
 if __name__ == "__main__":
