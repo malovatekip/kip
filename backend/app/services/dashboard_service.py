@@ -157,6 +157,8 @@ Generate the full JSON launch plan now.
             system=LAUNCH_PLAN_PROMPT,
             messages=[{"role": "user", "content": user_message}]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("dashboard", "claude-sonnet-4-6", response)
         raw = response.content[0].text.strip()
 
         # Strip markdown code fences if present
@@ -300,6 +302,8 @@ Generate daily coaching now.
             system=COACHING_PROMPT,
             messages=[{"role": "user", "content": user_message}]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("dashboard", "claude-sonnet-4-6", response)
         return response.content[0].text.strip()
     except Exception as e:
         print(f"[Dashboard] Coaching error: {e}")

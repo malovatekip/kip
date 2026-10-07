@@ -169,6 +169,9 @@ are recent (within the last 2 weeks ideally, or the most recent available).
             messages=[{"role": "user", "content": user_prompt}],
         )
 
+        from app.services import usage_meter
+        usage_meter.record_usage("news_briefing", "claude-sonnet-4-6", response)
+
         # Extract text blocks from response (tool_use blocks are intermediate)
         full_text = ""
         for block in response.content:

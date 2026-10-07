@@ -224,13 +224,18 @@ IDEAS_WRAPPER_SCHEMA = {
 }
 
 
+# The byte-identical part of the K-BIG-2 system prompt -- the prompt-cache prefix
+# (see build_system_blocks_v2). Keep per-user / per-request text out of it.
+STABLE_SECTIONS_V2 = [KIP_IDENTITY, KIP_ZAMBIA_CONSTANTS, KBIG2_TASK_INSTRUCTIONS]
+
+
 def build_system_prompt_v2(
     retrieved_knowledge: str = "",
     town_profile: str = "",
     user_idea_history: str = "",
 ) -> str:
     """Assembles the complete system prompt for a K-BIG-2 structured-generation call."""
-    sections = [KIP_IDENTITY, KIP_ZAMBIA_CONSTANTS, KBIG2_TASK_INSTRUCTIONS]
+    sections = list(STABLE_SECTIONS_V2)
 
     if retrieved_knowledge:
         sections.append(f"RETRIEVED KNOWLEDGE (use this to inform your response):\n{retrieved_knowledge}")
@@ -255,3 +260,26 @@ def build_user_message_v2(profile: dict) -> str:
         f"- Assets already owned: {', '.join(profile.get('assets') or []) or 'None specified'}",
     ]
     return "\n".join(lines)
+
+
+def build_system_blocks_v2(
+    retrieved_knowledge: str = "",
+    town_profile: str = "",
+    user_idea_history: str = "",
+) -> list:
+    """
+    The same prompt as build_system_prompt_v2(...), split into system content
+    blocks so the stable prefix (identity, Zambian constants, the K-BIG-2 task and
+    scoring bands) can be prompt-cached. Block 1 carries the cache breakpoint;
+    block 2 holds the per-request retrieved knowledge, town intelligence and idea
+    history and is not cached (prompt caching is a prefix match, so volatile text
+    must come after the last breakpoint). Concatenated, the blocks equal
+    build_system_prompt_v2(...) exactly -- the model sees an identical prompt.
+    """
+    stable = "\n\n".join(STABLE_SECTIONS_V2)
+    full = build_system_prompt_v2(retrieved_knowledge, town_profile, user_idea_history)
+    tail = full[len(stable):]
+    blocks = [{"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}}]
+    if tail:  # the API rejects empty text blocks
+        blocks.append({"type": "text", "text": tail})
+    return blocks

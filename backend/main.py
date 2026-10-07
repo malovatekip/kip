@@ -16,6 +16,7 @@ from app.models import enhanced_logs
 from app.models import startup_chat as startup_chat_models
 from app.models import token_blocklist
 from app.models import ground_truth
+from app.models import api_usage
 
 from app.rate_limit import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -41,6 +42,7 @@ from app.routes import add_own_business
 from app.routes import capital_access
 from app.routes import simulation_routes
 from app.routes import field_data, market_map
+from app.routes import usage as usage_routes
 
 from app.routes.briefings import router as briefings_router
 from app.routes import i18n_routes
@@ -154,6 +156,7 @@ app.include_router(capital_access.router,  prefix="/api/capital", tags=["Capital
 app.include_router(simulation_routes.router, prefix="/api/simulation", tags=["Simulation"])
 app.include_router(field_data.router,  prefix="/api/field", tags=["Field Data"])
 app.include_router(market_map.router,  prefix="/api/map",   tags=["Market Map"])
+app.include_router(usage_routes.router, prefix="/api/usage", tags=["Usage"])
 
 app.include_router(briefings_router, prefix="/api/news", tags=["briefings"])
 

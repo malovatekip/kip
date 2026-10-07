@@ -22,7 +22,7 @@ import uuid
 import anthropic
 
 from app.services.kip_prompt_v2 import (
-    build_system_prompt_v2,
+    build_system_blocks_v2,
     build_user_message_v2,
     IDEAS_WRAPPER_SCHEMA,
 )
@@ -84,7 +84,9 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
     )
     idea_history = "\n".join(f"  - {i.idea_name} ({i.category or 'uncategorized'})" for i in recent)
 
-    system_prompt = build_system_prompt_v2(
+    # System prompt as content blocks: the constant prefix carries a prompt-cache
+    # breakpoint; retrieved knowledge / town intelligence / idea history follow it.
+    system_prompt = build_system_blocks_v2(
         retrieved_knowledge=retrieved_knowledge,
         town_profile=combined_location,
         user_idea_history=idea_history,
@@ -106,6 +108,10 @@ def generate_structured_ideas(profile: dict, user, db) -> list[dict]:
         messages=[{"role": "user", "content": user_message}],
     ) as stream:
         response = stream.get_final_message()
+
+    from app.services import usage_meter
+    usage_meter.record_usage("kbig2_structured", MODEL, response,
+                             user_id=getattr(user, "id", None))
 
     if response.stop_reason == "max_tokens":
         raise RuntimeError("k-big-2 generation was truncated (hit max_tokens) -- try again.")

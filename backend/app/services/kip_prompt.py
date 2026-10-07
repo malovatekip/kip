@@ -139,6 +139,18 @@ WHAT YOU NEVER DO:
 """
 
 
+# The part of the K-BIG-1 system prompt that is byte-identical on every request.
+# It must stay free of anything per-user or per-request (names, dates, retrieved
+# text) -- it is the prompt-cache prefix (see build_system_blocks).
+STABLE_SECTIONS = [
+    KIP_IDENTITY,
+    KIP_ZAMBIA_CONSTANTS,
+    KIP_BPRA_PROCESS,
+    KIP_OUTPUT_FORMAT,
+    KIP_PERSONALITY,
+]
+
+
 def build_system_prompt(
     retrieved_knowledge: str = "",
     town_profile: str = "",
@@ -147,13 +159,7 @@ def build_system_prompt(
     """
     Assembles the complete system prompt for a K-BIG-1 API call.
     """
-    sections = [
-        KIP_IDENTITY,
-        KIP_ZAMBIA_CONSTANTS,
-        KIP_BPRA_PROCESS,
-        KIP_OUTPUT_FORMAT,
-        KIP_PERSONALITY,
-    ]
+    sections = list(STABLE_SECTIONS)
 
     if retrieved_knowledge:
         sections.append(f"""
@@ -174,3 +180,32 @@ USER'S PREVIOUS IDEAS (do NOT repeat these):
 """)
 
     return "\n\n".join(sections)
+
+
+def build_system_blocks(
+    retrieved_knowledge: str = "",
+    town_profile: str = "",
+    user_idea_history: str = "",
+    suffix: str = "",
+) -> list:
+    """
+    The same prompt as build_system_prompt(...) + suffix, split into system
+    content blocks so the stable prefix can be prompt-cached.
+
+    Block 1 is the constant prefix (identity, Zambian constants, process, format,
+    personality) carrying the cache breakpoint -- on a hit it is read at ~0.1x the
+    input price instead of being re-billed in full. Block 2 holds everything that
+    varies per request (retrieved knowledge, town intelligence, the user's idea
+    history, language instruction) and is deliberately NOT cached: prompt caching
+    is a prefix match, so volatile text must sit after the last breakpoint.
+
+    Concatenating the blocks' text reproduces build_system_prompt(...) + suffix
+    exactly, so the model sees an identical prompt.
+    """
+    stable = "\n\n".join(STABLE_SECTIONS)
+    full = build_system_prompt(retrieved_knowledge, town_profile, user_idea_history) + suffix
+    tail = full[len(stable):]
+    blocks = [{"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}}]
+    if tail:  # the API rejects empty text blocks
+        blocks.append({"type": "text", "text": tail})
+    return blocks

@@ -9,7 +9,7 @@ import re
 from typing import Tuple
 import anthropic
 
-from app.services.kip_prompt import build_system_prompt
+from app.services.kip_prompt import build_system_blocks
 from app.services.knowledge_base import get_knowledge_base
 from app.data.town_profiles import get_town_profile
 from app.services.map_service import get_map_context
@@ -170,11 +170,15 @@ def generate_kip_response(
         except Exception:
             pass
 
-    system_prompt = build_system_prompt(
+    # System prompt as content blocks: the constant prefix carries a prompt-cache
+    # breakpoint; everything per-request (retrieved knowledge, town intelligence,
+    # idea history, language instruction) follows it and is not cached.
+    system_prompt = build_system_blocks(
         retrieved_knowledge=retrieved_knowledge,
         town_profile=combined_location,
-        user_idea_history=idea_history
-    ) + language_instruction(lang)
+        user_idea_history=idea_history,
+        suffix=language_instruction(lang),
+    )
 
     # Build message list
     messages = []
@@ -214,6 +218,10 @@ def generate_kip_response(
         else:
             raise
 
+    from app.services import usage_meter
+    usage_meter.record_usage("kbig1_chat", "claude-sonnet-4-6", response,
+                             user_id=getattr(user, "id", None))
+
     # Extract the final text reply (works whether or not web search was used)
     reply = _extract_text_from_response(response)
 
@@ -247,6 +255,8 @@ def generate_kip_response(
                 tools=tools,
                 messages=messages_with_tool
             )
+            usage_meter.record_usage("kbig1_chat", "claude-sonnet-4-6", followup,
+                                     user_id=getattr(user, "id", None))
             reply = _extract_text_from_response(followup)
 
     # Final fallback

@@ -105,6 +105,8 @@ async def generate_log_template(
                 "content": f"Business: {business_name}\n\nOriginal recommendation:\n{business_idea_response[:800]}"
             }]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("log_summary", "claude-sonnet-4-6", response)
         raw = response.content[0].text.strip()
         # Strip markdown fences
         if '```' in raw:
@@ -195,6 +197,8 @@ ML ALERTS:
             system=COACHING_PROMPT + language_instruction(lang),
             messages=[{"role": "user", "content": user_message}]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("log_summary", "claude-sonnet-4-6", response)
         return response.content[0].text.strip()
     except Exception as e:
         print(f"[Coaching] Error: {e}")
@@ -351,6 +355,8 @@ async def _generate_review_narrative(kpis: Dict, business_name: str, user_name: 
                 f"Weekly KPIs:\n{json.dumps(kpis, indent=2)}"
             }]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("log_summary", "claude-sonnet-4-6", response)
         return response.content[0].text.strip()
     except Exception:
         return f"Weekly review for {business_name} — revenue K{kpis.get('total_revenue',0):.0f}, profit K{kips.get('net_profit',0):.0f}."

@@ -45,6 +45,8 @@ def generate_advice(week: dict, *, idea_name: str, category: str,
             messages=[{"role": "user", "content": _week_brief(
                 week, idea_name, category, running_viability, baseline_viability)}],
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("sim_advice", MODEL, msg)
         data = json.loads(_extract_json(msg))
         problem = str(data.get("problem") or "").strip()
         solution = str(data.get("solution") or "").strip()

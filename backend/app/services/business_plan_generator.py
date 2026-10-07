@@ -275,6 +275,8 @@ Use ZMW (Kwacha) for all amounts. Be realistic, not optimistic."""
             max_tokens=3000,
             messages=[{"role": "user", "content": prompt}]
         )
+        from app.services import usage_meter
+        usage_meter.record_usage("business_plan", "claude-sonnet-4-6", response)
         raw = response.content[0].text.strip()
         # Strip markdown fences if present
         if '```' in raw:
