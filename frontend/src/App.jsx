@@ -29,6 +29,7 @@ import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
 
 import CapitalAccessPage from './pages/CapitalAccessPage'
 import SimulatePage from './pages/SimulatePage'
+import AdminUsagePage from './pages/AdminUsagePage'
 
 // ── NEW: Startup guidance page (CTO addition — business registration roadmap) ──
 import StartupPage     from './pages/StartupPage'
@@ -102,6 +103,8 @@ function AppRoutes() {
         {import.meta.env.DEV && <Route path="/simulate/demo" element={<SimulatePage demo />} />}
         <Route path="/simulate/:ideaId" element={<Protected><SimulatePage /></Protected>} />
         <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
+        {/* Admin only: the page itself redirects non-admins to /dashboard. */}
+        <Route path="/admin/usage" element={<Protected><AdminUsagePage /></Protected>} />
 
         {/* ── NEW: Startup guidance — protected, business registration roadmap ── */}
         <Route path="/startup"            element={<Protected><StartupPage /></Protected>} />
