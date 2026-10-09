@@ -380,3 +380,19 @@ def test_luwingu_pins_are_stored_and_listed(api):
     pins = client.get("/api/map/admin/pins.geojson", params={"location": "Luwingu"},
                       headers=tokens["admin"]).json()["features"]
     assert [p["properties"]["id"] for p in pins] == [item["target_id"]]
+
+
+def test_admin_csv_export_has_pins_but_no_contacts_or_traps(api):
+    client, tokens = api
+    town = TOWN_COORDS["luwingu"]
+    item = _wire(_obs(subtype="barbershop", name="Kuta Cuts", lat=town["lat"], lon=town["lon"],
+                      owner={"first_name": "Mwila", "phone": "0977000000", "consent": True}))
+    client.post("/api/field/sync", json={"observations": [item]}, headers=tokens["collector"])
+
+    assert client.get("/api/map/admin/export.csv", headers=tokens["supervisor"]).status_code == 403
+    res = client.get("/api/map/admin/export.csv", headers=tokens["admin"])
+    assert res.status_code == 200 and res.headers["content-type"].startswith("text/csv")
+    lines = res.text.strip().splitlines()
+    assert lines[0].startswith("id,name,business_type") and len(lines) == 2
+    assert "Kuta Cuts" in lines[1] and "Luwingu" in lines[1] and "Northern" in lines[1]
+    assert "0977000000" not in res.text and "Mwila" not in res.text

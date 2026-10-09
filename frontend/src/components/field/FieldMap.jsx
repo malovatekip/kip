@@ -8,8 +8,7 @@
 // with a scale bar, which is still enough to pin a stall you are standing at.
 // Either way the backdrop is only a picture: no OSM points enter our data.
 import React, { useEffect, useRef } from 'react'
-import * as maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import maplibregl from '../../lib/maplibre'
 import { Protocol } from 'pmtiles'
 import { layers, namedFlavor } from '@protomaps/basemaps'
 
@@ -51,9 +50,10 @@ export function buildStyle() {
   }
 }
 
-const PIN_COLORS = ['match', ['get', 'state'], 'unsynced', '#E8A317', 'mine', '#0DAD55', '#3B6FD4']
+const PIN_COLORS = { unsynced: '#E8A317', mine: '#0DAD55' }
+const OTHER_PIN_COLOR = '#3B6FD4'
 
-function dot(color, size) {
+export function dot(color, size) {
   const el = document.createElement('div')
   el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${color};` +
     'border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45)'
@@ -68,21 +68,10 @@ function dot(color, size) {
 export default function FieldMap({ fix, pins = [], draft, onDraftMove, height = '48vh' }) {
   const container = useRef(null)
   const map = useRef(null)
-  const loaded = useRef(false)
+  const pinMarkers = useRef([])
   const meMarker = useRef(null)
   const draftMarker = useRef(null)
   const following = useRef(true)
-  const pinsRef = useRef(pins)
-  pinsRef.current = pins
-
-  const pinData = list => ({
-    type: 'FeatureCollection',
-    features: list.map(p => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
-      properties: { id: p.id, state: p.state, label: p.label || '' },
-    })),
-  })
 
   useEffect(() => {
     const m = new maplibregl.Map({
@@ -95,23 +84,19 @@ export default function FieldMap({ fix, pins = [], draft, onDraftMove, height = 
     })
     m.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left')
     m.on('dragstart', () => { following.current = false })
-    m.on('load', () => {
-      m.addSource('pins', { type: 'geojson', data: pinData(pinsRef.current) })
-      m.addLayer({
-        id: 'pins', type: 'circle', source: 'pins',
-        paint: {
-          'circle-radius': 8, 'circle-color': PIN_COLORS,
-          'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5,
-        },
-      })
-      loaded.current = true
-    })
     map.current = m
-    return () => { loaded.current = false; m.remove() }
+    return () => m.remove()
   }, [])
 
+  // Pins are plain HTML markers, not a map layer: they draw even when the
+  // map's worker or the tiles are unavailable (offline, old WebView).
   useEffect(() => {
-    if (loaded.current) map.current.getSource('pins')?.setData(pinData(pins))
+    pinMarkers.current.forEach(mk => mk.remove())
+    pinMarkers.current = pins.map(p => {
+      const el = dot(PIN_COLORS[p.state] || OTHER_PIN_COLOR, 14)
+      if (p.label) el.title = p.label
+      return new maplibregl.Marker({ element: el }).setLngLat([p.lon, p.lat]).addTo(map.current)
+    })
   }, [pins])
 
   useEffect(() => {

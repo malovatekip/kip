@@ -3,14 +3,18 @@ Market map API -- what KIP users (and later, B2B clients) see of the ground
 truth layer. Ordinary users only ever receive aggregates; raw pins are
 admin-only, so the dataset cannot be harvested through the public app.
 """
+import csv
+import io
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.data.business_taxonomy import BUSINESS_SUBTYPES
-from app.data.town_coordinates import resolve_location
+from app.data.town_coordinates import nearest_town, resolve_location
 from app.database import get_db
 from app.models.ground_truth import BusinessPoint, Market
 from app.models.user import User
@@ -117,3 +121,55 @@ def admin_markets(
         }
         for m in markets
     ]}
+
+
+EXPORT_COLUMNS = [
+    "id", "name", "business_type", "category", "subtype", "structure_type", "op_status", "review_status",
+    "lat", "lon", "gps_accuracy_m", "nearest_town", "province", "market_name", "section",
+    "products", "staff_count", "years_operating", "payments", "power_source", "rent_band",
+    "daily_customers_band", "daily_sales_band", "source", "first_seen", "last_verified",
+]
+
+
+@router.get("/admin/export.csv")
+def export_pins_csv(
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Admin-only CSV of every business pin KIP has collected, all towns. Owner
+    contact details and trap pins are never included.
+    """
+    markets = dict(db.query(Market.id, Market.name).all())
+    rows = (
+        db.query(BusinessPoint)
+        .filter(BusinessPoint.is_trap == False)  # noqa: E712
+        .order_by(BusinessPoint.created_at)
+        .all()
+    )
+    joined = lambda v: "; ".join(str(x) for x in v) if isinstance(v, (list, tuple)) else (v or "")
+    day = lambda d: d.strftime("%Y-%m-%d") if d else ""
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(EXPORT_COLUMNS)
+    for bp in rows:
+        town_key, coord, _km = nearest_town(bp.lat, bp.lon)
+        writer.writerow([
+            bp.id, bp.name or "", BUSINESS_SUBTYPES[bp.subtype][0], bp.category, bp.subtype,
+            bp.structure_type or "", bp.op_status, bp.review_status,
+            round(bp.lat, 6), round(bp.lon, 6), round(bp.gps_accuracy_m, 1) if bp.gps_accuracy_m is not None else "",
+            (town_key or "").title(), (coord or {}).get("province", ""),
+            markets.get(bp.market_id, ""), bp.section or "",
+            joined(bp.products), bp.staff_count if bp.staff_count is not None else "",
+            bp.years_operating if bp.years_operating is not None else "", joined(bp.payments),
+            bp.power_source or "", bp.rent_band or "", bp.daily_customers_band or "", bp.daily_sales_band or "",
+            bp.source or "", day(bp.first_seen), day(bp.last_verified),
+        ])
+
+    filename = f"kip_ground_truth_pins_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import * as maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import maplibregl from '../lib/maplibre'
 import Layout from '../components/Layout'
-import { buildStyle } from '../components/field/FieldMap'
+import { buildStyle, dot } from '../components/field/FieldMap'
 import api from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 
@@ -21,8 +20,7 @@ const TOWNS = {
 }
 
 const STATUS_COLOR = { verified: '#0DAD55', pending: '#E8A317', rejected: '#8A8F98', duplicate: '#8A8F98' }
-const COLOR_EXPR = ['case', ['==', ['get', 'is_trap'], true], '#E0263E',
-  ['match', ['get', 'review_status'], 'verified', STATUS_COLOR.verified, 'pending', STATUS_COLOR.pending, STATUS_COLOR.rejected]]
+const pinColor = p => (p.is_trap ? '#E0263E' : STATUS_COLOR[p.review_status] || STATUS_COLOR.rejected)
 
 function Stat({ label, value, color }) {
   return (
@@ -36,51 +34,39 @@ function Stat({ label, value, color }) {
 function PinsMap({ features, center, onSelect }) {
   const container = useRef(null)
   const map = useRef(null)
-  const loaded = useRef(false)
-  const latest = useRef({ features, center })
-  latest.current = { features, center }
-
-  const fit = useCallback(() => {
-    const m = map.current
-    if (!m) return
-    const { features: fs, center: c } = latest.current
-    if (fs.length) {
-      const b = new maplibregl.LngLatBounds()
-      fs.forEach(f => b.extend(f.geometry.coordinates))
-      m.fitBounds(b, { padding: 60, maxZoom: 17, duration: 0 })
-    } else {
-      m.jumpTo({ center: c, zoom: 13 })
-    }
-  }, [])
+  const markers = useRef([])
 
   useEffect(() => {
     const m = new maplibregl.Map({
-      container: container.current, style: buildStyle(), center: latest.current.center, zoom: 13,
+      container: container.current, style: buildStyle(), center, zoom: 13,
       attributionControl: { compact: true },
     })
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
     m.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left')
-    m.on('load', () => {
-      m.addSource('pins', { type: 'geojson', data: { type: 'FeatureCollection', features: latest.current.features } })
-      m.addLayer({
-        id: 'pins', type: 'circle', source: 'pins',
-        paint: { 'circle-radius': 9, 'circle-color': COLOR_EXPR, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 },
-      })
-      m.on('click', 'pins', e => e.features?.[0] && onSelect(e.features[0].properties))
-      m.on('mouseenter', 'pins', () => { m.getCanvas().style.cursor = 'pointer' })
-      m.on('mouseleave', 'pins', () => { m.getCanvas().style.cursor = '' })
-      loaded.current = true
-      fit()
-    })
     map.current = m
-    return () => { loaded.current = false; m.remove() }
-  }, [fit, onSelect])
+    return () => m.remove()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
+  // Pins are HTML markers so they draw regardless of the map's worker or tiles.
   useEffect(() => {
-    if (!loaded.current) return
-    map.current.getSource('pins')?.setData({ type: 'FeatureCollection', features })
-    fit()
-  }, [features, center, fit])
+    const m = map.current
+    markers.current.forEach(mk => mk.remove())
+    markers.current = features.map(f => {
+      const el = dot(pinColor(f.properties), 18)
+      el.style.cursor = 'pointer'
+      el.title = f.properties.name || f.properties.label || ''
+      el.addEventListener('click', e => { e.stopPropagation(); onSelect(f.properties) })
+      return new maplibregl.Marker({ element: el }).setLngLat(f.geometry.coordinates).addTo(m)
+    })
+    if (features.length) {
+      const b = new maplibregl.LngLatBounds()
+      features.forEach(f => b.extend(f.geometry.coordinates))
+      m.fitBounds(b, { padding: 60, maxZoom: 17, duration: 0 })
+    } else {
+      m.jumpTo({ center, zoom: 13 })
+    }
+  }, [features, center, onSelect])
 
   return <div ref={container} style={{ height: '56vh', minHeight: 360, width: '100%', borderRadius: 14, overflow: 'hidden' }} />
 }
@@ -98,7 +84,7 @@ function PinDetail({ pin, onClose }) {
   }, [pin?.photo_media_id])
 
   if (!pin) return null
-  const flags = typeof pin.qa_flags === 'string' ? JSON.parse(pin.qa_flags || '[]') : (pin.qa_flags || [])
+  const flags = pin.qa_flags || []
   const row = (k, v) => v != null && v !== '' && (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, padding: '4px 0' }}>
       <span style={{ color: 'var(--muted)' }}>{k}</span><span style={{ color: 'var(--text)', textAlign: 'right' }}>{v}</span>
@@ -119,7 +105,7 @@ function PinDetail({ pin, onClose }) {
       {row('GPS accuracy', pin.gps_accuracy_m != null ? `${Math.round(pin.gps_accuracy_m)} m` : null)}
       {row('Last verified', pin.last_verified ? pin.last_verified.slice(0, 10) : null)}
       {flags.length > 0 && <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6 }}>Flags: {flags.join(', ')}</div>}
-      {pin.is_trap === true || pin.is_trap === 'true' ? <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6 }}>Trap pin (planted to detect copying)</div> : null}
+      {pin.is_trap ? <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6 }}>Trap pin (planted to detect copying)</div> : null}
     </div>
   )
 }
@@ -176,6 +162,7 @@ export default function AdminMapPage() {
   const [selected, setSelected] = useState(null)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!user?.is_admin) return
@@ -190,6 +177,26 @@ export default function AdminMapPage() {
   }, [town, user?.is_admin])
 
   const onSelect = useCallback(p => setSelected(p), [])
+
+  // Every pin KIP has collected (all towns), same pattern as the ideas dataset export.
+  const downloadCsv = async () => {
+    setExporting(true)
+    try {
+      const res = await api.get('/map/admin/export.csv', { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `kip_ground_truth_pins_${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch {
+      setError('Could not download the dataset. Try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   if (authLoading) return null
   if (!user?.is_admin) return <Navigate to="/dashboard" replace />
@@ -212,6 +219,9 @@ export default function AdminMapPage() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button onClick={downloadCsv} disabled={exporting} className="kip-btn kip-btn-ghost" style={{ fontSize: 12, padding: '7px 12px' }}>
+              {exporting ? 'Preparing…' : 'Download CSV'}
+            </button>
             {Object.keys(TOWNS).map(t => (
               <button key={t} onClick={() => setTown(t)} className={t === town ? 'kip-btn kip-btn-primary' : 'kip-btn kip-btn-ghost'}
                 style={{ fontSize: 12, padding: '7px 12px' }}>{t}</button>
