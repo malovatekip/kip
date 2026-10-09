@@ -47,7 +47,7 @@ function PinsMap({ features, center, onSelect }) {
     if (fs.length) {
       const b = new maplibregl.LngLatBounds()
       fs.forEach(f => b.extend(f.geometry.coordinates))
-      m.fitBounds(b, { padding: 60, maxZoom: 18, duration: 0 })
+      m.fitBounds(b, { padding: 60, maxZoom: 17, duration: 0 })
     } else {
       m.jumpTo({ center: c, zoom: 13 })
     }
@@ -64,7 +64,7 @@ function PinsMap({ features, center, onSelect }) {
       m.addSource('pins', { type: 'geojson', data: { type: 'FeatureCollection', features: latest.current.features } })
       m.addLayer({
         id: 'pins', type: 'circle', source: 'pins',
-        paint: { 'circle-radius': 7, 'circle-color': COLOR_EXPR, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 },
+        paint: { 'circle-radius': 9, 'circle-color': COLOR_EXPR, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 },
       })
       m.on('click', 'pins', e => e.features?.[0] && onSelect(e.features[0].properties))
       m.on('mouseenter', 'pins', () => { m.getCanvas().style.cursor = 'pointer' })

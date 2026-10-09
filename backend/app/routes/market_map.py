@@ -65,7 +65,7 @@ def export_pins(
     location_key, coord = resolve_location(location)
     if not location_key:
         raise HTTPException(status_code=404, detail="Unknown location.")
-    lat_min, lat_max, lon_min, lon_max = bounding_box(coord["lat"], coord["lon"], max(coord["radius_m"], 5000))
+    lat_min, lat_max, lon_min, lon_max = bounding_box(coord["lat"], coord["lon"], max(coord["radius_m"], 15000))
     rows = db.query(BusinessPoint).filter(
         BusinessPoint.lat.between(lat_min, lat_max), BusinessPoint.lon.between(lon_min, lon_max),
     ).all()
@@ -99,7 +99,7 @@ def admin_markets(
     location_key, coord = resolve_location(location)
     if not location_key:
         raise HTTPException(status_code=404, detail="Unknown location.")
-    lat_min, lat_max, lon_min, lon_max = bounding_box(coord["lat"], coord["lon"], max(coord["radius_m"], 5000))
+    lat_min, lat_max, lon_min, lon_max = bounding_box(coord["lat"], coord["lon"], max(coord["radius_m"], 15000))
     markets = db.query(Market).filter(
         Market.lat.between(lat_min, lat_max), Market.lon.between(lon_min, lon_max),
     ).all()

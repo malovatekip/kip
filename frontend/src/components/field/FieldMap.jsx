@@ -3,8 +3,10 @@
 //
 // Background map: a self-hosted PMTiles file (roads and place names built
 // from an OpenStreetMap extract of Zambia) when VITE_BASEMAP_PMTILES_URL is
-// set. Without it the map is a plain canvas with a scale bar, which is still
-// enough to pin a stall you are standing at.
+// set. Without it the backdrop is OpenStreetMap's public raster tiles (roads
+// and place names, needs a connection); offline it degrades to a plain canvas
+// with a scale bar, which is still enough to pin a stall you are standing at.
+// Either way the backdrop is only a picture: no OSM points enter our data.
 import React, { useEffect, useRef } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -22,8 +24,16 @@ export function buildStyle() {
   if (!PMTILES_URL) {
     return {
       version: 8,
-      sources: {},
-      layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#e9efe9' } }],
+      sources: {
+        osm: {
+          type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256, maxzoom: 19, attribution: '© OpenStreetMap contributors',
+        },
+      },
+      layers: [
+        { id: 'bg', type: 'background', paint: { 'background-color': '#e9efe9' } },
+        { id: 'osm', type: 'raster', source: 'osm' },
+      ],
     }
   }
   if (!protocolRegistered) {
@@ -81,7 +91,7 @@ export default function FieldMap({ fix, pins = [], draft, onDraftMove, height = 
       center: [28.2833, -15.4167],   // Lusaka until the first GPS fix arrives
       zoom: 17,
       maxZoom: 20,
-      attributionControl: PMTILES_URL ? { compact: true } : false,
+      attributionControl: { compact: true },
     })
     m.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left')
     m.on('dragstart', () => { following.current = false })
@@ -90,8 +100,8 @@ export default function FieldMap({ fix, pins = [], draft, onDraftMove, height = 
       m.addLayer({
         id: 'pins', type: 'circle', source: 'pins',
         paint: {
-          'circle-radius': 7, 'circle-color': PIN_COLORS,
-          'circle-stroke-color': '#fff', 'circle-stroke-width': 2,
+          'circle-radius': 8, 'circle-color': PIN_COLORS,
+          'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5,
         },
       })
       loaded.current = true

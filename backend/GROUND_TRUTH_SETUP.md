@@ -32,8 +32,10 @@ FIELD_MEDIA_S3_SECRET=...
 ```
 
 ## 3. Background map (optional)
-Without a basemap the collector map is a plain canvas with a scale bar, which
-is enough to pin a stall you are standing at. For roads and place names, build
+Without a self-hosted basemap the maps use OpenStreetMap's public raster tiles as
+the backdrop (needs a connection; offline it falls back to a plain canvas with a
+scale bar). That is fine for the pilot and demo; it is a picture only, and no OSM
+points enter our data. For heavier use or offline maps, host our own file. For roads and place names, build
 one PMTiles file for Zambia and host it on your own bucket:
 ```bash
 # https://docs.protomaps.com/pmtiles/cli
