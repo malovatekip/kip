@@ -21,6 +21,12 @@ from app.security import get_current_user, get_current_admin
 from app.services import kip_engine_v2
 from app.services.kip_prompt_v2 import IDEA_SCHEMA
 from app.services.kip_engine_v2 import USER_SCORE_FIELDS
+from app.services.dataset_metrics import (
+    data_dictionary,
+    export_header,
+    export_row,
+    extra_structured_fields,
+)
 from app.data.town_coordinates import nearest_town
 
 router = APIRouter()
@@ -89,33 +95,12 @@ def export_dataset(
         .all()
     )
 
-    # Public dataset: no user-specific data, no viability score.
-    core_fields = [
-        "id", "idea_name", "category", "min_capital", "recommended_capital_min",
-        "recommended_capital_max", "status", "decline_reason", "created_at",
-    ]
-    # Structured fields that duplicate a core column, or that are
-    # requester-dependent scores, are not exported.
-    skip = set(core_fields) | set(USER_SCORE_FIELDS) | {"operational_risks"}
-    extra_structured_fields = [f for f in STRUCTURED_FIELDS if f not in skip]
-    header = core_fields + ["operational_risks"] + extra_structured_fields
-
+    extra_fields = extra_structured_fields(STRUCTURED_FIELDS, USER_SCORE_FIELDS)
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(header)
+    writer.writerow(export_header(STRUCTURED_FIELDS, USER_SCORE_FIELDS))
     for idea in ideas:
-        data = idea.structured_data or {}
-        row = []
-        for field in core_fields:
-            value = getattr(idea, field, "")
-            row.append(value.isoformat() if isinstance(value, datetime) else value)
-        row.append("; ".join(str(v) for v in (idea.operational_risks or [])))
-        for field in extra_structured_fields:
-            value = data.get(field, "")
-            if isinstance(value, list):
-                value = "; ".join(str(v) for v in value)
-            row.append(value)
-        writer.writerow(row)
+        writer.writerow(export_row(idea, extra_fields))
 
     buffer.seek(0)
     filename = f"kip_kbig2_dataset_{datetime.utcnow().strftime('%Y%m%d')}.csv"
@@ -124,6 +109,12 @@ def export_dataset(
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/export/dictionary")
+def export_dictionary(current_admin: User = Depends(get_current_admin)):
+    """Admin-only: how each derived column in the CSV export is computed."""
+    return data_dictionary()
 
 
 @router.get("/nearest-town")

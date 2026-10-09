@@ -1,0 +1,124 @@
+{
+  "_comment": "Lookup tables for the institutional dataset export (app/services/dataset_metrics.py). Every number here is an ESTIMATE or a PLACEHOLDER, not a measurement; the data dictionary (dataset_dictionary.json) tells buyers which columns are exact, rule-based or estimated. Change values here, not in code. Council fees are placeholders until the councils' fee schedules are checked.",
+
+  "category": {
+    "food_and_catering":            {"wc_cycle_days": 7,  "seasonality_variance_pct": 15, "local_retention_pct": 80, "setup_months": 1, "sdg": [2, 8]},
+    "agriculture":                  {"wc_cycle_days": 60, "seasonality_variance_pct": 45, "local_retention_pct": 70, "setup_months": 3, "sdg": [1, 2, 8]},
+    "retail_and_trade":             {"wc_cycle_days": 30, "seasonality_variance_pct": 20, "local_retention_pct": 60, "setup_months": 1, "sdg": [8]},
+    "arts_and_entertainment":       {"wc_cycle_days": 14, "seasonality_variance_pct": 25, "local_retention_pct": 75, "setup_months": 2, "sdg": [8, 11]},
+    "trades_and_repairs":           {"wc_cycle_days": 10, "seasonality_variance_pct": 5,  "local_retention_pct": 80, "setup_months": 1, "sdg": [8, 9]},
+    "digital_and_creative":         {"wc_cycle_days": 5,  "seasonality_variance_pct": 10, "local_retention_pct": 40, "setup_months": 1, "sdg": [8, 9]},
+    "services_and_care":            {"wc_cycle_days": 3,  "seasonality_variance_pct": 10, "local_retention_pct": 90, "setup_months": 1, "sdg": [3, 8]},
+    "finance_and_administration":   {"wc_cycle_days": 2,  "seasonality_variance_pct": 15, "local_retention_pct": 90, "setup_months": 1, "sdg": [8, 10]},
+    "transport_and_logistics":      {"wc_cycle_days": 15, "seasonality_variance_pct": 20, "local_retention_pct": 60, "setup_months": 2, "sdg": [8, 9, 11]},
+    "manufacturing":                {"wc_cycle_days": 35, "seasonality_variance_pct": 10, "local_retention_pct": 55, "setup_months": 3, "sdg": [8, 9, 12]},
+    "tourism_and_hospitality":      {"wc_cycle_days": 20, "seasonality_variance_pct": 60, "local_retention_pct": 50, "setup_months": 2, "sdg": [8, 12]},
+    "construction_and_real_estate": {"wc_cycle_days": 45, "seasonality_variance_pct": 30, "local_retention_pct": 45, "setup_months": 2, "sdg": [9, 11]},
+    "education_and_training":       {"wc_cycle_days": 5,  "seasonality_variance_pct": 35, "local_retention_pct": 85, "setup_months": 1, "sdg": [4, 8]},
+    "_default":                     {"wc_cycle_days": 20, "seasonality_variance_pct": 20, "local_retention_pct": 60, "setup_months": 2, "sdg": [8]}
+  },
+
+  "wc_cogs_extra_days_at_full_cogs_share": 10,
+  "seasonality_risk_bump": {"environmental_risk_at_or_above": 7, "pct_points": 10},
+
+  "supplier_rules": [
+    {"categories": ["agriculture"], "keywords": ["poultry", "broiler", "layer", "chick"], "supplier": "Day-old chick hatchery and poultry feed miller"},
+    {"keywords": ["purification", "refill", "bottling"], "supplier": "Water treatment chemicals and bottle/crate supplier"},
+    {"keywords": ["vegetable", "fruit", "produce"], "supplier": "Wholesale produce market (vegetables and fruit)"},
+    {"keywords": ["laundry", "detergent", "ironing"], "supplier": "Detergent and laundry consumables wholesaler"},
+    {"keywords": ["salaula", "bale", "secondhand"], "supplier": "Secondhand clothing bale dealer"},
+    {"keywords": ["phone", "electronic", "soldering", "screen", "battery"], "supplier": "Electronics spare-parts wholesaler"},
+    {"keywords": ["mobile money", "airtime", "float"], "supplier": "Mobile money float and airtime distributor"},
+    {"keywords": ["hair", "salon", "beauty", "barber", "grooming", "wellness", "hygiene"], "supplier": "Beauty and hygiene products wholesaler"},
+    {"keywords": ["maize", "mealie", "flour", "mill"], "supplier": "Maize mill and flour wholesaler"},
+    {"keywords": ["fritter", "snack", "takeaway", "grilled", "fried", "chips"], "supplier": "Cooking oil and cooking-fuel wholesaler"},
+    {"keywords": ["design", "digital", "photo", "video", "printing"], "supplier": "Computer and software retailer"},
+    {"keywords": ["mini-mart", "general store", "tuck shop", "household", "shop"], "supplier": "FMCG wholesaler (groceries and household goods)"}
+  ],
+  "supplier_by_category": {
+    "food_and_catering": "Wholesale market (cooking oil, flour, produce)",
+    "agriculture": "Agro-dealer (seed, fertiliser, feed)",
+    "retail_and_trade": "FMCG wholesaler (groceries and household goods)",
+    "arts_and_entertainment": "Equipment and consumables retailer",
+    "trades_and_repairs": "Hardware and spare-parts wholesaler",
+    "digital_and_creative": "Computer and software retailer",
+    "services_and_care": "Consumables wholesaler (toiletries and cleaning)",
+    "finance_and_administration": "Telecom airtime and e-money distributor",
+    "transport_and_logistics": "Fuel and spare-parts wholesaler",
+    "manufacturing": "Raw-material and packaging wholesaler",
+    "tourism_and_hospitality": "Food and beverage wholesaler",
+    "construction_and_real_estate": "Building materials merchant",
+    "education_and_training": "Stationery and printing supplier",
+    "_default": "General wholesale market"
+  },
+
+  "asset_depreciation_pct": {
+    "_comment": "Annual loss in value per asset, matched by keyword in order (first match wins). Stock items are excluded from the average.",
+    "rules": [
+      {"keywords": ["bicycle", "motorbike", "vehicle", "van", "wheelbarrow"], "rate": 20},
+      {"keywords": ["laptop", "smartphone", "mobile phone", "camera", "printer", "computer", "multimeter", "phone for"], "rate": 25},
+      {"keywords": ["machine", "purification", "bottling", "sealing", "capping", "dryer", "washing", "clipper", "generator", "inverter", "fryer", "grill", "braai", "stove", "brazier", "iron", "soldering", "kit", "tool", "scale", "pump", "tank"], "rate": 15},
+      {"keywords": ["fridge", "cooler", "freezer"], "rate": 15},
+      {"keywords": ["premises", "shop space", "shop premises", "stall space", "kiosk or stall", "rented", "structure", "chicken run", "chicken house", "shelter", "frontage", "spare room", "house"], "rate": 2},
+      {"keywords": ["shelf", "shelves", "shelving", "rack", "chair", "table", "mirror", "display", "counter", "cabinet", "stand", "hanger", "stool", "pot", "pan", "crate", "basket", "feeder", "drinker", "basin", "crates", "umbrella", "shade", "padlock", "lock", "grille", "signage", "drying line", "bowl"], "rate": 10}
+    ],
+    "stock_keywords": ["stock", "float", "chicks", "feed", "detergent", "products", "supplies", "bale", "spare part", "spare parts", "consumable", "refill bottles", "bottles"],
+    "default_rate": 10
+  },
+
+  "import_exposure": {
+    "keywords": ["fertili", "electronic", "phone", "screen", "laptop", "solar", "fuel", "petrol", "diesel", "imported", "spare part", "generator", "inverter", "bale", "printer", "camera", "multimeter", "printing ink", "ink"],
+    "low_categories": ["services_and_care", "education_and_training", "finance_and_administration"],
+    "local_retention_penalty_pct": {"High": 20, "Medium": 5, "Low": 0}
+  },
+
+  "staff_headcount": {"low": 1, "medium": 3, "high": 6},
+
+  "risk_index": {
+    "weights": {"risk_level": 0.4, "competition": 0.3, "break_even": 0.3},
+    "level_score": {"low": 20, "medium": 50, "high": 80},
+    "break_even_full_scale_months": 12,
+    "missing_level_score": 50
+  },
+
+  "youth_women_accessibility": {
+    "base": 10,
+    "training_required_penalty": 2,
+    "not_home_based_penalty": 1,
+    "physical_labour_penalty": 2,
+    "physical_labour_keywords": ["heavy", "lifting", "carrying", "loading", "fetch", "physical", "pickup", "wheelbarrow"],
+    "capital_threshold_zmw": 10000,
+    "capital_penalty": 2
+  },
+
+  "sdg_labels": {
+    "1": "SDG 1: No Poverty",
+    "2": "SDG 2: Zero Hunger",
+    "3": "SDG 3: Good Health and Well-being",
+    "4": "SDG 4: Quality Education",
+    "5": "SDG 5: Gender Equality",
+    "6": "SDG 6: Clean Water and Sanitation",
+    "7": "SDG 7: Affordable and Clean Energy",
+    "8": "SDG 8: Decent Work and Economic Growth",
+    "9": "SDG 9: Industry, Innovation and Infrastructure",
+    "10": "SDG 10: Reduced Inequalities",
+    "11": "SDG 11: Sustainable Cities and Communities",
+    "12": "SDG 12: Responsible Consumption and Production"
+  },
+  "sdg_keyword_additions": [
+    {"keywords": ["women", "girls", "female", "hair", "beauty", "salon", "braiding"], "sdg": [5]},
+    {"keywords": ["water", "hygiene", "sanitation"], "sdg": [6]},
+    {"keywords": ["solar", "charcoal", "energy", "power"], "sdg": [7]},
+    {"keywords": ["training", "school", "students", "tuition", "coaching"], "sdg": [4]},
+    {"keywords": ["health", "wellness", "care"], "sdg": [3]},
+    {"keywords": ["youth", "young"], "sdg": [8]}
+  ],
+  "sdg_low_capital": {"capital_at_or_below_zmw": 5000, "sdg": [1]},
+
+  "council_fees_zmw_annual": {
+    "_comment": "PLACEHOLDERS. Not from a council fee schedule. Replace once Lusaka and Kitwe schedules are checked.",
+    "business_licence": 1000,
+    "health_permit": 500,
+    "food_certificate_for_food_categories": 300
+  }
+}
