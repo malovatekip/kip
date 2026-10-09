@@ -6,12 +6,13 @@ admin-only, so the dataset cannot be harvested through the public app.
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.data.business_taxonomy import BUSINESS_SUBTYPES
 from app.data.town_coordinates import resolve_location
 from app.database import get_db
-from app.models.ground_truth import BusinessPoint
+from app.models.ground_truth import BusinessPoint, Market
 from app.models.user import User
 from app.rate_limit import limiter
 from app.security import get_current_admin, get_current_user
@@ -78,10 +79,41 @@ def export_pins(
                     "id": bp.id, "name": bp.name, "category": bp.category, "subtype": bp.subtype,
                     "label": BUSINESS_SUBTYPES[bp.subtype][0], "structure_type": bp.structure_type,
                     "op_status": bp.op_status, "review_status": bp.review_status,
-                    "market_id": bp.market_id, "is_trap": bool(bp.is_trap),
+                    "gps_accuracy_m": bp.gps_accuracy_m, "photo_media_id": bp.photo_media_id,
+                    "qa_flags": bp.qa_flags or [], "market_id": bp.market_id, "is_trap": bool(bp.is_trap),
                     "last_verified": bp.last_verified.isoformat() if bp.last_verified else None,
                 },
             }
             for bp in rows
         ],
     }
+
+
+@router.get("/admin/markets")
+def admin_markets(
+    location: str,
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Admin-only market records for one town, with how many pins each holds."""
+    location_key, coord = resolve_location(location)
+    if not location_key:
+        raise HTTPException(status_code=404, detail="Unknown location.")
+    lat_min, lat_max, lon_min, lon_max = bounding_box(coord["lat"], coord["lon"], max(coord["radius_m"], 5000))
+    markets = db.query(Market).filter(
+        Market.lat.between(lat_min, lat_max), Market.lon.between(lon_min, lon_max),
+    ).all()
+    counts = dict(
+        db.query(BusinessPoint.market_id, func.count(BusinessPoint.id))
+        .filter(BusinessPoint.market_id.isnot(None), BusinessPoint.is_trap == False)  # noqa: E712
+        .group_by(BusinessPoint.market_id).all()
+    )
+    return {"markets": [
+        {
+            "id": m.id, "name": m.name, "market_type": m.market_type, "lat": m.lat, "lon": m.lon,
+            "stall_count": m.stall_count, "occupied_stalls": m.occupied_stalls,
+            "daily_levy_zmw": m.daily_levy_zmw, "rent_min_zmw": m.rent_min_zmw, "rent_max_zmw": m.rent_max_zmw,
+            "review_status": m.review_status, "pins": counts.get(m.id, 0),
+        }
+        for m in markets
+    ]}

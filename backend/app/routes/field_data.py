@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from pydantic import BaseModel
 from fastapi.responses import Response
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ from app.database import get_db
 from app.models.ground_truth import BusinessPoint, FieldMedia, Market, Observation, QAReview
 from app.models.user import User
 from app.schemas import FieldReviewDecision, FieldSyncRequest
-from app.security import get_current_collector, get_current_supervisor
+from app.security import get_current_admin, get_current_collector, get_current_supervisor
 from app.services import field_media
 from app.services.geo_utils import bounding_box, haversine_m
 from app.services.ground_truth import ACTIVE_REVIEW_STATUSES, find_nearby_businesses, ingest_observation
@@ -213,3 +214,30 @@ def get_photo(media_id: str, _: User = Depends(get_current_supervisor), db: Sess
     except Exception:
         raise HTTPException(status_code=404, detail="Photo file is missing from storage.")
     return Response(content=data, media_type=media.content_type)
+
+
+# ── Staff roles (admin) ───────────────────────────────────────────────────
+
+class GrantRole(BaseModel):
+    email: str
+    role: str  # user | collector | supervisor
+
+
+@router.get("/admin/staff")
+def list_field_staff(_: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Everyone who currently holds a field role."""
+    rows = db.query(User).filter(User.role.in_(("collector", "supervisor"))).order_by(User.email).all()
+    return {"staff": [{"id": u.id, "email": u.email, "full_name": u.full_name, "role": u.role} for u in rows]}
+
+
+@router.post("/admin/role")
+def grant_field_role(payload: GrantRole, _: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Give a registered account the collector or supervisor role, or take it away."""
+    if payload.role not in ("user", "collector", "supervisor"):
+        raise HTTPException(status_code=400, detail="Role must be user, collector or supervisor.")
+    user = db.query(User).filter(func.lower(User.email) == payload.email.strip().lower()).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="No registered account has that email.")
+    user.role = payload.role
+    db.commit()
+    return {"id": user.id, "email": user.email, "role": user.role}

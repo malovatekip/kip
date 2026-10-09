@@ -2,7 +2,7 @@
 
 A field-collected, KIP-owned map of Zambia's informal businesses and markets.
 
-Last updated: 6 October 2026. Status: Phase 0 built, not yet piloted in a market.
+Last updated: 9 October 2026. Status: Phase 0 complete in code (collector app, admin Data map at /admin/map, in-app role grants, database photo storage); founder pilot in a Kitwe market still to do.
 
 ---
 

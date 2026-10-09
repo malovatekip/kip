@@ -5,6 +5,8 @@ Two backends, chosen by environment:
   - S3-compatible bucket (Cloudflare R2, Backblaze, MinIO...) when
     FIELD_MEDIA_S3_BUCKET is set. This is the production path: the hosting
     platform's local disk does not survive a redeploy.
+  - The database (table gt_media_blobs) when there is no bucket and the app
+    runs on Postgres: the free-host fallback, nothing extra to set up.
   - Local folder (FIELD_MEDIA_DIR, default backend/data/field_media) for
     development and single-machine pilots.
 
@@ -22,6 +24,13 @@ _LOCAL_DIR = os.getenv(
     os.path.join(os.path.dirname(__file__), "..", "..", "data", "field_media"),
 )
 _S3_BUCKET = os.getenv("FIELD_MEDIA_S3_BUCKET", "")
+# Without a bucket, a hosted (Postgres) deployment keeps photos in the database
+# because its disk does not survive a redeploy. Set FIELD_MEDIA_STORE=db or
+# =disk to override; local SQLite development defaults to disk.
+_STORE = os.getenv("FIELD_MEDIA_STORE", "").lower()
+_USE_DB = (not _S3_BUCKET) and (
+    _STORE == "db" or (_STORE != "disk" and os.getenv("DATABASE_URL", "").startswith("postgres"))
+)
 
 
 class MediaRejected(ValueError):
@@ -52,6 +61,16 @@ def store_photo(data: bytes, content_type: str) -> tuple[str, str]:
 
     if _S3_BUCKET:
         _s3_client().put_object(Bucket=_S3_BUCKET, Key=key, Body=data, ContentType=content_type)
+    elif _USE_DB:
+        from app.database import SessionLocal
+        from app.models.ground_truth import FieldMediaBlob
+        db = SessionLocal()
+        try:
+            if not db.query(FieldMediaBlob.storage_key).filter(FieldMediaBlob.storage_key == key).first():
+                db.add(FieldMediaBlob(storage_key=key, data=data))
+                db.commit()
+        finally:
+            db.close()
     else:
         path = os.path.join(_LOCAL_DIR, *key.split("/"))
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -64,5 +83,16 @@ def store_photo(data: bytes, content_type: str) -> tuple[str, str]:
 def load_photo(storage_key: str) -> bytes:
     if _S3_BUCKET:
         return _s3_client().get_object(Bucket=_S3_BUCKET, Key=storage_key)["Body"].read()
+    if _USE_DB:
+        from app.database import SessionLocal
+        from app.models.ground_truth import FieldMediaBlob
+        db = SessionLocal()
+        try:
+            row = db.query(FieldMediaBlob).filter(FieldMediaBlob.storage_key == storage_key).first()
+            if not row:
+                raise FileNotFoundError(storage_key)
+            return bytes(row.data)
+        finally:
+            db.close()
     with open(os.path.join(_LOCAL_DIR, *storage_key.split("/")), "rb") as f:
         return f.read()

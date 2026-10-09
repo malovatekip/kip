@@ -23,7 +23,7 @@ runs on SQLite and Postgres (see services/geo_utils.py).
 from datetime import datetime
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
+    Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, JSON, LargeBinary, String, Text,
 )
 
 from app.database import Base
@@ -208,6 +208,16 @@ class FieldMedia(Base):
     size_bytes     = Column(Integer, nullable=False)
     uploaded_by    = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at     = Column(DateTime, default=datetime.utcnow)
+
+
+class FieldMediaBlob(Base):
+    """Photo bytes kept in the database when no S3 bucket is configured, so a
+    free host's disk being wiped on redeploy cannot lose evidence photos.
+    Photos are already compressed on the phone (about 100-250 KB)."""
+    __tablename__ = "gt_media_blobs"
+
+    storage_key = Column(String(300), primary_key=True)
+    data        = Column(LargeBinary, nullable=False)
 
 
 class QAReview(Base):

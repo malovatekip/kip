@@ -51,5 +51,7 @@ reportlab>=4.0.0
 # Utilities
 python-multipart>=0.0.9
 aiofiles>=23.0.0
+# Field photo storage when FIELD_MEDIA_S3_BUCKET is set (S3 / Cloudflare R2)
+boto3>=1.34.0
 # Testing (dev)
 pytest>=8.0.0

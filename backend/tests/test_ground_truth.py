@@ -245,8 +245,11 @@ def api(tmp_path, monkeypatch):
 
     session = Session()
     tokens = {}
-    for role in ("user", "collector", "supervisor"):
-        u = user_model.User(email=f"{role}@example.com", full_name=role.title(), hashed_password="x", role=role)
+    for role in ("user", "collector", "supervisor", "admin"):
+        u = user_model.User(
+            email=f"{role}@example.com", full_name=role.title(), hashed_password="x",
+            role="user" if role == "admin" else role, is_admin=(role == "admin"),
+        )
         session.add(u)
         session.commit()
         tokens[role] = {"Authorization": f"Bearer {create_access_token(u.id)}"}
@@ -324,3 +327,45 @@ def test_api_rejects_malformed_ids(api):
     item["id"] = "../../etc/passwd"
     assert client.post("/api/field/sync", json={"observations": [item]},
                        headers=tokens["collector"]).status_code == 422
+
+
+def test_admin_map_endpoints_and_role_grant(api):
+    client, tokens = api
+    item = _wire(_obs(subtype="barbershop", name="Kuta Cuts"))
+    client.post("/api/field/sync", json={"observations": [item]}, headers=tokens["collector"])
+
+    pins_url, markets_url = "/api/map/admin/pins.geojson", "/api/map/admin/markets"
+    for url in (pins_url, markets_url):
+        assert client.get(url, params={"location": "kitwe"}, headers=tokens["supervisor"]).status_code == 403
+    pins = client.get(pins_url, params={"location": "kitwe"}, headers=tokens["admin"]).json()["features"]
+    assert len(pins) == 1 and pins[0]["properties"]["review_status"] == "pending"
+    assert "photo_media_id" in pins[0]["properties"] and "phone" not in pins[0]["properties"]
+    assert client.get(markets_url, params={"location": "kitwe"}, headers=tokens["admin"]).json() == {"markets": []}
+
+    # Roles are granted by admins only.
+    grant = {"email": "USER@example.com", "role": "collector"}
+    assert client.post("/api/field/admin/role", json=grant, headers=tokens["supervisor"]).status_code == 403
+    assert client.post("/api/field/admin/role", json=grant, headers=tokens["admin"]).json()["role"] == "collector"
+    assert client.post("/api/field/admin/role", json={**grant, "role": "root"}, headers=tokens["admin"]).status_code == 400
+    assert client.post("/api/field/admin/role", json={**grant, "email": "nobody@example.com"},
+                       headers=tokens["admin"]).status_code == 404
+    staff = client.get("/api/field/admin/staff", headers=tokens["admin"]).json()["staff"]
+    assert "user@example.com" in [s["email"] for s in staff]
+    # The promoted account can now collect.
+    assert client.get("/api/field/taxonomy", headers=tokens["user"]).status_code == 200
+
+
+def test_photos_fall_back_to_the_database_without_a_bucket(db, monkeypatch):
+    from app.models.ground_truth import FieldMediaBlob
+    from app.services import field_media
+
+    session, _ = db
+    monkeypatch.setattr(field_media, "_USE_DB", True)
+    monkeypatch.setattr("app.database.SessionLocal", lambda: session)
+    data = bytes([255, 216, 255]) + b"7" * 500
+    key, digest = field_media.store_photo(data, "image/jpeg")
+    assert field_media.store_photo(data, "image/jpeg") == (key, digest)   # re-upload is a no-op
+    assert session.query(FieldMediaBlob).count() == 1
+    assert field_media.load_photo(key) == data
+    with pytest.raises(FileNotFoundError):
+        field_media.load_photo("photos/zz/missing.jpg")

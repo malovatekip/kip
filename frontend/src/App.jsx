@@ -30,6 +30,7 @@ import { CookiePage, AboutPage, ContactPage } from './pages/legal/OtherPages'
 import CapitalAccessPage from './pages/CapitalAccessPage'
 import SimulatePage from './pages/SimulatePage'
 import AdminUsagePage from './pages/AdminUsagePage'
+const AdminMapPage = React.lazy(() => import('./pages/AdminMapPage'))
 
 // ── NEW: Startup guidance page (CTO addition — business registration roadmap) ──
 import StartupPage     from './pages/StartupPage'
@@ -105,6 +106,7 @@ function AppRoutes() {
         <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
         {/* Admin only: the page itself redirects non-admins to /dashboard. */}
         <Route path="/admin/usage" element={<Protected><AdminUsagePage /></Protected>} />
+        <Route path="/admin/map" element={<Protected><AdminMapPage /></Protected>} />
 
         {/* ── NEW: Startup guidance — protected, business registration roadmap ── */}
         <Route path="/startup"            element={<Protected><StartupPage /></Protected>} />

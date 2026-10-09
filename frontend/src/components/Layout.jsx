@@ -8,7 +8,7 @@ import {
   LayoutDashboard, MessageSquare, Lightbulb, LogOut,
   Newspaper, ChevronRight, PanelLeftClose, PanelLeftOpen,
   FileText, X, Menu, Sun, Moon, Building2, Crown, DollarSign,
-  Gamepad2, Rocket, Settings, MapPinned, BarChart3
+  Gamepad2, Rocket, Settings, MapPinned, BarChart3, Map as MapIcon
 } from 'lucide-react'
 import api from '../lib/api'
 import KIP_LOGO from '../kipLogo'
@@ -34,6 +34,8 @@ export default function Layout({ children }) {
     ...(isCollector(user) ? [{ to: '/field', icon: MapPinned, label: t('nav.field') }] : []),
     // Admin only: Anthropic API spend (see AdminUsagePage).
     ...(user?.is_admin ? [{ to: '/admin/usage', icon: BarChart3, label: 'API usage' }] : []),
+    // Admin only: the collected business map, review stats and field staff.
+    ...(user?.is_admin ? [{ to: '/admin/map', icon: MapIcon, label: 'Data map' }] : []),
     { to: '/enterprise', icon: Crown,           label: t('nav.enterprise'), premium: true },
     { to: '/settings',   icon: Settings,        label: t('nav.settings')   },
   ]

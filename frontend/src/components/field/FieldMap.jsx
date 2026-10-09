@@ -18,7 +18,7 @@ const ASSETS_URL = import.meta.env.VITE_BASEMAP_ASSETS_URL || 'https://protomaps
 
 let protocolRegistered = false
 
-function buildStyle() {
+export function buildStyle() {
   if (!PMTILES_URL) {
     return {
       version: 8,
