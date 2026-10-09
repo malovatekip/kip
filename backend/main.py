@@ -240,4 +240,6 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    # "database" lets us confirm from outside that production is on Postgres:
+    # on SQLite the host's disk (and every field pin) is wiped on redeploy.
+    return {"status": "healthy", "database": engine.dialect.name}

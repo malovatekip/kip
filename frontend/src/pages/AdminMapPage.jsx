@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth'
 // details are never returned by those endpoints.
 
 const TOWNS = {
+  Luwingu:     [29.9270, -10.2550],
   Kitwe:       [28.2167, -12.8167],
   Lusaka:      [28.2833, -15.4167],
   Ndola:       [28.6366, -12.9587],
@@ -169,7 +170,7 @@ function StaffPanel() {
 
 export default function AdminMapPage() {
   const { user, loading: authLoading } = useAuth()
-  const [town, setTown]         = useState('Kitwe')
+  const [town, setTown]         = useState('Luwingu')
   const [features, setFeatures] = useState([])
   const [markets, setMarkets]   = useState([])
   const [selected, setSelected] = useState(null)

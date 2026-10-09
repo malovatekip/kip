@@ -103,6 +103,7 @@ TOWN_COORDS = {
     "kasama":               {"lat": -10.2167, "lon": 31.1833, "radius_m": 2000, "province": "Northern"},
     "kasama cbd":           {"lat": -10.2167, "lon": 31.1800, "radius_m": 800,  "province": "Northern"},
 
+    "luwingu":              {"lat": -10.2550, "lon": 29.9270, "radius_m": 1500, "province": "Northern"},
     "mbala":                {"lat":  -8.8419, "lon": 31.3714, "radius_m": 1200, "province": "Northern"},
     "mpika":                {"lat": -11.8394, "lon": 31.4500, "radius_m": 1200, "province": "Northern"},
 

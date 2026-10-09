@@ -369,3 +369,14 @@ def test_photos_fall_back_to_the_database_without_a_bucket(db, monkeypatch):
     assert field_media.load_photo(key) == data
     with pytest.raises(FileNotFoundError):
         field_media.load_photo("photos/zz/missing.jpg")
+
+
+def test_luwingu_pins_are_stored_and_listed(api):
+    client, tokens = api
+    town = TOWN_COORDS["luwingu"]
+    item = _wire(_obs(subtype="barbershop", lat=town["lat"], lon=town["lon"]))
+    res = client.post("/api/field/sync", json={"observations": [item]}, headers=tokens["collector"]).json()
+    assert res["results"][0]["status"] == "created"
+    pins = client.get("/api/map/admin/pins.geojson", params={"location": "Luwingu"},
+                      headers=tokens["admin"]).json()["features"]
+    assert [p["properties"]["id"] for p in pins] == [item["target_id"]]

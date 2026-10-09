@@ -58,11 +58,14 @@ export function useOutbox() {
     }
   }, [])
 
-  // Upload whenever the phone comes back online.
+  // Upload whenever the phone comes back online, when a field screen opens,
+  // and every minute while one is open, so nothing waits on a manual tap.
   useEffect(() => {
-    const onOnline = () => sync({ quiet: true })
-    window.addEventListener('online', onOnline)
-    return () => window.removeEventListener('online', onOnline)
+    const quietSync = () => { if (navigator.onLine) sync({ quiet: true }) }
+    quietSync()
+    window.addEventListener('online', quietSync)
+    const timer = setInterval(quietSync, 60000)
+    return () => { window.removeEventListener('online', quietSync); clearInterval(timer) }
   }, [sync])
 
   return {

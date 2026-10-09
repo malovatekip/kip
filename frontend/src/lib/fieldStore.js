@@ -19,6 +19,10 @@ const dbPromise = openDB('kip-field', 1, {
   },
 })
 
+// Ask the browser not to evict this origin's storage when the phone runs low
+// on space: unsynced pins live only here until they reach the server.
+navigator.storage?.persist?.().catch(() => {})
+
 export const newId = () => crypto.randomUUID()
 
 const listeners = new Set()
@@ -67,6 +71,26 @@ export function syncNow() {
   return syncing
 }
 
+const toWire = ({ status, reason, ...wire }) => wire
+
+// Send a batch; if the server cannot read it (one malformed record fails the
+// whole request), fall back to one record at a time so a single bad record
+// cannot block every other pin from uploading.
+async function sendBatch(batch) {
+  const unreadable = err => [400, 422].includes(err.response?.status)
+  try {
+    return (await api.post('/field/sync', { observations: batch.map(toWire) })).data.results
+  } catch (err) {
+    if (!unreadable(err) || batch.length === 1) {
+      if (unreadable(err)) return [{ id: batch[0].id, status: 'rejected', reason: 'The server could not read this record.' }]
+      throw err
+    }
+  }
+  const results = []
+  for (const item of batch) results.push(...await sendBatch([item]))
+  return results
+}
+
 async function runSync() {
   const db = await dbPromise
   const pending = (await db.getAll('outbox')).filter(o => o.status === 'pending')
@@ -74,10 +98,7 @@ async function runSync() {
 
   for (let i = 0; i < pending.length; i += BATCH_SIZE) {
     const batch = pending.slice(i, i + BATCH_SIZE)
-    const { data } = await api.post('/field/sync', {
-      observations: batch.map(({ status, reason, ...wire }) => wire),
-    })
-    for (const result of data.results) {
+    for (const result of await sendBatch(batch)) {
       if (result.status === 'rejected') {
         const item = batch.find(o => o.id === result.id)
         await db.put('outbox', { ...item, status: 'rejected', reason: result.reason })
